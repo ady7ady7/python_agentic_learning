@@ -13,12 +13,15 @@ from __init__ import __version__
 import check_dependencies
 import pandas as pd
 from datetime import datetime, time
+from typing import Literal
 
 from engine.backtest_engine import BacktestEngine
 from data.data_loader import DataLoader
 from data.tick_data_loader import TickDataLoader
 from strategies.vwap_strategy import VwapStrategy
 from strategies.lpp_strategy import LPPStrategy
+
+BACKTEST_MODE = Literal['SL_TP', 'CONDITION_CLOSE']
 
 def setup_logging():
     logger = logging.getLogger() #root logger, not __main__
@@ -51,7 +54,20 @@ def run_backtest(
     df: pd.DataFrame,
     strategies: list,
     tick_loader: TickDataLoader,
+    mode: BACKTEST_MODE = 'SL_TP',
 ) -> BacktestEngine:
+    """
+    Run a backtest over all strategies against the provided OHLC and tick data.
+
+    Args:
+        df: OHLC DataFrame, one row per minute candle.
+        strategies: List of strategy instances to run simultaneously.
+        tick_loader: Pre-loaded TickDataLoader instance.
+        mode: 'SL_TP' — positions exit via SL/TP hits (ticks), with force_close as
+              deadline safety net at session end.
+              'CONDITION_CLOSE' — SL/TP are ignored entirely; positions always exit
+              via force_close at session end. R metrics will be None for all trades.
+    """
     backtest_engine = BacktestEngine()
     current_positions = {strategy: None for strategy in strategies}
     traded_today = {strategy: None for strategy in strategies}
@@ -109,45 +125,45 @@ def run_backtest(
                         ]
 
                         entry_tick = None
-                        for tick_row in candle_ticks.itertuples(index=False):
+                        entry_idx = None
+                        for tick_row in candle_ticks.itertuples():
                             if _entry_tick_matches(tick_row.price, tick_row.side, signal, entry_level):
                                 entry_tick = tick_row
+                                entry_idx = tick_row.Index
                                 break
 
                         if entry_tick is None:
                             continue
 
-                        entry_price = entry_tick.price
-                        entry_time_str = entry_tick.datetime.isoformat()
+                        sl = strategy.get_sl(row, current_date) if mode == 'SL_TP' else None
+                        tp = strategy.get_tp(row, current_date) if mode == 'SL_TP' else None
 
                         backtest_engine.open_position(
                             'FDAX',
                             signal,
-                            entry=entry_price,
+                            entry=entry_tick.price,
                             quantity=1,
-                            stop_loss=strategy.get_sl(row, current_date),
-                            take_profit=strategy.get_tp(row, current_date),
+                            stop_loss=sl,
+                            take_profit=tp,
                             strategy_id=strategy.strategy_id,
                             strategy_name=strategy.get_name(),
-                            open_time=entry_time_str,
+                            open_time=entry_tick.datetime.isoformat(),
                         )
                         current_positions[strategy] = True
                         traded_today[strategy] = current_date
 
-        if session_ticks is not None:
-            for tick_row in session_ticks.itertuples(index=False):
-                newly_closed = backtest_engine.process_tick(
-                    'FDAX',
-                    tick_row.price,
-                    tick_row.side,
-                    tick_time=tick_row.datetime.isoformat(),
-                )
-                for trade in newly_closed:
-                    strategy_obj = next(
-                        (s for s in strategies if s.strategy_id == trade.strategy_id), None
-                    )
-                    if strategy_obj is not None:
-                        current_positions[strategy_obj] = None
+                        if mode == 'SL_TP':
+                            remaining_ticks = session_ticks.loc[entry_idx + 1:]
+                            for tick_row in remaining_ticks.itertuples(index=False):
+                                newly_closed = backtest_engine.process_tick(
+                                    'FDAX',
+                                    tick_row.price,
+                                    tick_row.side,
+                                    tick_time=tick_row.datetime.isoformat(),
+                                )
+                                if newly_closed:
+                                    current_positions[strategy] = None
+                                    break
 
         for strategy in strategies:
             if current_positions[strategy] is not None:
@@ -186,10 +202,9 @@ if __name__ == '__main__':
                 LPPStrategy('FDAX', 'SELL', 'LS2_LS1_025', 'LS2_LS1_050', 'LS3'), #10 BEZ FILTRA modyfikowany S3
                 # LPPStrategy('FDAX', 'SELL', 'LS2_LS1_025', 'LS2_LS1_075', 'LS3_LS2_075') #11
                   ]
-    test_engine = run_backtest(data, strategies, tick_loader)
+    test_engine = run_backtest(data, strategies, tick_loader, mode='SL_TP')
     print(test_engine)
     test_engine.strategy_report()
-
 
     for trade in test_engine.completed_trades[:]:
         print(trade)

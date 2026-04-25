@@ -260,21 +260,22 @@ class BacktestEngine:
         for strategy in trades_filtered_by_strategy:
             total_pnl = round(sum([trade.pnl for trade in trades_filtered_by_strategy[strategy]]), 2)
             win_rate = Trade.calculate_win_rate(trades_filtered_by_strategy[strategy])
-            avg_r = sum(trade.r_multiple for trade in trades_filtered_by_strategy[strategy]) / len(trades_filtered_by_strategy[strategy])
+            r_values = [trade.r_multiple for trade in trades_filtered_by_strategy[strategy] if trade.r_multiple is not None]
+            avg_r_str = f'{sum(r_values) / len(r_values):.2f}R' if r_values else 'N/A'
             print(f'''{3* '-'} {strategy[1]} (ID: {strategy[0]}) {3* '-'}
-                  
+
                   Trades: {len(trades_filtered_by_strategy[strategy])}
                   Win Rate: {win_rate}%
                   Total PnL: ${total_pnl:.2f}
-                  Avg R: {avg_r:.2f}R
-                  
+                  Avg R: {avg_r_str}
+
                   ''')
         print(f'''{3* '-'} PORTFOLIO TOTAL  {3* '-'}
                   
                   Trades: {len(self.completed_trades)}
                   Win Rate: {self.win_rate}%
                   Total PnL: ${self.total_pnl}
-                  Avg R: {round(sum(trade.r_multiple for trade in self.completed_trades) / len(self.completed_trades), 2)}R
+                  Avg R: {(lambda r: f'{sum(r)/len(r):.2f}R' if r else 'N/A')([t.r_multiple for t in self.completed_trades if t.r_multiple is not None])}
                   
                   ''')
         
