@@ -54,7 +54,7 @@ def run_backtest(
     df: pd.DataFrame,
     strategies: list,
     tick_loader: TickDataLoader,
-    mode: BACKTEST_MODE = 'SL_TP',
+    mode: BACKTEST_MODE = 'CONDITION_CLOSE',
 ) -> BacktestEngine:
     """
     Run a backtest over all strategies against the provided OHLC and tick data.
@@ -141,7 +141,7 @@ def run_backtest(
                         backtest_engine.open_position(
                             'FDAX',
                             signal,
-                            entry=entry_tick.price,
+                            entry=strategy.get_entry(row, current_date),
                             quantity=1,
                             stop_loss=sl,
                             take_profit=tp,
