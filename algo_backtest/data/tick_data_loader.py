@@ -14,12 +14,12 @@ class TickDataLoader:
     The raw file schema:
         ts_recv, ts_recv_berlin, ts_event, price, size, side, symbol, instrument_id
 
-    We keep only: date (from ts_recv_berlin), time (from ts_recv_berlin), price, side.
+    We keep only: datetime (from ts_recv_berlin), price, side.
     Side values: 'B' = aggressive buyer (lifted ask), 'A' = aggressive seller (hit bid), 'N' = ignore.
 
     Attributes:
         file_path: Path to the raw CSV file.
-        ticks_by_date: dict mapping date -> DataFrame(time, price, side), sorted by time.
+        ticks_by_date: dict mapping date -> DataFrame(datetime, price, side), sorted by datetime.
     """
 
     def __init__(self, file_path: str) -> None:
@@ -46,17 +46,16 @@ class TickDataLoader:
                 dtype={'price': float, 'side': str},
             )
 
-            df['ts_recv_berlin'] = pd.to_datetime(df['ts_recv_berlin'], utc=False)
+            df['datetime'] = pd.to_datetime(df['ts_recv_berlin'], utc=True).dt.tz_convert('Europe/Berlin')
+            df = df.drop(columns=['ts_recv_berlin'])
 
             df = df[df['side'].isin(['B', 'A'])].copy()
 
-            df['date'] = df['ts_recv_berlin'].dt.date
-            df['time'] = df['ts_recv_berlin'].dt.time
-
-            df = df[['date', 'time', 'price', 'side']].sort_values(['date', 'time'])
+            df['date'] = df['datetime'].dt.date
+            df = df[['date', 'datetime', 'price', 'side']].sort_values('datetime')
 
             for date, group in df.groupby('date'):
-                self.ticks_by_date[date] = group[['time', 'price', 'side']].reset_index(drop=True)
+                self.ticks_by_date[date] = group[['datetime', 'price', 'side']].reset_index(drop=True)
 
             logger.info(f'Tick data indexed: {len(self.ticks_by_date)} trading days loaded.')
             return True
@@ -76,7 +75,7 @@ class TickDataLoader:
             date: datetime.date object.
 
         Returns:
-            DataFrame with columns [time, price, side] sorted ascending by time, or None.
+            DataFrame with columns [datetime, price, side] sorted ascending, or None.
         """
         return self.ticks_by_date.get(date)
 
@@ -90,11 +89,12 @@ class TickDataLoader:
             end: datetime.time — session end (inclusive).
 
         Returns:
-            Filtered DataFrame or None if no ticks for that date.
+            Filtered DataFrame with columns [datetime, price, side], or None if empty.
         """
         day_ticks = self.get_ticks_for_day(date)
         if day_ticks is None:
             return None
-        mask = (day_ticks['time'] >= start) & (day_ticks['time'] <= end)
+        tick_time = day_ticks['datetime'].dt.time
+        mask = (tick_time >= start) & (tick_time <= end)
         result = day_ticks[mask].reset_index(drop=True)
         return result if not result.empty else None
