@@ -1,0 +1,11 @@
+# Session Archive
+
+<!-- One entry per session, newest on top. Appended automatically at end of each session. -->
+<!-- Format: date | score | difficulty | 5–10 lines max per entry -->
+
+---
+## 2026-05-04 | Week 1 Day 1 | Score: N/A | Difficulty: 3/10
+**Covered:** Repo structure setup (tasks/feedback/session_archive in root, CLAUDE.md updated). venv created in repo root with pandas/jupyterlab/seaborn/plotly. JupyterLab kernel configured in VS Code. Started 01_exploration.ipynb: loaded all_products_meta.csv, converted Keepa minute timestamps to datetime, computed tracking_gap_days (range -55 to +101 days, notable anomalies for newest models). Loaded iPhone 13 price_history, inspected event-based structure and non-null counts per price column — NEW dominates across all three brands.
+**Problems / gaps:** Too much copy-paste from Claude — not enough active coding by Adrian. Scaffolding approach not applied yet.
+**Reinforce next:** Scaffolded learning from Day 2: explain pattern → Adrian writes code → correct. Use English throughout.
+
