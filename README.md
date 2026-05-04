@@ -1,54 +1,17 @@
 # python_pcap_agentic_learning
 
-- THIS FILE WILL NOT BE MODIFIED BY THE AGENT - IT IS SOLELY MINE -
+This repository documents my Python learning journey — working through certifications and building real projects in collaboration with an AI agent, with all tasks completed independently by me.
 
-After successfully using Claude as my programming teacher for the PCEP exam (passed on Dec 30, 2025), I decided to continue using this strategy and the current goals are:
+---
 
-- to pass the PCAP exam
-- to prepare a portfolio project in Python (trades backtesting engine)
+## PCEP — Oct 2025 – Dec 2025
 
-I'm planning to achieve both goals by February 28, 2026.
+From October to the end of December 2025 I prepared for the PCEP exam here, working through the full syllabus daily with structured tasks and feedback provided by the agent. The approach was strictly agentic-learning: AI as tutor, me doing all the actual work. The exam was passed before the end of the year, and the certificate is on my LinkedIn. All materials from this phase are archived in `pcap_archive/` (visible on GitHub).
 
-This repository will showcase my learning process, and you can find all the tasks, feedback, exams and separate project parts that I will be working on DAILY.
-PLEASE NOTE: WHILE I USE AGENT AS MY TUTOR, I AM NOT USING AI to complete any of the tasks, and the plan is to truly learn and understand all of the concepts on my own, and all of that requires my own work.
+## PCAP — Jan 2026 – Apr 2026
 
-As for the commits in this repository, most likely they will be structured and done by the agent, and I will only be pushing them.
-As for the agentic flow, while I truly appreciate the current tech advances, I still review all of the proposed changes and accept them manually, so all of the commits etc. will be approved by me and pushed manually.
+After PCEP I moved straight into PCAP preparation in the same repo, stepping up the difficulty significantly — more advanced OOP, generators, the standard library, and a full mock exam schedule running through 14 weeks. In parallel I was building AlgoBacktest Core, a professional-grade Python backtesting engine for algorithmic trading strategies, as a portfolio project. The PCAP exam was passed in early April 2026 (91%), certificate also on LinkedIn. The learning materials from this phase have been consolidated into `pcap_archive/` to keep the working context clean for what comes next.
 
-As for the agent's instructions, I am not planning to publish them as of now, but this might change in the future.
+## What's next
 
--------------------------------------------
-
-Planned start: 5.01.2026
-
-
-
-@20.03 - Roadmap to continue the project:
-
-I've ran the strategy on 216k rows, with a very simple open/close conditions, so no wonder it worked this way hehe.
-Test worked properly, I think.
-
-The next steps would be:
-
-1. to implement more sophisticated strategy conditions, maybe add a datetime as one of the conditions of generating a signal.
-2. It would also be great to figure out a way to then simulate testing more than one strategy.
-3. After we're done with running two strategies (a mini stress-test of the real purpose of this and combining the logic of more than one strategy in the code to still look neat), I have an idea of how we can simulate portfolio performance. We could maybe create a new class for that, or maybe not - that depends.
-
-We could take the datetime and R/profit performance of a given trade, and save it in a df, or wherever.
-Then we would do that for every tested strategy, and after every strategy has been tested, we would then take these performance/profit rows with datetimes and sort them by their datetime. We could then simulate portfolio's performance, extract more things like Sharpe/Profit Factor, maybe run Montecarlo simulations etc.
-
-And it all would work without any async and complex logic - just in a kind of a simple way.
-
-
-
-Claude's review of my ideas:
-
-Now, your roadmap. Honest take:
-
-Point 1 (datetime conditions) — Good. Filtering signals to RTH session hours only (e.g., 09:00–17:30 CET for FDAX) is exactly how real strategies work. This is the right next step.
-
-Point 2 (multiple strategies simultaneously) — Already architected correctly with current_positions = {strategy: None}. You're one step away — just add a second strategy to the dict and extend the loop. No structural changes needed.
-
-Point 3 (portfolio performance simulation) — The idea is sound and the approach you described is correct. Collect trades with timestamps, sort by datetime, reconstruct cumulative equity curve. This is how backtesting platforms (Backtrader, vectorbt) do it under the hood. The key thing you'd need on each Trade object is an exit_datetime — do you currently store that?
-
-One thing I'd push back on: Sharpe ratio and Monte Carlo before you have a working multi-strategy run is premature. Get two strategies running cleanly, get the equity curve right, then add metrics. Don't over-engineer before the foundation is solid.
+*(To be defined — next goals and projects will be documented here as they take shape.)*
