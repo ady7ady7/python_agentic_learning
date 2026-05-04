@@ -1,6 +1,6 @@
 # python_agentic_learning
 
-This repository documents my Python learning journey - working through certifications and building real projects in collaboration with an AI agent, with all tasks completed independently by me.
+This repository documents my Python learning journey - working through certifications and building knowledge foundations and real projects, with all tasks completed independently by me.
 
 ---
 
@@ -14,4 +14,4 @@ After PCEP I moved straight into PCAP preparation in the new public repository, 
 
 ## Data Analysis & Data Science — May 2026 → (Phase 3, public)
 
-With both certifications done, the focus shifts to practical data analysis and the DS toolchain. Core stack: Pandas, Seaborn, Plotly, and eventually scipy + scikit-learn. The primary angle is trading data — the goal is deep analytical skill applicable to financial datasets, with a secondary aim of building a Data Analyst portfolio. Active project: analysis of iPhone/Samsung/Google Pixel price decay on Amazon using Keepa API data. Longer term: ML fundamentals applied to trading, with a path toward Junior Data Scientist.
+With both certifications done, the focus shifts to practical data analysis and the DS toolchain. Core stack: Pandas, Seaborn, Plotly, and eventually scipy + scikit-learn. The primary angle is trading data - the goal is deep analytical skill applicable to financial datasets, with a secondary aim of building a Data Analyst portfolio. Active project: analysis of iPhone/Samsung/Google Pixel price decay on Amazon using Keepa API data. Longer term: ML fundamentals applied to trading, with a path toward Junior Data Scientist.
