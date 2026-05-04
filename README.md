@@ -10,7 +10,7 @@ From October to the end of December 2025 I prepared for the PCEP exam - not this
 
 ## PCAP — Jan 2026 – Apr 2026 (Phase 2, public)
 
-After PCEP I moved straight into PCAP preparation in the new public repository, using the knowledge I've gained so far to level up my study game with the agent, and stepping up the difficulty significantly - more advanced OOP, generators, standard libraries, and a full mock exam schedule running through 14 weeks. In parallel I was building AlgoBacktest Core, a professional-grade Python backtesting engine for algorithmic trading strategies, as a portfolio project. The PCAP exam was passed in early April 2026 (91%), certificate also on LinkedIn. The learning materials from this phase have been consolidated into `pcap_archive/` to keep the working context clean for what comes next.
+After PCEP I moved straight into PCAP preparation in the new public repository, using the knowledge I've gained so far to level up my study game with the agent, and stepping up the difficulty significantly - more advanced OOP, generators, standard libraries, and a full mock exam schedule running through 14 weeks. In parallel I was building a backtester engine, a professional-grade Python backtesting engine for algorithmic trading strategies, as a portfolio project - found here https://github.com/ady7ady7/q_trading_backtester. The PCAP exam was passed in early April 2026 (91%), certificate also on LinkedIn. The learning materials from this phase have been consolidated into `pcap_archive/` to keep the working context clean for what comes next.
 
 ## Data Analysis & Data Science — May 2026 → (Phase 3, public)
 
