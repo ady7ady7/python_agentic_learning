@@ -1,2 +1,3 @@
 CLAUDE.md
 algo_backtest/data/FDAX_M1_OHLC.csv
+algo_backtest/data/FDAX_trades_raw.csv

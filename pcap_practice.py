@@ -16440,3 +16440,766 @@ Przypisz nazwę kolumny do zmiennej most_unique_col
 # unique_col_numbers = list(df.nunique()[1:].items()) #lista oprócz urla, akurat był w pozycji 0
 # most_unique_col = sorted(unique_col_numbers, key = lambda x: x[1], reverse = True)[0][0]
 # print(most_unique_col)
+
+#CD Python - 24.04 - task 1
+
+'''
+Wyciągnij miasto i wiek użytkowników z kolumny info i przypisz je do nowych kolumn city oraz age.
+
+Usuń kolumnę info
+'''
+
+
+# import pandas as pd
+
+# data = {
+#     "id": [1, 2, 3],
+#     "info": [
+#         {"city": "Warszawa", "age": 25},
+#         {"city": "Kraków", "age": 30},
+#         {"city": "Gdańsk", "age": 28}
+#     ]
+# }
+# df = pd.DataFrame(data)
+# df.head()
+# df['age'] = df['info'].apply(lambda x: x['age'])
+# df['city'] = df['info'].apply(lambda x: x['city'])
+# df.drop(columns =['info'], inplace = True)
+# df.head()
+
+
+#CD Python - 24.04 - task 2
+
+'''
+Zmień wartości w kolumnie city:
+
+jeżeli miasto wchodzi w skład miast z listy wojewodzkie, zostaw wartość miasta
+jeżeli nie wchodzi, zamień wartość na None
+'''
+
+# import pandas as pd
+# import random 
+# random.seed(42)
+
+# wojewodzkie = [
+#     "Warszawa", "Kraków", "Łódź", "Wrocław", "Poznań",
+#     "Gdańsk", "Szczecin", "Bydgoszcz", "Toruń", "Lublin",
+#     "Białystok", "Katowice", "Kielce", "Olsztyn",
+#     "Gorzów Wielkopolski", "Zielona Góra", "Opole", "Rzeszów"
+# ]
+# cities = [
+#     "Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Szczecin","Bydgoszcz",
+#     "Lublin","Białystok","Katowice","Gorzów Wielkopolski","Zielona Góra","Opole",
+#     "Rzeszów","Kielce","Olsztyn","Toruń",
+#     "Radom","Płock","Siedlce","Nowy Sącz","Tarnów","Koszalin","Legnica","Elbląg",
+#     "Piotrków Trybunalski","Kalisz","Konin","Chełm","Zamość","Suwałki","Ełk",
+#     "Ostrołęka","Przemyśl","Stalowa Wola","Mielec","Puławy","Świdnica","Gniezno",
+#     "Leszno","Inowrocław","Świnoujście","Kołobrzeg","Sopot","Zakopane","Sieradz",
+#     "Kutno","Otwock","Mińsk Mazowiecki"
+# ]
+
+# data = {
+#     "id": range(1, 101),
+#     "city": [random.choice(cities) for _ in range(100)],
+# }
+
+# df = pd.DataFrame(data)
+# df.head()
+
+# df['city'] = df['city'].apply(lambda x: x if x in wojewodzkie else None) #Opcja 1
+# print(df.head())
+
+# from typing import List
+
+# def check_city(city: str, wojewodzkie: List[str] = wojewodzkie) -> str: #Opcja2
+#     if city in wojewodzkie:
+#         return city
+#     else:
+#         return None
+    
+# df['city'] = df['city'].apply(check_city)
+# df.head()
+# print(df.head())
+
+
+#CD Python - 24.04 - task 3
+
+'''
+Zadanie
+Stwórz listę pod zmienną numerical_cols, która zawiera nazwy kolumn DataFrame df z danymi numerycznymi.
+'''
+
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# numerical_cols = [col for col in df.columns if df[col].dtype != object]
+# print(numerical_cols)
+
+
+#CD Python - 24.04 - task 4
+
+'''
+Stwórz kolumnę desired_flat, która zawiera wartość True dla mieszkań,
+które są tańsze niż 10 000 za metr, mają balkon i są z rynku wtórnego.
+
+Przypisz do zmiennej median_area jaka jest mediana powierzchni takich mieszkań.
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+# pd.set_option('display.max_columns', None)
+
+# conditions = (df['price_per_m'] <= 10000) & (df['balcony'] == 1) & (df['market_type'] == 'secondary')
+# df['desired_flat'] = False
+# df['desired_flat'] = df['desired_flat'].mask(conditions, True)
+# print(df.head())
+
+# desired_flats = df[conditions]
+# print(desired_flats.describe())
+# median_area = desired_flats['area'].quantile(0.5)
+# print(median_area)
+
+
+#CD Python - 24.04 - task 5
+
+'''
+Ile mieszkań ma zarówno balkon, garaż, jak i windę?
+
+Przypisz ilość mieszkań do zmiennej decent_flats
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# pd.set_option('display.max_columns', None)
+# print(df.head())
+
+# conditions = (df['balcony'] == 1) & (df['garage'] == 1) & (df['lift'] == 1)
+# decent_flats = len(df[conditions])
+# print(decent_flats)
+
+
+
+#CD Python - 24.04 - task 6
+
+'''
+Zadanie
+Która z wymienionych niżej kolumn z listy cols zawiera najwięcej duplikatów?
+
+cols = ["area", "price", "build_year",  "build_floor_num", "date"]
+Przypisz odpowiedź do zmiennej most_duplicated_col.
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# cols = ["area", "price", "build_year",  "build_floor_num", "date"]
+# cols_dups = [(column, df[column].duplicated().sum()) for column in cols]
+# print(cols_dups)
+# sorted_cols = sorted(cols_dups, key = lambda x: x[1], reverse = True)
+# most_duplicated_col = sorted_cols[0][0]
+
+
+#CD Python - 24.04 - task 7
+
+'''
+
+Zamień wartości w kolumnie MIASTO na Other dla miast, z których każde stanowi mniej niż 1% wszystkich ofert pracy.
+'''
+
+
+# import pandas as pd
+# df = pd.read_csv("offers.csv")
+# df.head()
+# minimum_threshold = len(df) / 100
+
+# low_number_cities = []
+# miasta = df['MIASTO'].value_counts().to_frame().reset_index()
+# for index, row in miasta.iterrows():
+#     count = row.iloc[1]
+#     if count < minimum_threshold:
+#         low_number_cities.append(row.iloc[0])
+
+# print(low_number_cities)
+# df['MIASTO'] = df['MIASTO'].mask(df['MIASTO'].isin(low_number_cities), 'Other')
+# pd.set_option('display.max_columns', None)
+# print(df.head())
+
+#Ja to ogarnąłem tak, ale Kasia w sumie miałą lepsze rozwiązanie
+
+# miasto_df = df["MIASTO"].value_counts(normalize=True).reset_index() #tu od razu wbijamy na wartości procentowe, któe mnie interesują, nie ma po co liczyć
+#cities_to_remove = miasto_df["MIASTO"][miasto_df["proportion"] < 0.01].values.tolist() - zręczne wyfiltrowanie
+
+# df["MIASTO"] = df["MIASTO"].mask(df["MIASTO"].isin(cities_to_remove), "Other") #i na koniec w zasadzie to samo
+
+
+#CD Python - 24.04 - task 8
+
+'''
+Dla każdej wartości z poniższej listy skills utwórz nową kolumnę w DataFrame df
+o nazwie kolumny jak wartość z listy.
+
+skills = ['Excel', 'Power BI', 'SQL', 'Python', 'Tableau']
+W każdej z tych kolumn wpisz:
+
+True jeśli dana wartość występuje w liście w kolumnie skills w tym wierszu
+False w przeciwnym przypadku
+
+'''
+
+# import pandas as pd
+
+# data = {
+#     "id": [1, 2, 3, 4, 5, 6, 7, 8],
+#     "skills": [
+#         ["SQL", "Python", "Excel"],
+#         ["Python", "Tableau"],
+#         ["Excel", "Power BI", "SQL", "Python"],
+#         ["Python"],
+#         ["SQL", "Tableau", "Power BI"],
+#         ["Python", "SQL"],
+#         ["Excel", "SQL", "Tableau"],
+#         ["Python", "Excel"]
+#     ]
+# }
+# df = pd.DataFrame(data)
+# skills = ['Excel', 'Power BI', 'SQL', 'Python', 'Tableau']
+# for skill in skills:
+#     df[skill] = df['skills'].apply(lambda x: skill in x)
+# df.head()
+
+
+#CD Python - 27.04 - task 1
+
+'''
+Zadanie
+Jaki typ budynku (build_type) ma najtańszą średnią cenę za metr? Nazwę typu budynku przypisz do zmiennej cheapest_type.
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df_agg = df.groupby('build_type')['price_per_m'].mean().reset_index()
+# print(df_agg)
+# cheapest_type = df_agg.sort_values('price_per_m').head(1)['build_type'].item()
+# print(cheapest_type)
+
+
+#CD Python - 27.04 - task 2
+
+'''
+Zadanie
+Stwórz dataframe o nazwie df, który zawiera dane z wszystkich wierszy z df1 i df2, ale tylko ze wspólnych kolumn.
+'''
+
+# import pandas as pd
+
+# df1 = pd.DataFrame({
+#     "id": [1, 2, 3],
+#     "name": ["Anna", "Jan", "Ola"],
+#     "city": ["Warszawa", "Kraków", "Gdańsk"],
+#     "salary": [5000, 6000, 5500]
+# })
+
+# df2 = pd.DataFrame({
+#     "id": [4, 5],
+#     "name": ["Piotr", "Kasia"],
+#     "age": [28, 34],
+#     "country": ["Polska", "Polska"]
+# })
+
+# common_cols = list(set(df1.columns).intersection(df2.columns))
+# print(common_cols)
+
+# df = pd.concat([df1[common_cols], df2[common_cols]], ignore_index = True)
+# print(df)
+
+
+#CD Python - 27.04 - task 3
+
+'''
+Dołącz do df_users dodatkowe kolumny z df_cities na podstawie łączenia wspólnej kolumny.
+'''
+
+# import pandas as pd
+
+# df_users = pd.DataFrame({
+#     "user_id": [1, 2, 3, 4],
+#     "name": ["Anna", "Jan", "Ola", "Piotr"],
+#     "city_id": [10, 20, 10, 30]
+# })
+
+# df_cities = pd.DataFrame({
+#     "city_id": [10, 20, 30, 40],
+#     "city_name": ["Warszawa", "Kraków", "Gdańsk", "Wrocław"],
+#     "region": ["Mazowieckie", "Małopolskie", "Pomorskie", "Dolnośląskie"]
+# })
+
+
+# df_users = df_users.merge(df_cities, on = 'city_id')
+# print(df_users)
+
+
+#CD Python - 28.04 - task 1
+
+'''
+Na podstawie DataFrame users oraz orders stwórz listę użytkowników,
+którzy nigdy niczego nie zamówili i przypisz ją do zmiennej users_list.
+'''
+
+# import pandas as pd
+# import numpy as np
+
+# np.random.seed(42)
+
+# n_users = 50
+# users = pd.DataFrame({
+#     "user_id": range(1, n_users + 1),
+#     "city": np.random.choice(
+#         ["Warszawa", "Kraków", "Gdańsk", "Wrocław", "Poznań", "Łódź"],
+#         size=n_users
+#     )
+# })
+
+# n_orders = 80
+# orders = pd.DataFrame({
+#     "order_id": range(1001, 1001 + n_orders),
+#     "user_id": np.random.choice(users["user_id"], size=n_orders, replace=True),
+#     "amount": np.random.randint(50, 500, size=n_orders),
+#     "order_date": pd.to_datetime("2024-01-01") + pd.to_timedelta(
+#         np.random.randint(0, 180, size=n_orders), unit="D"
+#     )
+# })
+
+# users_no_orders = users.merge(orders, how = 'left')
+
+
+# def check_none(row):
+#     if row.isna():
+#         return 'no_order'
+
+# users_no_orders['order_id'] = users_no_orders['order_id'].mask(users_no_orders['order_id'].isna(), 'no_orders')
+# users_list = users_no_orders[users_no_orders['order_id'] == 'no_orders'].reset_index()
+# users_list = users_list['user_id'].values.tolist()
+# print(users_list)
+
+
+#CD Python - 28.04 - task 2
+'''
+Na podstawie DataFrame users oraz orders stwórz DataFrame df, który zawiera 3 kolumny:
+
+user_id
+city
+avg_amount: średnia kwota zamówienia użytkownika. 
+Jeżeli użytkownik nie miał żadnych zamówień, przypisz 0 do tej kolumny.
+'''
+
+# import pandas as pd
+# import numpy as np
+
+# np.random.seed(42)
+
+# n_users = 50
+# users = pd.DataFrame({
+#     "user_id": range(1, n_users + 1),
+#     "city": np.random.choice(
+#         ["Warszawa", "Kraków", "Gdańsk", "Wrocław", "Poznań", "Łódź"],
+#         size=n_users
+#     )
+# })
+
+# n_orders = 80
+# orders = pd.DataFrame({
+#     "order_id": range(1001, 1001 + n_orders),
+#     "user_id": np.random.choice(users["user_id"], size=n_orders, replace=True),
+#     "amount": np.random.randint(50, 500, size=n_orders),
+#     "order_date": pd.to_datetime("2024-01-01") + pd.to_timedelta(
+#         np.random.randint(0, 180, size=n_orders), unit="D"
+#     )
+# })
+
+
+# orders_agg = orders.groupby("user_id")["amount"].mean().reset_index()
+# df = users.merge(orders_agg, on = 'user_id', how = 'left')
+# df["amount"] = df["amount"].fillna(0)
+# df.rename(columns={"amount": "avg_amount"}, inplace=True)
+# print(df)
+
+
+#CD Python - 28.04 - task 3
+'''
+Przypisz do zmiennej leader ID leadera, który ma pod sobą najwięcej pracowników.
+'''
+
+# import pandas as pd
+# employees = pd.DataFrame({"employee_id":list(range(1,59)),"employee_name":["Anna","Jan","Kasia","Piotr","Ola","Marek","Ewa","Tomek","Magda","Paweł","Natalia","Kasia","Ola","Ewa","Bartek","Zosia","Adam","Karolina","Michał","Monika","Filip","Alicja","Kamil","Joanna","Rafał","Piotr","Marek","Tomek","Paweł","Bartek","Julia","Mateusz","Weronika","Łukasz","Dominika","Szymon","Iwona","Robert","Jan","Magda","Natalia","Zosia","Karolina","Monika","Alicja","Joanna","Julia","Weronika","Dominika","Iwona","Helena","Artur","Beata","Dawid","Nina","Wiktor","Laura","Krystian"],"department":["Sales","Sales","Sales","Sales","Sales","Sales","Marketing","Marketing","Marketing","Marketing","Marketing","Marketing","Marketing","Marketing","Finance","Finance","Finance","Finance","Finance","Finance","Finance","Analytics","Analytics","Analytics","Analytics","Analytics","Analytics","Analytics","Analytics","Analytics","Customer Success","Customer Success","Customer Success","Customer Success","Customer Success","Customer Success","Customer Success","Customer Success","Sales","Sales","Sales","Sales","Sales","Sales","Marketing","Marketing","Marketing","Marketing","Marketing","Marketing","Finance","Finance","Finance","Finance","Finance","Finance","Finance","Finance"],"assigned_at":pd.to_datetime(["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05","2024-01-06","2024-01-07","2024-01-08","2024-01-09","2024-01-10","2024-01-11","2024-01-12","2024-01-13","2024-01-14","2024-01-15","2024-01-16","2024-01-17","2024-01-18","2024-01-19","2024-01-20","2024-01-21","2024-01-22","2024-01-23","2024-01-24","2024-01-25","2024-01-26","2024-01-27","2024-01-28","2024-01-29","2024-01-30","2024-02-01","2024-02-02","2024-02-03","2024-02-04","2024-02-05","2024-02-06","2024-02-07","2024-02-08","2024-02-09","2024-02-10","2024-02-11","2024-02-12","2024-02-13","2024-02-14","2024-02-15","2024-02-16","2024-02-17","2024-02-18","2024-02-19","2024-02-20","2024-02-21","2024-02-22","2024-02-23","2024-02-24","2024-02-25","2024-02-26","2024-02-27","2024-02-28"]),"lead_id":[1001,1001,1001,1001,1001,1001,1002,1002,1002,1002,1002,1002,1002,1002,1003,1003,1003,1003,1003,1003,1003,1004,1004,1004,1004,1004,1004,1004,1004,1004,1005,1005,1005,1005,1005,1005,1005,1005,1006,1006,1006,1006,1006,1006,1007,1007,1007,1007,1007,1007,1008,1008,1008,1008,1008,1008,1008,1008]})
+# employees.head()
+
+# leader = employees['lead_id'].value_counts().reset_index().head(1).values.tolist()[0][0]
+# print(leader)
+
+
+#CD Python - 29.04 - task 1
+
+
+'''
+Dla każdej kombinacji miasta i produktu oblicz łączną wartość przychodu.
+
+Najwyższy przychód dla kombinacji miasto/produkt przypisz do zmiennej top_product_city_amount.
+'''
+
+
+# import pandas as pd
+
+# df = pd.DataFrame({
+#     "order_id": [1,2,3,4,5,6,7,8],
+#     "city": ["Kraków","Kraków","Warszawa","Warszawa","Warszawa","Gdańsk","Gdańsk","Kraków"],
+#     "product": ["Laptop","Telefon","Laptop","Tablet","Laptop","Telefon","Laptop","Tablet"],
+#     "price": [4000,2000,4200,1500,4100,2100,3900,1600]
+# })
+
+# print(df.head())
+# city_product_revenue = df.groupby(['city', 'product']).agg('sum')
+# print(city_product_revenue)
+
+# top_product_city_amount = max(city_product_revenue['price'])
+# print(top_product_city_amount)
+
+
+#CD Python - 29.04 - task 2
+
+'''
+Dla jakiego rynku, pierwotnego czy wtórnego, bardziej zmieniła się średnia cena za metr kwadratowy mieszkania
+porównując pierwszy i ostatni dzień dostępny w danych?
+
+Przypisz nazwę primary lub secondary do zmiennej changed_more.
+
+'''
+
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# #czyli avg price_per_m dla primary i secondary marketów z pierwszego i ostatniego dnia
+
+# average_prices = df.groupby(['market_type', 'date']).agg({'price_per_m': 'mean'})
+
+# diff = average_prices.groupby(level='market_type').last() - average_prices.groupby(level='market_type').first()
+# print(diff)
+# changed_more = 'secondary'
+
+
+#CD Python - 29.04 - task 3
+
+'''
+Zadanie
+W jakim miesiącu była największa zmiana (na plus lub minus) w średniej cenie za metr mieszkania?
+
+Przypisz miesiąc w postaci YYYY-MM, np. 2021-01 do zmiennej greatest_change.
+
+Przydadzą Ci się metody:
+
+dt.to_period("M") - które wyciąga rok-miesiąc z kolumny o typie danych datetime
+shift(1) - które wyciąga wartość z poprzedniego wiersza
+
+'''
+
+# import pandas as pd
+# from datetime import date, datetime
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df["month"] = pd.to_datetime(df["date"]).dt.to_period("M")
+# df_price = df["price_per_m"].groupby(df["month"]).mean().reset_index().sort_values(by="month")
+# df_price["next_price_per_m"] =  df_price["price_per_m"].shift(1)
+# df_price["difference"] = abs(df_price["price_per_m"] - df_price["next_price_per_m"])
+# greatest_change = df_price.sort_values(by="difference", ascending=False)
+# print(greatest_change)
+
+
+#CD Python - 29.04 - task 4
+
+
+'''
+Zadanie
+Jakie produkty kupił Piotr, których nie kupił Jan?
+
+Nazwy produktów przypisz do zmiennej piotr_products w formie listy.
+
+Odpowiedź na podstawie dataframes users, orders i products.
+
+'''
+
+# import pandas as pd
+
+
+# users = pd.DataFrame({"user_id":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"name":["Anna","Jan","Kasia","Piotr","Ola","Marek","Ewa","Tomek","Magda","Paweł","Natalia","Bartek","Zosia","Adam","Karolina"]})
+# orders = pd.DataFrame({"order_id":[101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120],"user_id":[1,2,2,3,4,4,4,6,7,7,8,9,10,10,11,12,13,13,14,20],"product_id":[10,11,12,10,11,13,10,12,10,14,11,12,10,15,11,12,10,13,14,10]})
+# products = pd.DataFrame({"product_id":[10,11,12,13,14],"product_name":["Laptop","Telefon","Tablet","Monitor","Klawiatura"]})
+
+
+# users_orders = users.merge(orders, on = 'user_id')
+# users_orders_products = users_orders.merge(products, on = 'product_id')
+# print(users_orders_products)
+
+# jan_products = set()
+# piotr_products = set()
+# for index, order in users_orders_products.iterrows():
+#     if order['name'] == 'Jan':
+#         jan_products.add(order['product_name'])
+#     elif order['name'] == 'Piotr':
+#         piotr_products.add(order['product_name'])
+        
+# print(jan_products)
+# print(piotr_products)
+
+# piotr_products = list(piotr_products - jan_products)
+# print(piotr_products)
+
+
+
+#CD Python - 30.04 - task 1
+
+'''
+Na podstawie dataframes orders i transactions dodaj do dataframe users kolumny:
+
+count_transactions - liczba transakcji użytkownika
+count_orders - liczba zamówień użytkownika
+mean_transactions - średnia kwota transakcji
+mean_orders - średnia kwota zamówień użytkownika
+sum_total - suma kwot wydanych przez użytkownika na transakcje i zamówienia
+Brakujące wartości w kolumnach count oraz sum uzupełnij wartością 0.
+
+'''
+
+
+# import pandas as pd
+
+# users = pd.DataFrame({"user_id":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"name":["Anna","Jan","Kasia","Piotr","Ola","Marek","Ewa","Tomek","Magda","Paweł","Natalia","Bartek","Zosia","Adam","Karolina"],"city":["Warszawa","Kraków","Gdańsk","Wrocław","Poznań","Łódź","Katowice","Lublin","Szczecin","Bydgoszcz","Rzeszów","Białystok","Gdynia","Opole","Toruń"]})
+
+# orders = pd.DataFrame({"order_id":[101,102,103,104,105,106,107,108,109,110,111,112],"user_id":[1,2,1,3,4,5,2,6,7,8,9,10],"order_date":["2024-01-05","2024-01-07","2024-01-10","2024-01-12","2024-01-15","2024-01-18","2024-01-20","2024-01-22","2024-01-25","2024-01-27","2024-02-01","2024-02-03"],"amount":[120,200,150,80,300,220,50,400,90,180,250,130]})
+
+# transactions = pd.DataFrame({"transaction_id":[1001,1002,1003,1004,1005,1006,1007,1008],"order_id":[101,102,103,104,105,106,107,110],"payment_method":["card","blik","card","paypal","card","blik","card","card"],"transaction_date":["2024-01-05","2024-01-07","2024-01-10","2024-01-12","2024-01-15","2024-01-18","2024-01-20","2024-01-27"],"amount":[120,200,150,80,300,220,50,180]})
+
+
+# users_orders = users.merge(orders, on = 'user_id', how = 'left')
+# users = users_orders.merge(transactions, on = 'order_id', how = 'left')
+
+# agg_function = ['mean', 'count', 'sum']
+# col_names = {agg: agg +'_orders' for agg in agg_function}
+# orders_agg = orders['amount'].groupby(orders['user_id']).agg(agg_function).reset_index().rename(columns = col_names)
+
+# agg_function = ['mean', 'count', 'sum']
+# col_names = {agg: agg +'_transactions' for agg in agg_function}
+# transactions_agg = transactions['amount'].groupby(orders['user_id']).agg(agg_function).reset_index().rename(columns = col_names)
+# print(transactions_agg)
+
+# users = users.merge(orders_agg, on = 'user_id')
+# users = users.merge(transactions_agg, on = 'user_id')
+
+# cols_to_fill = [col for col in users.columns if 'count' in col or 'sum' in col]
+# users[cols_to_fill] = users[cols_to_fill].fillna(0)
+# print(users)
+
+# users['total_sum'] = users['sum_orders'] + users['sum_transactions']
+# users.drop(columns = ['sum_orders', 'sum_transactions'], inplace = True)
+# print(users)
+
+
+#CD Python - 30.04 - task 2
+
+'''
+Ilu użytkowników wydało więcej (kolumna amount) niż 200 na transakcje lub zamówienia (lub to i to)?
+'''
+
+
+# import pandas as pd
+
+# orders = pd.DataFrame({"order_id":[301,302,303,304,305,306,307,308,309,310,311,312],"user_id":[1,2,1,3,4,5,6,2,7,8,9,10],"order_date":["2024-03-01","2024-03-02","2024-03-03","2024-03-05","2024-03-06","2024-03-07","2024-03-08","2024-03-10","2024-03-11","2024-03-12","2024-03-13","2024-03-15"],"amount":[250,180,90,300,120,400,75,60,500,130,210,95]})
+
+# transactions = pd.DataFrame({"transaction_id":[3001,3002,3003,3004,3005,3006,3007,3008,3009,3010],"user_id":[1,2,3,4,5,11,12,1,7,13],"transaction_date":["2024-03-01","2024-03-02","2024-03-05","2024-03-06","2024-03-07","2024-03-08","2024-03-09","2024-03-10","2024-03-11","2024-03-12"],"payment_method":["card","blik","paypal","card","blik","card","paypal","card","card","blik"],"amount":[250,180,300,120,400,220,150,60,500,75]})
+
+
+# orders_agg = orders[["user_id", "amount"]].groupby("user_id").sum().reset_index().rename(columns={"amount":"orders_amount"})
+# transactions_agg = transactions[["user_id", "amount"]].groupby("user_id").sum().reset_index().rename(columns={"amount":"transactions_amount"})
+
+# orders_transactions = orders_agg.merge(transactions_agg, on = 'user_id', how = 'outer')
+# orders_transactions = orders_transactions.fillna(0)
+# print(orders_transactions)
+
+# orders_transactions['total'] = orders_transactions['orders_amount'] + orders_transactions['transactions_amount']
+# print(orders_transactions)
+# count_users = len(orders_transactions[orders_transactions['total'] >200])
+# print(count_users)
+
+
+
+#CD Python - 30.04 - task 3
+
+
+'''
+Zadanie
+Do dataframe orders dodaj kolumnę higher_than_avg, która przyjmuje wartość True, 
+jeżeli kwota zamówienia przewyższa średnią kwotę zamówień z danego tygodnia. Dla reszty zamówień przypisz wartość False.
+
+Wskazówka
+Aby wyciągnąć tydzień, możesz użyć metody .dt.strftime('%U') na kolumnie z typem danych datetime.
+'''
+
+
+# import pandas as pd
+
+# orders = pd.DataFrame({
+#     "order_id":[501,502,503,504,505,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527,528,529,530],
+#     "user_id":[1,2,3,4,5,1,2,6,7,8,3,4,5,6,7,1,2,3,8,9,10,1,2,3,4,5,6,7,8,9],
+#     "order_date":[
+#         "2024-01-02","2024-01-02","2024-01-03","2024-01-04","2024-01-05","2024-01-06",
+#         "2024-01-09","2024-01-09","2024-01-10","2024-01-11","2024-01-12","2024-01-13",
+#         "2024-01-16","2024-01-17","2024-01-18","2024-01-19","2024-01-20","2024-01-21",
+#         "2024-01-23","2024-01-24","2024-01-25","2024-01-26","2024-01-27","2024-01-28",
+#         "2024-02-01","2024-02-01","2024-02-02","2024-02-03","2024-02-03","2024-02-04" 
+#     ],
+#     "amount":[120,80,200,150,300,90,50,400,220,180,75,60,500,130,210,95,140,160,300,120,250,180,90,70,220,310,60,80,200,150]
+# })
+
+# print(orders.head())
+# print(orders.dtypes)
+# orders['week'] = pd.to_datetime(orders['order_date']).dt.strftime('%U')
+# print(orders)
+
+
+# orders_agg = orders['amount'].groupby(orders['week']).mean().reset_index().rename(columns={"amount":"avg_amount"})
+# print(orders_agg)
+
+# orders = orders.merge(orders_agg, on = 'week')
+# orders['higher_than_avg'] = orders['amount'] > orders['avg_amount']
+# print(orders)
+
+
+#CD Python - 1.05 - task 1
+
+'''
+Zadanie
+Jaka jest średnia kwota zamówienia dla top 10% najdroższych zamówień?
+
+Przypisz ją z dokładnością 2 cyfry po przecinku do zmiennej top_avg_amount.
+'''
+
+
+# import pandas as pd
+
+# orders = pd.DataFrame({"order_id":list(range(1001,1151)),"user_id":[3,1,7,2,5,9,4,6,8,2,1,3,10,7,5,6,9,8,4,2,6,3,1,8,7,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,6,1,7,8,5,10,9,4,2,3,1,6,7,5,10,8,9,4,2],"order_date":pd.date_range("2024-01-02", periods=150, freq="2D"),"amount":[135,220,180,75,310,260,90,410,120,200,150,170,330,190,210,95,280,240,130,160,140,300,110,205,270,320,180,150,100,260,170,220,195,280,140,310,260,180,150,200,175,220,140,260,300,180,210,170,190,230,260,140,210,180,320,260,140,200,170,150,180,240,260,220,300,180,150,210,170,200,260,140,210,180,320,260,140,200,170,150,180,240,260,220,300,180,150,210,170,200,260,140,210,180,320,260,140,200,170,150,180,240,260,220,300,180,150,210,170,200,260,140,210,180,320,260,140,200,170,150,180,240,260,220,300,180,150,210,170,200,260,140,210,180,320,260,140,200,170,150,180,240,260,220,300,180,150,210,170,200]})
+# orders.head()
+# orders_top_10 = orders['amount'].quantile(0.9)
+# top_avg_amount = round(orders[orders['amount'] >= orders_top_10]['amount'].mean(), 2)
+# print(top_avg_amount)
+
+
+
+#CD Python - 1.05 - task 2
+'''
+Zadanie
+Znajdź kolumnę, która ma największą rozpiętość wartości (różnicę między wartością maksymalną a minimalną).
+
+Przypisz nazwę kolumny do zmiennej max_span_column.
+'''
+
+# max_span_column = None
+# max_span_value = 0
+# for column in df.columns:
+#     diff = abs(df[column].max() - df[column].min())
+#     if diff > max_span_value:
+#         max_span_column = column
+#         max_span_value = diff
+        
+# print(max_span_column, max_span_value)
+
+
+#CD Python - 1.05 - task 3
+
+'''
+Zadanie
+Jaka grupa wiekowa średnio wydaje najwięcej pieniędzy w zamówieniu?
+
+Stwórz grupy wiekowe:
+
+young <= 25 lat
+middle_young 26 - 35 lat
+middle_old 36 - 50 lat
+old >= 51 lat
+(Przepraszam jeżeli kogokolwiek uraziłam nazwą grupy.)
+
+'''
+
+# import pandas as pd
+
+# users = pd.DataFrame({
+#     "user_id":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+#     "name":["Anna","Jan","Kasia","Piotr","Ola","Marek","Ewa","Tomek","Magda","Paweł","Natalia","Bartek","Zosia","Adam","Karolina","Michał","Alicja","Filip","Monika","Kamil","Julia","Mateusz","Weronika","Łukasz","Dominika"],
+#     "age":[19,22,25,28,31,None,37,40,43,46,39,52,55,58,49,41,21,27,33,22,45,51,57,63,38],
+#     "city":["Warszawa","Kraków","Gdańsk","Wrocław","Poznań","Łódź","Katowice","Lublin","Szczecin","Bydgoszcz","Rzeszów","Białystok","Gdynia","Opole","Toruń","Kielce","Olsztyn","Radom","Zielona Góra","Koszalin","Płock","Elbląg","Legnica","Słupsk","Tarnów"]
+# })
+
+# orders = pd.DataFrame({
+#     "order_id":[201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240],
+#     "user_id":[1,2,3,1,4,5,2,6,7,8,9,10,11,12,13,14,15,3,5,7,2,1,16,17,18,19,20,21,22,23,24,25,16,18,20,22,24,17,19,21],
+#     "order_date":[
+#         "2024-01-05","2024-01-07","2024-01-10","2024-01-12","2024-01-15","2024-01-18","2024-01-20","2024-01-22","2024-01-25","2024-01-27",
+#         "2024-02-01","2024-02-03","2024-02-05","2024-02-07","2024-02-10","2024-02-12","2024-02-15","2024-02-18","2024-02-20","2024-02-22",
+#         "2024-02-25","2024-02-28","2024-03-02","2024-03-04","2024-03-06","2024-03-08","2024-03-10","2024-03-12","2024-03-14","2024-03-16",
+#         "2024-03-18","2024-03-20","2024-03-22","2024-03-24","2024-03-26","2024-03-28","2024-03-30","2024-04-01","2024-04-03","2024-04-05"
+#     ],
+#     "amount":[120,200,150,80,300,220,50,400,90,180,250,130,75,310,160,300,95,140,275,60,210,330,180,95,260,310,120,150,40,220,130,170,280,200,90,350,410,160,240,30]
+# })
+
+# def define_age_group(age):
+    # if age <= 25:
+    #     return 'young'
+    # elif age >= 26 and age <= 35:
+    #     return 'middle_young'
+    # elif age >= 36 and age <= 50:
+    #     return 'middle_old'
+    # elif age >= 51:
+    #     return 'old'
+
+# users['age_group'] = users['age'].apply(define_age_group)
+# users = users.merge(orders, on = 'user_id')
+
+# averages = users['amount'].groupby(users['age_group']).mean().reset_index()
+# top_age_group = averages.sort_values(by='amount', ascending = False).head(1)['age_group'].item()
+
+# print(top_age_group)
+
+
+#CD Python - 1.05 - task 4
+
+'''
+Zadanie
+W którym miesiącu 2024 łączny przychód w tym roku przekroczył 30 000?
+
+Nazwę miesiąca w formie YYYY-MM (np. 2024-01) przypisz do zmiennej searched_month.
+
+*Rozwiązanie wymaga małego researchu i samodzielnego znalezienia funkcji, których nie przerabialiśmy na nagraniach.
+'''
+
+
+import pandas as pd
+df = pd.read_csv("orders.csv")
+df.head()
+
+df['month'] = pd.to_datetime(df['order_date']).dt.to_period('M')
+df = df.sort_values('order_date')
+df['cum_sum'] = df['amount'].cumsum()
+
+searched_month = None
+for index, row in df.iterrows():
+    if row['cum_sum'] >= 30000:
+        searched_month = str(row['month'])
+        break
+
+print(searched_month)
