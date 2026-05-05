@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-05 | Week 1 Day 2 | Score: N/A | Difficulty: 6/10
+**Covered:** Data moved to `project1_phones_sales_analytics/data/` (gitignored). `data_schema_examples.md` created. `learning_materials/pandas_concepts.md` created with ToC + 5 concepts. Combined all 19 `_price_history.csv` files into one DataFrame (170k rows). Resampled NEW prices to weekly min per ASIN using `groupby + resample + reset_index + ffill`. Discussed event-based data structure, why ffill beats interpolation for price data, multi-index behavior after resample.
+**Problems / gaps:** `resample` pattern non-obvious — especially multi-index output, `reset_index` placement, and `ffill` scope. Combining groupby + resample + ffill in one pipeline tripped Adrian up.
+**Reinforce next:** Drill resample + reset_index + ffill pattern with coding tasks (not verbal Q&A). Design tasks.md with scoring. Concept checks as small code exercises.
+
+---
 ## 2026-05-04 | Week 1 Day 1 | Score: N/A | Difficulty: 3/10
 **Covered:** Repo structure setup (tasks/feedback/session_archive in root, CLAUDE.md updated). venv created in repo root with pandas/jupyterlab/seaborn/plotly. JupyterLab kernel configured in VS Code. Started 01_exploration.ipynb: loaded all_products_meta.csv, converted Keepa minute timestamps to datetime, computed tracking_gap_days (range -55 to +101 days, notable anomalies for newest models). Loaded iPhone 13 price_history, inspected event-based structure and non-null counts per price column — NEW dominates across all three brands.
 **Problems / gaps:** Too much copy-paste from Claude — not enough active coding by Adrian. Scaffolding approach not applied yet.

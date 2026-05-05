@@ -2,3 +2,5 @@ CLAUDE.md
 pcap_archive/
 algo_backtest/data/FDAX_M1_OHLC.csv
 algo_backtest/data/FDAX_trades_raw.csv
+project1_phones_sales_analytics/data/
+venv/
