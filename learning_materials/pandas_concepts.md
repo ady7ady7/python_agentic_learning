@@ -12,6 +12,7 @@ not a method name. Use the ToC to find what you need, then go to the section for
 - [How do I calculate a new column based on the difference between two datetime columns?](#3-datetime-arithmetic) — datetime subtraction + `.dt.days` — line 95
 - [How do I load multiple CSV files matching a pattern into one combined DataFrame?](#4-loading-multiple-csvs) — `os.listdir` + loop + `pd.concat` — line 122
 - [How do I get the lowest price per week per group (e.g. per ASIN) from an irregular time series?](#5-groupby-resample-aggregation) — `groupby` + `resample` + `reset_index` + `ffill` — line 155
+- [How do I combine two DataFrames on a shared column to add metadata to a time series?](#6-merging-dataframes) — `df.merge` — line 218
 
 ---
 
@@ -161,3 +162,36 @@ After ffill:                         3062 rows, 0 NaN in NEW
 - `groupby("asin").resample("W")["col"].min()` produces a **multi-level index** (asin + datetime). Call `reset_index()` immediately after to get a flat DataFrame with regular columns.
 - `df.groupby("asin").ffill()` drops the groupby key column from output — instead use `df["col"] = df.groupby("asin")["col"].ffill()` to fill in place and keep all columns.
 - `ffill()` carries the last known value forward — correct for price data (price didn't change, just no event recorded). Don't use interpolation — prices are discrete jumps, not gradients.
+
+---
+
+## 6. Merging DataFrames on a Shared Column
+
+**What it does:** Combines two DataFrames horizontally by matching rows on a shared key column — like a SQL JOIN. Used to enrich a time series with metadata (e.g. adding brand/model to price rows).
+
+**Pattern:**
+```python
+merged = df.merge(meta_df, on="key_col")
+# default is inner join — only keeps rows where key exists in both DataFrames
+```
+
+**Example:**
+```
+prices (3062 rows):         meta (19 rows):
+  asin   datetime   NEW       asin        brand   model
+  B09... 2022-01-10 729.99    B09...      Apple   iPhone 13
+  B09... 2022-01-17 729.99    B07...      Apple   iPhone 11
+  ...                         ...
+
+merged = prices.merge(meta, on="asin")
+
+Result (3062 rows):
+  asin   datetime   NEW    brand  model      listed_since
+  B09... 2022-01-10 729.99 Apple  iPhone 13  2021-11-11
+  B09... 2022-01-17 729.99 Apple  iPhone 13  2021-11-11
+```
+
+**Gotchas:**
+- Default join is **inner** — rows with a key that exists in only one DataFrame are dropped silently. If you lose rows unexpectedly, check for key mismatches with `df["asin"].isin(meta["asin"]).all()`.
+- If the meta DataFrame has duplicate keys, every match multiplies — a 3062-row DataFrame merged against meta with 2 rows per ASIN would produce 6124 rows. Always verify `merged.shape[0] == original.shape[0]` after merging one-to-many.
+- Use `how="left"` to keep all rows from the left DataFrame even if no match exists in the right.
