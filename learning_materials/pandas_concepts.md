@@ -12,7 +12,8 @@ not a method name. Use the ToC to find what you need, then go to the section for
 - [How do I calculate a new column based on the difference between two datetime columns?](#3-datetime-arithmetic) — datetime subtraction + `.dt.days` — line 95
 - [How do I load multiple CSV files matching a pattern into one combined DataFrame?](#4-loading-multiple-csvs) — `os.listdir` + loop + `pd.concat` — line 122
 - [How do I get the lowest price per week per group (e.g. per ASIN) from an irregular time series?](#5-groupby-resample-aggregation) — `groupby` + `resample` + `reset_index` + `ffill` — line 155
-- [How do I combine two DataFrames on a shared column to add metadata to a time series?](#6-merging-dataframes) — `df.merge` — line 218
+- [How do I combine two DataFrames on a shared column to add metadata to a time series?](#6-merging-dataframes) — `df.merge` — line 169
+- [How do I add a column with a per-group statistic (e.g. median per ASIN) aligned to the full DataFrame?](#7-groupby-transform) — `groupby` + `transform` — line 200
 
 ---
 
@@ -195,3 +196,37 @@ Result (3062 rows):
 - Default join is **inner** — rows with a key that exists in only one DataFrame are dropped silently. If you lose rows unexpectedly, check for key mismatches with `df["asin"].isin(meta["asin"]).all()`.
 - If the meta DataFrame has duplicate keys, every match multiplies — a 3062-row DataFrame merged against meta with 2 rows per ASIN would produce 6124 rows. Always verify `merged.shape[0] == original.shape[0]` after merging one-to-many.
 - Use `how="left"` to keep all rows from the left DataFrame even if no match exists in the right.
+
+## 7. Groupby + Transform: Per-Group Statistics Aligned to Full DataFrame
+
+**What it does:** Computes a statistic (e.g. median, mean) per group and returns a Series with the same length as the original DataFrame — so you can assign it directly as a new column. Unlike `groupby().agg()`, it doesn't collapse rows.
+
+**Pattern:**
+```python
+df["col_median"] = df.groupby("group_col")["value_col"].transform("median")
+```
+
+**Example:**
+```
+Input:
+  asin        NEW
+  B09...      729.99
+  B09...      699.99
+  B07...      649.99
+  B07...      629.99
+
+df["median"] = df.groupby("asin")["NEW"].transform("median")
+
+Result:
+  asin        NEW     median
+  B09...      729.99  714.99   ← median of B09... rows only
+  B09...      699.99  714.99
+  B07...      649.99  639.99   ← median of B07... rows only
+  B07...      629.99  639.99
+```
+
+**Gotchas:**
+- `transform` returns a Series aligned to the original index — this is what makes it assignable as a new column. `agg` returns one row per group, which can't be assigned directly.
+- Common aggregation strings: `"median"`, `"mean"`, `"std"`, `"max"`, `"min"`.
+- Use case: outlier detection — `df["is_outlier"] = df["NEW"] > df.groupby("asin")["NEW"].transform("median") * 3`.
+

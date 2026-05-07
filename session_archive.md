@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-07 | Week 1 Day 4 | Score: 13.5/15 | Difficulty: 5/10
+**Covered:** Full resample pipeline from scratch (AMAZON column) — ffill scope correct this time. New notebook 02_cleaning.ipynb: days_since_launch column, negative days filter, outlier detection with groupby + transform + 3×median threshold (709 outliers removed). Multi-model Plotly line chart for all iPhones. Added groupby + transform to pandas_concepts.md.
+**Problems / gaps:** `> 0` instead of `>= 0` in days filter (dropped 4 extra rows). No resample before final chart — plotted raw event data. Concept check question poorly worded by Claude ("no groupby" when "no merge" was meant).
+**Reinforce next:** Resample before visualization. Precision in filter conditions (> vs >=).
+
+---
 ## 2026-05-06 | Week 1 Day 3 | Score: 13.5/15 | Difficulty: 5/10
 **Covered:** Reinforced resample pipeline (USED prices), merge on asin to add brand/model/listed_since to price DataFrame, first Plotly line chart (iPhone 13 weekly NEW prices). Confirmed downtrend in price over time visually.
 **Problems / gaps:** ffill applied without groupby scope again (same mistake as Day 2 — needs more reps). set_index placement initially forgotten.
