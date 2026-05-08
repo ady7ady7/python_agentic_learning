@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-08 | Week 1 Day 5 | Score: 9.5/12 | Difficulty: 7/10 | Quiz: 7.5/9
+**Covered:** Full clean pipeline from scratch (load → merge → days_since_launch → outlier removal → resample). Resampled multi-iPhone Plotly chart on cleaned data. Seaborn boxplot with sort by median. Brand comparison chart (Apple + Samsung S20 FE + S21). Week 1 quiz completed.
+**Problems / gaps:** ffill missing after resample (holes in charts). Task 4 skipped — meta columns dropped before task required them (task ordering issue). `ignore_index` behavior reversed in quiz. `agg` vs `transform` distinction not fully articulated.
+**Reinforce next:** Keep meta columns through pipeline from the start. ffill after resample. `agg` vs `transform` distinction. `ignore_index=True` behavior.
+
+---
 ## 2026-05-07 | Week 1 Day 4 | Score: 13.5/15 | Difficulty: 5/10
 **Covered:** Full resample pipeline from scratch (AMAZON column) — ffill scope correct this time. New notebook 02_cleaning.ipynb: days_since_launch column, negative days filter, outlier detection with groupby + transform + 3×median threshold (709 outliers removed). Multi-model Plotly line chart for all iPhones. Added groupby + transform to pandas_concepts.md.
 **Problems / gaps:** `> 0` instead of `>= 0` in days filter (dropped 4 extra rows). No resample before final chart — plotted raw event data. Concept check question poorly worded by Claude ("no groupby" when "no merge" was meant).
