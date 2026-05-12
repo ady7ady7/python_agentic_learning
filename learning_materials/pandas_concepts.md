@@ -14,6 +14,8 @@ not a method name. Use the ToC to find what you need, then go to the section for
 - [How do I get the lowest price per week per group (e.g. per ASIN) from an irregular time series?](#5-groupby-resample-aggregation) — `groupby` + `resample` + `reset_index` + `ffill` — line 155
 - [How do I combine two DataFrames on a shared column to add metadata to a time series?](#6-merging-dataframes) — `df.merge` — line 169
 - [How do I add a column with a per-group statistic (e.g. median per ASIN) aligned to the full DataFrame?](#7-groupby-transform) — `groupby` + `transform` — line 200
+- [How do I compute multiple aggregations at once per group (e.g. min, max, first, last price per month)?](#8-groupby-agg) — `groupby` + `agg` with named aggregations — line 248
+- [How do I calculate week-over-week price changes and find the largest single-period move?](#9-diff-and-abs) — `diff` + `abs` + `groupby` — line 285
 
 ---
 
@@ -227,6 +229,75 @@ Result:
 
 **Gotchas:**
 - `transform` returns a Series aligned to the original index — this is what makes it assignable as a new column. `agg` returns one row per group, which can't be assigned directly.
-- Common aggregation strings: `"median"`, `"mean"`, `"std"`, `"max"`, `"min"`.
+- Common aggregation strings: `"median"`, `"mean"`, `"std"`, `"max"`, `"min"`, `"first"`, `"last"`.
 - Use case: outlier detection — `df["is_outlier"] = df["NEW"] > df.groupby("asin")["NEW"].transform("median") * 3`.
+
+---
+
+## 8. Groupby + Agg: Multiple Aggregations Per Group
+
+**What it does:** Computes several statistics at once per group and collapses to one row per group. Unlike `transform`, the result is a summary DataFrame — not aligned to the original.
+
+**Pattern:**
+```python
+summary = df.groupby("group_col")["value_col"].agg(
+    first_price="first",
+    last_price="last",
+    min_price="min",
+    max_price="max"
+).reset_index()
+```
+
+**Example:**
+```
+Input: all_iphones_df grouped by model, monthly
+
+summary = all_iphones_df.groupby(["model", "month"])["NEW"].agg(
+    min_price="min",
+    max_price="max",
+    first_price="first",
+    last_price="last"
+).reset_index()
+
+Result: one row per model per month, with 4 price stats columns
+```
+
+**Gotchas:**
+- `agg` collapses rows — result has one row per group, not one row per original row. Use `transform` if you need the result aligned back to the full DataFrame.
+- Named aggregations syntax: `output_col_name="aggregation_string"` — clean and readable.
+- `"first"` / `"last"` depend on row order — sort by the relevant column first if order matters.
+- To aggregate multiple columns at once: `df.groupby("group")[["col1", "col2"]].agg(...)`.
+
+---
+
+## 9. Week-over-Week Changes: diff + abs
+
+**What it does:** Computes the difference between consecutive rows (e.g. price change from one week to the next). Combined with `groupby` to stay within each group, and `abs()` to get magnitude regardless of direction.
+
+**Pattern:**
+```python
+# Week-over-week change within each group
+df["weekly_change"] = df.groupby("group_col")["value_col"].diff()
+
+# Largest absolute change per group
+df["weekly_change_abs"] = df.groupby("group_col")["value_col"].diff().abs()
+summary["max_move"] = df.groupby("group_col")["weekly_change_abs"].max()
+```
+
+**Example:**
+```
+Input: iPhone 13 weekly NEW prices
+  week 1: 729.99
+  week 2: 699.99
+  week 3: 729.99
+
+diff()     → NaN, -30.0, +30.0
+diff().abs()→ NaN, 30.0, 30.0
+max()      → 30.0  (largest single-week move)
+```
+
+**Gotchas:**
+- First row in each group is always NaN after `diff()` — no previous row to compare against.
+- `diff()` gives signed values (negative = drop, positive = rise). Use `.abs()` if you want magnitude only.
+- Always apply within `groupby` — without it, `diff()` bleeds across group boundaries (last row of one ASIN compared to first row of next).
 

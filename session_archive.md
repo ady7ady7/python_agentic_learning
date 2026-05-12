@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-12 | Week 2 Day 2 | Score: 14/15 | Difficulty: 5/10
+**Covered:** Fixed pipeline bugs from Day 1 (resample without groupby, ffill syntax). Meta columns preserved via post-resample merge. days_since_launch recalculated after resample. Price decay curves for iPhone 13 and all iPhones (days_since_launch as x-axis). Decay summary table: first/last price, total_drop_pct, max_weekly_drop using diff().abs(). Added agg + diff patterns to pandas_concepts.md.
+**Problems / gaps:** transform vs agg distinction still causing confusion under pressure. groupby().first() vs groupby().transform('first') mix-up.
+**Reinforce next:** groupby agg vs transform — more reps. Keep cleaning up pipeline design (meta conversion once, not twice).
+
+---
 ## 2026-05-11 | Week 2 Day 1 | Score: 2/4 (partial) | Difficulty: 7/10
 **Covered:** Started 03_analysis.ipynb. Attempted full pipeline with meta preserved through resample. Pipeline ran but produced ~283 rows instead of ~3000 — two bugs identified: resample without groupby (collapsed all ASINs into one), and incorrect ffill syntax. Meta preservation through resample not solved.
 **Problems / gaps:** `resample` without `groupby('asin')` prefix — critical mistake. ffill argument syntax wrong. Short session due to time constraints.
