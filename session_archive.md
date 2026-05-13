@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-13 | Week 2 Day 3 | Score: 13/15 | Difficulty: 5/10
+**Covered:** agg vs transform reinforced with targeted tasks. Brand comparison decay table. Normalized decay chart (price_pct_of_launch vs days_since_launch, color by brand). Key insight: one line per model is too cluttered — need brand-level aggregation for clean comparison (Day 4 task).
+**Problems / gaps:** Task 4/5 used wrong df due to ambiguous task wording (Claude's fault — will specify df explicitly going forward). filtered_df overwritten immediately after creation.
+**Reinforce next:** Brand-level aggregation: groupby(brand + days_since_launch) → mean price_pct_of_launch → one line per brand. Specify exact df in every task.
+
+---
 ## 2026-05-12 | Week 2 Day 2 | Score: 14/15 | Difficulty: 5/10
 **Covered:** Fixed pipeline bugs from Day 1 (resample without groupby, ffill syntax). Meta columns preserved via post-resample merge. days_since_launch recalculated after resample. Price decay curves for iPhone 13 and all iPhones (days_since_launch as x-axis). Decay summary table: first/last price, total_drop_pct, max_weekly_drop using diff().abs(). Added agg + diff patterns to pandas_concepts.md.
 **Problems / gaps:** transform vs agg distinction still causing confusion under pressure. groupby().first() vs groupby().transform('first') mix-up.
