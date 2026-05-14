@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-14 | Week 2 Day 4 | Score: 14/15 | Difficulty: 8/10
+**Covered:** Brand-level aggregation: groupby(brand + days_since_launch) → mean price_pct_of_launch → one line per brand. Plotly brand decay chart with hline at 50%. Seaborn boxplot sorted by median per brand. Written analysis: Apple retains value best, decay shape, data quality concerns.
+**Problems / gaps:** Multi-key groupby and Seaborn order pattern still unintuitive — required LLM assistance. px.line Series syntax causing visual artifacts (fixed to DataFrame syntax). Decay curve shape question answered descriptively, not analytically.
+**Reinforce next:** Multi-key groupby and Seaborn order with more reps. Both patterns now in pandas_concepts.md.
+
+---
 ## 2026-05-13 | Week 2 Day 3 | Score: 13/15 | Difficulty: 5/10
 **Covered:** agg vs transform reinforced with targeted tasks. Brand comparison decay table. Normalized decay chart (price_pct_of_launch vs days_since_launch, color by brand). Key insight: one line per model is too cluttered — need brand-level aggregation for clean comparison (Day 4 task).
 **Problems / gaps:** Task 4/5 used wrong df due to ambiguous task wording (Claude's fault — will specify df explicitly going forward). filtered_df overwritten immediately after creation.

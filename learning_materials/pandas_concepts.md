@@ -16,6 +16,8 @@ not a method name. Use the ToC to find what you need, then go to the section for
 - [How do I add a column with a per-group statistic (e.g. median per ASIN) aligned to the full DataFrame?](#7-groupby-transform) — `groupby` + `transform` — line 200
 - [How do I compute multiple aggregations at once per group (e.g. min, max, first, last price per month)?](#8-groupby-agg) — `groupby` + `agg` with named aggregations — line 248
 - [How do I calculate week-over-week price changes and find the largest single-period move?](#9-diff-and-abs) — `diff` + `abs` + `groupby` — line 285
+- [How do I aggregate a metric across two grouping columns (e.g. mean price per brand per week)?](#10-groupby-multiple-keys) — `groupby([col1, col2])` + `mean` — line 320
+- [How do I sort a Seaborn chart's x-axis by a computed statistic (e.g. median value)?](#11-seaborn-order-by-statistic) — compute stat + sort + pass to `order=` — line 348
 
 ---
 
@@ -300,4 +302,67 @@ max()      → 30.0  (largest single-week move)
 - First row in each group is always NaN after `diff()` — no previous row to compare against.
 - `diff()` gives signed values (negative = drop, positive = rise). Use `.abs()` if you want magnitude only.
 - Always apply within `groupby` — without it, `diff()` bleeds across group boundaries (last row of one ASIN compared to first row of next).
+
+---
+
+## 10. Groupby on Multiple Keys: Aggregate Across Two Dimensions
+
+**What it does:** Groups by two columns simultaneously and computes a statistic per unique combination. Used when you want e.g. mean price per brand per time period — one row per brand+period pair.
+
+**Pattern:**
+```python
+result = df.groupby(["group_col1", "group_col2"])["value_col"].mean().reset_index()
+```
+
+**Example:**
+```
+Input: df with columns brand, days_since_launch, price_pct_of_launch (one row per model per week)
+
+brand_decay = df.groupby(["brand", "days_since_launch"])["price_pct_of_launch"].mean().reset_index()
+
+Result: one row per brand per days_since_launch value
+  brand    days_since_launch  price_pct_of_launch
+  Apple    6                  100.0
+  Apple    13                 98.9
+  Samsung  7                  99.1
+  ...
+```
+
+**Gotchas:**
+- When passing to `px.line`, always use the DataFrame + column name syntax: `px.line(df, x="col1", y="col2", color="col3")` — not `px.line(x=df["col1"], ...)`. The second form loses grouping context and causes visual artifacts (shadows, incorrect lines).
+- Irregular spacing in the grouped result (not every day_since_launch appears for every brand) can cause jagged lines in Plotly. Resampling to regular intervals before grouping fixes this.
+
+---
+
+## 11. Seaborn: Sort Chart Axis by a Computed Statistic
+
+**What it does:** Controls the order of categories on a Seaborn chart axis by computing a statistic (e.g. median) per category, sorting it, and passing the sorted list to the `order` parameter.
+
+**Pattern:**
+```python
+# Step 1 — compute the statistic per category
+order_df = df.groupby("category_col")["value_col"].median().reset_index()
+
+# Step 2 — sort by statistic
+order_df = order_df.sort_values("value_col", ascending=False)
+
+# Step 3 — pass sorted category list to order=
+sns.boxplot(df, x="category_col", y="value_col", order=order_df["category_col"])
+```
+
+**Example:**
+```
+Brands sorted by median price_pct_of_launch (descending):
+  Apple    72.3
+  Google   58.1
+  Samsung  54.7
+
+sns.boxplot(selected_df, x="brand", y="price_pct_of_launch", order=["Apple", "Google", "Samsung"])
+→ Apple on left (highest retention), Samsung on right
+```
+
+**Gotchas:**
+- Without `order=`, Seaborn sorts categories alphabetically — rarely what you want for analytical charts.
+- `order` takes a list or Series of category values, not a DataFrame — pass `order_df["category_col"]`, not `order_df`.
+- Add title with `ax.set_title("...")` where `ax` is the return value of `sns.boxplot(...)`.
 
