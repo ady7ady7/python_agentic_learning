@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-15 | Week 2 Day 5 | Score: 9/10 | Difficulty: 5/10
+**Covered:** pd.cut binning (50-day buckets), Seaborn barplot with hue by brand. Regularized x-axis by rounding days_since_launch to nearest 7 — eliminated Plotly shadow artifacts. Rebuilt clean brand decay chart. Added pd.cut and regularization patterns to pandas_concepts.md and important_info.md.
+**Problems / gaps:** Seaborn order= passed unnecessarily (pd.cut Categorical handles it automatically). Q4 groupby syntax slightly off. Week 2 quiz coding tasks too close to session work — will recalibrate for Week 3.
+**Reinforce next:** Complex groupby/agg syntax needs more reps. Week 3: seasonal analysis (Black Friday/Christmas WoW price effect), sales volume comparison if feasible.
+
+---
 ## 2026-05-14 | Week 2 Day 4 | Score: 14/15 | Difficulty: 8/10
 **Covered:** Brand-level aggregation: groupby(brand + days_since_launch) → mean price_pct_of_launch → one line per brand. Plotly brand decay chart with hline at 50%. Seaborn boxplot sorted by median per brand. Written analysis: Apple retains value best, decay shape, data quality concerns.
 **Problems / gaps:** Multi-key groupby and Seaborn order pattern still unintuitive — required LLM assistance. px.line Series syntax causing visual artifacts (fixed to DataFrame syntax). Decay curve shape question answered descriptively, not analytically.

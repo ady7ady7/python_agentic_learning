@@ -18,6 +18,8 @@ not a method name. Use the ToC to find what you need, then go to the section for
 - [How do I calculate week-over-week price changes and find the largest single-period move?](#9-diff-and-abs) — `diff` + `abs` + `groupby` — line 285
 - [How do I aggregate a metric across two grouping columns (e.g. mean price per brand per week)?](#10-groupby-multiple-keys) — `groupby([col1, col2])` + `mean` — line 320
 - [How do I sort a Seaborn chart's x-axis by a computed statistic (e.g. median value)?](#11-seaborn-order-by-statistic) — compute stat + sort + pass to `order=` — line 348
+- [How do I group a numeric column into fixed-width buckets (e.g. every 50 days)?](#12-pd-cut-binning) — `pd.cut` — line 385
+- [How do I regularize irregular time series data to fixed intervals to eliminate chart artifacts?](#13-regularize-time-series) — round to nearest N + groupby mean — line 415
 
 ---
 
@@ -365,4 +367,68 @@ sns.boxplot(selected_df, x="brand", y="price_pct_of_launch", order=["Apple", "Go
 - Without `order=`, Seaborn sorts categories alphabetically — rarely what you want for analytical charts.
 - `order` takes a list or Series of category values, not a DataFrame — pass `order_df["category_col"]`, not `order_df`.
 - Add title with `ax.set_title("...")` where `ax` is the return value of `sns.boxplot(...)`.
+
+---
+
+## 12. Binning a Numeric Column into Fixed-Width Buckets
+
+**What it does:** Splits a continuous numeric column into discrete intervals (bins) of fixed width. Each value gets assigned to a bucket label like `(0, 50]`, `(50, 100]` etc. Useful for grouping time or price ranges for aggregation or visualization.
+
+**Pattern:**
+```python
+df["bucket_col"] = pd.cut(df["numeric_col"], bins=range(start, stop, step))
+
+# Then group by the bucket
+summary = df.groupby("bucket_col")["value_col"].mean().reset_index()
+```
+
+**Example:**
+```
+Input: days_since_launch values: 6, 13, 62, 110, 355 ...
+
+df["days_bucket"] = pd.cut(df["days_since_launch"], bins=range(0, 2400, 50))
+
+Result:
+  days_since_launch   days_bucket
+  6                   (0, 50]
+  13                  (0, 50]
+  62                  (50, 100]
+  110                 (100, 150]
+  355                 (350, 400]
+```
+
+**Gotchas:**
+- Values outside the bin range become NaN — make sure `stop` covers your max value.
+- `pd.cut` produces an ordered Categorical dtype — Seaborn respects this order automatically, so you don't need to pass `order=` manually.
+- Each bin is left-open, right-closed by default: `(0, 50]` includes 50 but not 0.
+- Use `pd.cut` for equal-width bins. Use `pd.qcut` for equal-frequency bins (same number of rows per bucket).
+
+---
+
+## 13. Regularizing Irregular Time Series to Fixed Intervals
+
+**What it does:** When different groups (e.g. ASINs) have price data recorded at slightly different days, rounding to the nearest fixed interval (e.g. 7 days) aligns them to the same x-axis points. This eliminates visual artifacts (shadows, jagged interpolation) in line charts.
+
+**Pattern:**
+```python
+# Round to nearest N days
+df["days_rounded"] = (df["days_since_launch"] / N).round() * N
+
+# Then aggregate per group + rounded interval
+result = df.groupby(["group_col", "days_rounded"])["value_col"].mean().reset_index()
+```
+
+**Example:**
+```
+Before rounding: days_since_launch has 1069 unique values (irregular gaps per ASIN)
+After rounding to 7: days_rounded has 334 unique values (aligned to weekly grid)
+
+→ All brands now have data at the same x positions
+→ px.line connects clean dots, no interpolation artifacts
+```
+
+**Gotchas:**
+- Rounding merges nearby data points into one bucket — you lose some granularity but gain visual clarity. For analysis this trade-off is almost always worth it.
+- Always aggregate (mean/median) after rounding — don't just rename the column, or you'll have duplicate x values per group.
+- This is a lightweight alternative to `resample` when you don't need the full time-series machinery.
 
