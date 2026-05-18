@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-18 | Week 3 Day 1 | Score: N/A | Difficulty: 5/10
+**Covered:** Seasonal analysis design — MoM price diff (groupby asin + diff()) vs raw price_pct_of_launch. Adrian correctly identified age/season confound before being prompted. Seaborn lineplot syntax correct on first try. Identified .shift(1) scoping bug (crosses ASIN boundaries — same pattern as ffill scope). Seasonal result only 12 rows — data too sparse. Root cause confirmed: CSV export used 19 probe ASINs only, not full Postgres catalog (60 submodels, 19,565 price records). Full schema mapped (keepa.generations → submodels → products → price_history).
+**Problems / gaps:** .shift(1) instead of groupby('asin').diff() — recurring scoping pattern. Seasonal analysis not completed due to data gap.
+**Reinforce next:** Groupby scoping for any per-group operation (diff, ffill, transform). Tomorrow: discuss product_grade filter implications, export full dataset from Postgres, rebuild pipeline.
+
+---
 ## 2026-05-15 | Week 2 Day 5 | Score: 9/10 | Difficulty: 5/10
 **Covered:** pd.cut binning (50-day buckets), Seaborn barplot with hue by brand. Regularized x-axis by rounding days_since_launch to nearest 7 — eliminated Plotly shadow artifacts. Rebuilt clean brand decay chart. Added pd.cut and regularization patterns to pandas_concepts.md and important_info.md.
 **Problems / gaps:** Seaborn order= passed unnecessarily (pd.cut Categorical handles it automatically). Q4 groupby syntax slightly off. Week 2 quiz coding tasks too close to session work — will recalibrate for Week 3.
