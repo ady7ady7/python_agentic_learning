@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-19 | Week 3 Day 2 | Score: N/A | Difficulty: 5/10
+**Covered:** Rebuilt pipeline on full Postgres export (878k rows → 105k after resample, 893 ASINs). Exported all_asins_meta.csv. Renamed probe_asins_meta.csv. Recomputed price_pct_of_launch and regularized decay chart — chart described as "making much more sense." Re-ran seasonal analysis with correct groupby('asin').diff() scoping. Fixed dt.month bug (was extracting from listed_since instead of datetime). Final seasonal result: 36 rows, full 12-month coverage, Oct/Nov showing strongest negative diffs for Apple — consistent with new iPhone launch + Black Friday pressure.
+**Problems / gaps:** dt.month extracted from wrong column (listed_since vs datetime) — caught and fixed same session. NEW * 100 workaround needed (export had new_price already divided, pipeline expected raw). backup_df = df without .copy() — same reference bug pattern.
+**Reinforce next:** Correct interpretation of MoM price_diff values (units = percentage points, not dollars). Seasonal chart analysis and written interpretation. Keep drilling column scoping hygiene.
+
+---
 ## 2026-05-18 | Week 3 Day 1 | Score: N/A | Difficulty: 5/10
 **Covered:** Seasonal analysis design — MoM price diff (groupby asin + diff()) vs raw price_pct_of_launch. Adrian correctly identified age/season confound before being prompted. Seaborn lineplot syntax correct on first try. Identified .shift(1) scoping bug (crosses ASIN boundaries — same pattern as ffill scope). Seasonal result only 12 rows — data too sparse. Root cause confirmed: CSV export used 19 probe ASINs only, not full Postgres catalog (60 submodels, 19,565 price records). Full schema mapped (keepa.generations → submodels → products → price_history).
 **Problems / gaps:** .shift(1) instead of groupby('asin').diff() — recurring scoping pattern. Seasonal analysis not completed due to data gap.
