@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-20 | Week 3 Day 3 | Score: N/A | Difficulty: 4/10
+**Covered:** Written interpretation of seasonal chart (Oct/Nov Apple dip = new iPhone launch pressure + Black Friday; December reclaim across all brands). First look at monthly_sold_full.csv (18,489 rows; Apple 180 ASINs, Samsung 99, Google 83). Brand-level monthly_sold chart built but identified as misleading — aggregating across generations at different ages flattens signal into noise.
+**Problems / gaps:** monthly_sold brand aggregation not meaningful — need per-generation view. Seasonal writeup unit phrasing needs tightening ("below 1.5%" should reference percentage points, not percent). Task 3 didn't yield useful insights in current form.
+**Reinforce next:** Redesign monthly_sold chart: one line per generation_name, days_since_launch on x. Exploratory angle — extract more phenomena from limited columns (price decay shape, launch price comparison, rank velocity). Make the research "sexy" — don't assume, let data show.
+
+---
 ## 2026-05-19 | Week 3 Day 2 | Score: N/A | Difficulty: 5/10
 **Covered:** Rebuilt pipeline on full Postgres export (878k rows → 105k after resample, 893 ASINs). Exported all_asins_meta.csv. Renamed probe_asins_meta.csv. Recomputed price_pct_of_launch and regularized decay chart — chart described as "making much more sense." Re-ran seasonal analysis with correct groupby('asin').diff() scoping. Fixed dt.month bug (was extracting from listed_since instead of datetime). Final seasonal result: 36 rows, full 12-month coverage, Oct/Nov showing strongest negative diffs for Apple — consistent with new iPhone launch + Black Friday pressure.
 **Problems / gaps:** dt.month extracted from wrong column (listed_since vs datetime) — caught and fixed same session. NEW * 100 workaround needed (export had new_price already divided, pipeline expected raw). backup_df = df without .copy() — same reference bug pattern.
