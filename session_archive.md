@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-21 | Week 3 Day 4 | Score: N/A | Difficulty: 5/10
+**Covered:** Launch price by submodel (Seaborn barplot, chronological order) — uptrend visible, likely inflation; Google launches cheaper than Apple. Price decay velocity in first 90 days — large apparent drops (40-60%) flagged as possibly artifact of tracking gap (first recorded price ≠ true launch price). monthly_sold per submodel chart built but unreadable — too many lines, needs filtering or small multiples.
+**Problems / gaps:** `agg('first')` on NEW price not reliable as launch price proxy due to tracking gap. Task 3 visualization still not solved — brand aggregation too coarse, submodel too granular. Project alignment feeling loose.
+**Reinforce next:** Fix monthly_sold chart: filter to one brand or top N models. Tighten project direction — each session should add one clear, defensible finding. Document tracking gap caveat in writeup.
+
+---
 ## 2026-05-20 | Week 3 Day 3 | Score: N/A | Difficulty: 4/10
 **Covered:** Written interpretation of seasonal chart (Oct/Nov Apple dip = new iPhone launch pressure + Black Friday; December reclaim across all brands). First look at monthly_sold_full.csv (18,489 rows; Apple 180 ASINs, Samsung 99, Google 83). Brand-level monthly_sold chart built but identified as misleading — aggregating across generations at different ages flattens signal into noise.
 **Problems / gaps:** monthly_sold brand aggregation not meaningful — need per-generation view. Seasonal writeup unit phrasing needs tightening ("below 1.5%" should reference percentage points, not percent). Task 3 didn't yield useful insights in current form.
