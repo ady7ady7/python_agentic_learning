@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-22 | Week 3 Day 5 | Score: N/A | Difficulty: 5/10
+**Covered:** Updated case_study_issues.md with Issues 5-8 (probe ASIN gap, wrong dt.month column, agg('first') tracking gap problem, monthly_sold granularity). Apple price decay by generation chart built. Apple monthly_sold by submodel chart attempted — still cluttered. Designed full 6-chart interactive plan: tier-based filtering (submodel tier extracted from name by stripping generation_name prefix), per-generation submodel comparison, both relative (days_since_launch) and absolute (real datetime with event markers) views for price decay and sales rank.
+**Problems / gaps:** Tasks 3 & 4 skipped — correctly identified as premature before chart approach was properly designed. monthly_sold still not clean enough for a final chart.
+**Reinforce next:** Implement 6-chart plan. Start with tier extraction (`str.replace` + strip), verify with value_counts. Build Charts 1 & 2 (price decay) first, then 3-6 (monthly_sold). Event markers for BF/Christmas/launch on datetime charts.
+
+---
 ## 2026-05-21 | Week 3 Day 4 | Score: N/A | Difficulty: 5/10
 **Covered:** Launch price by submodel (Seaborn barplot, chronological order) — uptrend visible, likely inflation; Google launches cheaper than Apple. Price decay velocity in first 90 days — large apparent drops (40-60%) flagged as possibly artifact of tracking gap (first recorded price ≠ true launch price). monthly_sold per submodel chart built but unreadable — too many lines, needs filtering or small multiples.
 **Problems / gaps:** `agg('first')` on NEW price not reliable as launch price proxy due to tracking gap. Task 3 visualization still not solved — brand aggregation too coarse, submodel too granular. Project alignment feeling loose.
