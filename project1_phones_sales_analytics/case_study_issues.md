@@ -133,3 +133,27 @@ Ranks are only comparable within a group at similar ages. Mixing a phone at day 
 post-launch with one at day 800 in the same mean distorts everything. The next attempt
 is filtering to a single brand with enough data coverage and plotting one line per
 generation — results pending.
+
+---
+
+## Issue 9 — Tracking gap causes submodel price curves to start mid-decay
+
+When computing `price_pct_of_launch` per submodel, higher-tier models (Pro, Pro Max, Ultra)
+frequently have tracking gaps of 100-200+ days. This means their first recorded price is
+already well into the decay curve, not at launch. The result: Pro/Pro Max lines appear to
+start at 50% or lower on the chart, which looks like a data error but is actually a
+coverage gap.
+
+Confirmed for iPhone 13 submodels:
+
+| Submodel | First recorded | Premiere | Gap (days) |
+|---|---|---|---|
+| iPhone 13 Mini | 2021-12-12 | 2021-11-10 | 31 |
+| iPhone 13 | 2022-03-06 | 2021-11-11 | 114 |
+| iPhone 13 Pro Max | 2022-04-24 | 2021-11-11 | 163 |
+| iPhone 13 Pro | 2022-06-12 | 2021-11-11 | 212 |
+
+The fix for `price_pct_of_launch` is to group by `submodel_name` instead of `model`
+so each submodel normalizes against its own first recorded price, not the base model's.
+The tracking gap itself cannot be filled — it should be acknowledged in the writeup and
+ideally shown on the chart (e.g. annotating where each line actually starts).

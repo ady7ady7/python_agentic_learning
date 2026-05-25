@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-25 | Week 4 Day 1 | Score: N/A | Difficulty: 5/10
+**Covered:** Created 04_interactive_charts.ipynb. Tier extraction implemented and verified (12 tiers: Base, Pro, Pro Max, Ultra, FE, Mini, Plus, +, a, Pro Fold, Edge, Pro XL). Charts 1 & 2 built. Discovered first_price was grouped by model not submodel — fixed to groupby('submodel_name'). Discovered tracking gap causes Pro/Pro Max to start mid-decay (iPhone 13 Pro gap = 212 days, Pro Max = 163 days). Documented as Issue 9 in case_study_issues.md. Chart plan saved to memory.
+**Problems / gaps:** price_pct_of_launch normalization was wrong scope — fixed. Tracking gap cannot be filled, must be annotated/acknowledged.
+**Reinforce next:** Annotate charts with actual first recorded day per submodel. Verify Charts 1 & 2 look correct after fix. Move to Charts 3-6 (monthly_sold).
+
+---
 ## 2026-05-22 | Week 3 Day 5 | Score: N/A | Difficulty: 5/10
 **Covered:** Updated case_study_issues.md with Issues 5-8 (probe ASIN gap, wrong dt.month column, agg('first') tracking gap problem, monthly_sold granularity). Apple price decay by generation chart built. Apple monthly_sold by submodel chart attempted — still cluttered. Designed full 6-chart interactive plan: tier-based filtering (submodel tier extracted from name by stripping generation_name prefix), per-generation submodel comparison, both relative (days_since_launch) and absolute (real datetime with event markers) views for price decay and sales rank.
 **Problems / gaps:** Tasks 3 & 4 skipped — correctly identified as premature before chart approach was properly designed. monthly_sold still not clean enough for a final chart.
