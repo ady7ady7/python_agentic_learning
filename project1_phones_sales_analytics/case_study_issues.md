@@ -155,5 +155,63 @@ Confirmed for iPhone 13 submodels:
 
 The fix for `price_pct_of_launch` is to group by `submodel_name` instead of `model`
 so each submodel normalizes against its own first recorded price, not the base model's.
-The tracking gap itself cannot be filled — it should be acknowledged in the writeup and
-ideally shown on the chart (e.g. annotating where each line actually starts).
+The ultimate fix — implemented in Week 4 — was to source official launch prices externally
+(see Issue 10) and use `official_premiere_date` as the day 0 anchor, making the tracking
+gap a display issue rather than a normalization error.
+
+---
+
+## Issue 10 — Using Keepa's premiere_date and first recorded price as launch anchors
+
+`premiere_date` in the database reflects when Keepa first associated a product with a
+generation, not the actual public launch date. Similarly, the first recorded price is
+whatever Keepa captured when it started tracking — often weeks or months after the real
+launch, and at a price level that may already reflect post-launch normalization.
+
+This made `price_pct_of_launch` unreliable: curves were anchored to arbitrary start points,
+some models appeared to begin at 50-60% of their own "launch price", and
+`days_since_launch` was measured from the wrong origin.
+
+Fix: compiled a reference table (`official_launch_prices.csv`) with real premiere dates
+and official retail prices per submodel, sourced from Apple/Samsung/Google press releases.
+These replace Keepa's premiere_date and first_price in all decay calculations:
+
+```python
+launch_ref = pd.read_csv('../data/official_launch_prices.csv')
+df = df.merge(launch_ref, on='submodel_name', how='left')
+df['days_since_launch'] = (df['datetime'] - df['official_premiere_date']).dt.days
+df['price_pct_of_launch'] = round(df['NEW'] / df['official_launch_price'] * 100, 1)
+```
+
+Result: decay curves now correctly start near 100% for most submodels. The remaining
+gap (curves starting at e.g. 80% rather than 100%) reflects real Renewed market pricing
+at the time Keepa first recorded the product — not a data error.
+
+---
+
+## Issue 11 — Launch price varies by storage size; mean used as proxy
+
+Official retail prices differ significantly by storage tier. For example, iPhone 16 Pro
+ranged from $999 (128GB) to $1,499 (1TB). Since the dataset mixes storage sizes within
+each submodel and the analysis aggregates across all variants, using a single storage
+tier's price as the launch anchor would skew results depending on which variant happened
+to be tracked first.
+
+Approach: use the mean of all official storage-tier prices per submodel as
+`official_launch_price`. For iPhone 16 Pro: ($999 + $1,099 + $1,299 + $1,499) / 4 = $1,224.
+
+This is a conscious simplification. It slightly underrepresents premium configurations
+and overrepresents base configurations, but is more representative than picking any single
+tier. The limitation is noted in the methodology.
+
+---
+
+## Issue 12 — Very recently launched models produce unstable decay curves
+
+Models launched within the last few months (e.g. iPhone 17, Galaxy S25 Edge) have very
+few price observations. Random outliers or a single elevated early price can spike
+`price_pct_of_launch` well above 100% or produce erratic curves with large swings.
+
+These models should either be excluded from decay analysis or clearly flagged as
+"insufficient data" in the visualization. A practical threshold: exclude submodels with
+fewer than ~10 weekly price observations after resampling.

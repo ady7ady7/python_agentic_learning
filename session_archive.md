@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-26 | Week 4 Day 2 | Score: N/A | Difficulty: 4-7/10
+**Covered:** Pipeline cleanup (removed _x/_y duplicate columns). Created official_launch_prices.csv (63 submodels, real premiere dates, mean prices across storage tiers). Merged into pipeline — price_pct_of_launch now anchored to real launch prices, days_since_launch to real premiere dates. Charts 1 & 2 rebuilt — curves now start near 100%. ms_df aligned to same pipeline (official premiere dates, tier column). Documented Issues 10-12 in case_study_issues.md (Keepa premiere_date unreliable, storage price variation, unstable recent models).
+**Problems / gaps:** iPhone 17 and other recent models spike above 150% — excluded from analysis, threshold ~10 weekly observations. Dataset not designed for this analysis — required significant external data sourcing to make it work.
+**Reinforce next:** High-volume session. Charts 3-6 (monthly_sold). Product grade split (Renewed vs New vs Renewed Premium). Make charts interactive and polished. Push toward final deliverable.
+
+---
 ## 2026-05-25 | Week 4 Day 1 | Score: N/A | Difficulty: 5/10
 **Covered:** Created 04_interactive_charts.ipynb. Tier extraction implemented and verified (12 tiers: Base, Pro, Pro Max, Ultra, FE, Mini, Plus, +, a, Pro Fold, Edge, Pro XL). Charts 1 & 2 built. Discovered first_price was grouped by model not submodel — fixed to groupby('submodel_name'). Discovered tracking gap causes Pro/Pro Max to start mid-decay (iPhone 13 Pro gap = 212 days, Pro Max = 163 days). Documented as Issue 9 in case_study_issues.md. Chart plan saved to memory.
 **Problems / gaps:** price_pct_of_launch normalization was wrong scope — fixed. Tracking gap cannot be filled, must be annotated/acknowledged.
