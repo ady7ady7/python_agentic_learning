@@ -215,3 +215,33 @@ few price observations. Random outliers or a single elevated early price can spi
 These models should either be excluded from decay analysis or clearly flagged as
 "insufficient data" in the visualization. A practical threshold: exclude submodels with
 fewer than ~10 weekly price observations after resampling.
+
+---
+
+## Issue 13 — monthly_sold data only available from late 2023
+
+Keepa's `monthly_sold` metric was not tracked historically for most ASINs — the earliest
+records in the dataset start around October 2023. This means real-datetime sales rank
+charts only cover ~1.5 years of data, making it impossible to observe multi-year lifecycle
+trends or seasonal patterns across full product generations.
+
+The `days_since_launch` view is more analytically useful for this dataset since it shows
+lifecycle position regardless of when tracking started. The real-datetime view is retained
+for completeness but clearly noted as limited in coverage.
+
+---
+
+## Issue 14 — iPhones on Amazon US are Renewed or Renewed Premium only; no New listings
+
+When splitting price decay by `product_grade`, Apple iPhones showed no "New" grade in the
+dataset. This is expected: Apple does not sell factory-new iPhones through third-party
+Amazon listings. All iPhone inventory on Amazon US comes from Renewed sellers.
+
+Samsung and Google products do appear as "New" since those brands have third-party new
+listings on the marketplace. This means a direct Renewed vs New comparison is only
+possible for Samsung and Google, not Apple.
+
+The Renewed vs Renewed Premium split for iPhones is meaningful and shows a clear pattern:
+Renewed Premium listings consistently retain more of their launch price than standard
+Renewed, reflecting the higher condition grade commanding a price premium throughout the
+product lifecycle.
