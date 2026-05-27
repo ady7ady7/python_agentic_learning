@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-27 | Week 4 Day 3 | Score: N/A | Difficulty: N/A
+**Covered:** Charts 3-6 built (monthly_sold by tier/generation, days_since_launch + real datetime). Resample+ffill applied to datetime charts to fix artifacts. Vlines working with pd.Timestamp * 1000 fix. monthly_sold data only starts late 2023 — limitation noted. Product grade split on Chart 1: Renewed vs Renewed Premium — Premium clearly more stable and expensive. No New iPhones on Amazon US confirmed. Planned next additions: brand comparison at 1-year lifecycle stage, best-time-to-buy inflection analysis, KPI board with go.Indicator cards.
+**Problems / gaps:** monthly_sold coverage too short for meaningful seasonal analysis on real dates. vline annotation positioning needs refinement.
+**Reinforce next:** Brand comparison bar chart at 365 days. Price inflection/best-time-to-buy. KPI board with Plotly go.Indicator.
+
+---
 ## 2026-05-26 | Week 4 Day 2 | Score: N/A | Difficulty: 4-7/10
 **Covered:** Pipeline cleanup (removed _x/_y duplicate columns). Created official_launch_prices.csv (63 submodels, real premiere dates, mean prices across storage tiers). Merged into pipeline — price_pct_of_launch now anchored to real launch prices, days_since_launch to real premiere dates. Charts 1 & 2 rebuilt — curves now start near 100%. ms_df aligned to same pipeline (official premiere dates, tier column). Documented Issues 10-12 in case_study_issues.md (Keepa premiere_date unreliable, storage price variation, unstable recent models).
 **Problems / gaps:** iPhone 17 and other recent models spike above 150% — excluded from analysis, threshold ~10 weekly observations. Dataset not designed for this analysis — required significant external data sourcing to make it work.
