@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-28 | Week 4 Day 4 | Score: N/A | Difficulty: N/A
+**Covered:** Brand comparison at 1 year — iPhones retain value most, Pixel 5 outlier flagged as potentially sparse data. Best time to buy chart — steepest weekly price drop per generation (diff per ASIN, groupby generation+days_rounded, idxmin). KPI board with go.Indicator in 2×4 subplot grid — fixed add_trace row/col positioning, shortened titles with <br> splits. Learned go vs px distinction.
+**Problems / gaps:** go.Indicator cluttering without row/col args — fixed. date_range tuple not accepted as value — used scalar (6 years) instead. Best time to buy chart has outliers (Pixel 10 far out) — boxplot per brand suggested as improvement.
+**Reinforce next:** Final session tomorrow — polish charts, add written conclusions, consolidate into deliverable notebook. Consider boxplot for best-time-to-buy per brand.
+
+---
 ## 2026-05-27 | Week 4 Day 3 | Score: N/A | Difficulty: N/A
 **Covered:** Charts 3-6 built (monthly_sold by tier/generation, days_since_launch + real datetime). Resample+ffill applied to datetime charts to fix artifacts. Vlines working with pd.Timestamp * 1000 fix. monthly_sold data only starts late 2023 — limitation noted. Product grade split on Chart 1: Renewed vs Renewed Premium — Premium clearly more stable and expensive. No New iPhones on Amazon US confirmed. Planned next additions: brand comparison at 1-year lifecycle stage, best-time-to-buy inflection analysis, KPI board with go.Indicator cards.
 **Problems / gaps:** monthly_sold coverage too short for meaningful seasonal analysis on real dates. vline annotation positioning needs refinement.
