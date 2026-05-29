@@ -245,3 +245,17 @@ The Renewed vs Renewed Premium split for iPhones is meaningful and shows a clear
 Renewed Premium listings consistently retain more of their launch price than standard
 Renewed, reflecting the higher condition grade commanding a price premium throughout the
 product lifecycle.
+
+---
+
+## Issue 15 — Pixel 5 appears as an outlier in 1-year price retention
+
+Pixel 5 shows unusually high price retention at the 1-year mark compared to other Google
+models. This is not a data error — it reflects real market dynamics. The Pixel 5 launched
+at a relatively low price ($699) and Google discontinued it earlier than planned, which
+constrained supply on the secondary market. Scarcity of a still-functional device at an
+affordable price point supported its Renewed value better than newer, more expensive Pixel
+models that depreciated faster due to higher launch prices and continued availability.
+
+Data coverage: 3 ASINs, 78 rows in the 330-400 day window — sufficient for inclusion.
+The finding is retained in the analysis with this explanation as context.

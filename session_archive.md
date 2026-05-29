@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-29 | Week 4 Day 5 | Score: N/A | Difficulty: N/A
+**Covered:** Axis labels added to all charts. Vline overlap on ms_chart_5/6 partially improved — decided to try facet_col by year and annotation box approaches tomorrow. pd_chart_1 split into Apple/Samsung/Google/combined versions. pd_chart_1b/1c reveal Samsung is New-only, Google is mixed. Combined brand decay chart added. pd_chart_8 (best time to buy barplot) identified as analytically weak — to be replaced with price distribution boxplot + KDE per brand. Pixel 5 outlier documented (Issue 15) — low launch price + early discontinuation = scarcity effect. Documented Issues 13-15 in case_study_issues.md.
+**Problems / gaps:** vline overlap not fully solved. pd_chart_8 dropped as concept. KPI board still aesthetically poor.
+**Reinforce next:** Final session — facet vline chart, boxplot + KDE for price distribution, KPI board polish, written conclusions scaffolded, notebook structure finalized.
+
+---
 ## 2026-05-28 | Week 4 Day 4 | Score: N/A | Difficulty: N/A
 **Covered:** Brand comparison at 1 year — iPhones retain value most, Pixel 5 outlier flagged as potentially sparse data. Best time to buy chart — steepest weekly price drop per generation (diff per ASIN, groupby generation+days_rounded, idxmin). KPI board with go.Indicator in 2×4 subplot grid — fixed add_trace row/col positioning, shortened titles with <br> splits. Learned go vs px distinction.
 **Problems / gaps:** go.Indicator cluttering without row/col args — fixed. date_range tuple not accepted as value — used scalar (6 years) instead. Best time to buy chart has outliers (Pixel 10 far out) — boxplot per brand suggested as improvement.
