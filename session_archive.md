@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-05-30 | Week 4 Day 6 | Score: N/A | Difficulty: N/A
+**Covered:** Created 05_final_project.ipynb — clean consolidated notebook with full pipeline cell, proper section flow, human-sounding prose, [TODO] placeholders for remaining observations. All charts included in logical order. build_final_notebook.py script created as reproducible generator. All DataFrames renamed systematically. vlines solved with invisible scatter traces for legend entries. Confirmed notebook runs without errors.
+**Problems / gaps:** KPI board aesthetics still improvable. A few [TODO] placeholders remain for numeric values and observations. Plotly charts won't render statically on GitHub.
+**Reinforce next:** Fill in [TODO] placeholders, polish KPI board, add any final observations. Project ready to share.
+
+---
 ## 2026-05-29 | Week 4 Day 5 | Score: N/A | Difficulty: N/A
 **Covered:** Axis labels added to all charts. Vline overlap on ms_chart_5/6 partially improved — decided to try facet_col by year and annotation box approaches tomorrow. pd_chart_1 split into Apple/Samsung/Google/combined versions. pd_chart_1b/1c reveal Samsung is New-only, Google is mixed. Combined brand decay chart added. pd_chart_8 (best time to buy barplot) identified as analytically weak — to be replaced with price distribution boxplot + KDE per brand. Pixel 5 outlier documented (Issue 15) — low launch price + early discontinuation = scarcity effect. Documented Issues 13-15 in case_study_issues.md.
 **Problems / gaps:** vline overlap not fully solved. pd_chart_8 dropped as concept. KPI board still aesthetically poor.
