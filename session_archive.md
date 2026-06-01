@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-01 | Week 5 Day 1 | Score: N/A | Difficulty: N/A
+**Covered:** Launch price barplot added (sorted by value, brand colored) — iPhones not always most expensive, some Samsung models overlap. Identified that NEW column may be in cents not USD — needs verification before dollar charts. Decided to add USD price alongside % in existing aggregations rather than separate charts.
+**Problems / gaps:** Tasks 2-3 (dollar decay charts) not done — price unit verification needed first. Polish notebook not updated yet.
+**Reinforce next:** Verify NEW column units, add price_usd to existing aggregations, build dollar decay charts for all 3 brands, update Polish notebook.
+
+---
+## 2026-05-31 | Week 4 Day 7 | Score: N/A | Difficulty: N/A
+**Covered:** Final polish on 06_final_project_sns.ipynb — Prime Day vlines added, iPhone 15 sales comparison added, all TODO placeholders filled with real observations, prose polished throughout. Polish version 06_final_project_pl.ipynb created with natural Polish prose. GitHub notebook rendering issue identified (nbconvert error) — PNG outputs confirmed present, likely GitHub-side transient issue. Planned next additions: $ price charts per submodel, launch price barplot year-over-year.
+**Problems / gaps:** GitHub notebook rendering unreliable — not a file issue. build_final_notebook_sns.py lost (not committed). translate_to_polish.py not committed (file not found at commit time).
+**Reinforce next:** $ price analysis (NEW / 100 per submodel), launch price barplot by year, README-based portfolio repo if GitHub rendering remains broken.
+
+---
 ## 2026-05-30 | Week 4 Day 6 | Score: N/A | Difficulty: N/A
 **Covered:** Created 05_final_project.ipynb — clean consolidated notebook with full pipeline cell, proper section flow, human-sounding prose, [TODO] placeholders for remaining observations. All charts included in logical order. build_final_notebook.py script created as reproducible generator. All DataFrames renamed systematically. vlines solved with invisible scatter traces for legend entries. Confirmed notebook runs without errors.
 **Problems / gaps:** KPI board aesthetics still improvable. A few [TODO] placeholders remain for numeric values and observations. Plotly charts won't render statically on GitHub.
