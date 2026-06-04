@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-03 | Week 5 Day 3 | Score: N/A | Difficulty: N/A
+**Covered:** Tier decay charts built for all brands + per brand (Apple/Samsung/Google). Key finding: Apple Base outperforms Pro Max in long-term % retention; Samsung FE leads early; Google 'a' series is the strongest value holder. Base and flagship launch price charts over time. Pro Fold excluded from flagship chart with detailed analytical note. NEW column confirmed as USD. Full notebook reorder planned.
+**Problems / gaps:** USD decay charts not yet built. Sales rank by tier not done. Debug cell still in notebook. Notebook order needs restructuring.
+**Reinforce next:** Remove debug cell, reorder notebook per agreed structure, add USD decay charts, add sales rank by tier, update Polish notebook.
+
+---
+## 2026-06-02 | Week 5 Day 2 | Score: N/A | Difficulty: N/A
+**Covered:** Annotation practice on 2 charts. All-brands decay chart: shaded first-year band, crossing-point annotations for all 3 brands. 1-year retention barplot: Pixel 5 anomaly annotated. Discussed line highlighting and circle annotations. Base vs flagship launch price scatter+line charts built. Pro Fold inclusion question raised.
+**Problems / gaps:** Pro Fold decision deferred. Highlighting individual lines / circle annotations not yet implemented.
+**Reinforce next:** Pro Fold decision, USD charts, tier aggregation for sales rank.
+
+---
 ## 2026-06-01 | Week 5 Day 1 | Score: N/A | Difficulty: N/A
 **Covered:** Launch price barplot added (sorted by value, brand colored) — iPhones not always most expensive, some Samsung models overlap. Identified that NEW column may be in cents not USD — needs verification before dollar charts. Decided to add USD price alongside % in existing aggregations rather than separate charts.
 **Problems / gaps:** Tasks 2-3 (dollar decay charts) not done — price unit verification needed first. Polish notebook not updated yet.
