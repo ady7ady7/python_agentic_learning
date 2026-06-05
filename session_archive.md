@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-05 | Week 5 Day 5 | Score: N/A | Difficulty: 8/10
+**Covered:** Major discovery: `monthly_sold` is Keepa's sales estimate buckets (50 = at least 50 units sold), not a sales rank — and existing `mean()` aggregation was methodologically wrong due to varying ASIN counts per submodel. Decision: keep `06_final_project_sns.ipynb` for price decay, rebuild sales section from scratch in `07_final_project_adjusted_sns.ipynb`. New pipeline: `resample('ME').last()` per ASIN + `sum()` across variants, aggregated to `month_year`. Built brand / brand+tier / submodel DataFrames, rebuilt all sales charts, wrote observations for iPhone 11/13/15 submodels. Sales section now has correct methodology and honest framing.
+**Problems / gaps:** `base_apple_df` variable collision in pipeline (overwritten by sales version). Stale methodology note in cell-2 still references old incorrect framing. 1yr/2yr retention by tier not yet built. Key findings missing iPhone 13 Pro Max and seasonality bullets.
+**Reinforce next:** Fix bug, update methodology note, add tier retention charts, update key findings. Session ran very long (~2+ hrs) due to unexpected methodological rebuild.
+
+---
 ## 2026-06-03 | Week 5 Day 3 | Score: N/A | Difficulty: N/A
 **Covered:** Tier decay charts built for all brands + per brand (Apple/Samsung/Google). Key finding: Apple Base outperforms Pro Max in long-term % retention; Samsung FE leads early; Google 'a' series is the strongest value holder. Base and flagship launch price charts over time. Pro Fold excluded from flagship chart with detailed analytical note. NEW column confirmed as USD. Full notebook reorder planned.
 **Problems / gaps:** USD decay charts not yet built. Sales rank by tier not done. Debug cell still in notebook. Notebook order needs restructuring.
