@@ -1014,26 +1014,26 @@ Test that:
 - `calc_position_size(10000, 0, 2.0)` raises `ValueError`'''
 
 
-from functools import wraps
+# from functools import wraps
 
 
-def validate_positive(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        for arg in args:
-            if isinstance(arg, (int, float)) and arg <= 0:
-                raise ValueError(f'All numeric values must be positive, got {arg} instead')
-        for key, val in kwargs.items():
-            if isinstance(val, (int, float)) and val <= 0:
-                raise ValueError(f'Argument {key} should have only positive arguments, got {val}')
-        return func(*args, **kwargs)
-    return wrapper
+# def validate_positive(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         for arg in args:
+#             if isinstance(arg, (int, float)) and arg <= 0:
+#                 raise ValueError(f'All numeric values must be positive, got {arg} instead')
+#         for key, val in kwargs.items():
+#             if isinstance(val, (int, float)) and val <= 0:
+#                 raise ValueError(f'Argument {key} should have only positive arguments, got {val}')
+#         return func(*args, **kwargs)
+#     return wrapper
 
 
-@validate_positive
-def calc_position_size(capital: float, risk_pct: float, stop_distance: float):
-    return (capital * risk_pct / 100 / stop_distance)
+# @validate_positive
+# def calc_position_size(capital: float, risk_pct: float, stop_distance: float):
+#     return (capital * risk_pct / 100 / stop_distance)
 
-print(calc_position_size(10000, 1.5, 2.0))
-# print(calc_position_size(10000, 1.5, -2.0))
-print(calc_position_size(10000, 0, 2.0))
+# print(calc_position_size(10000, 1.5, 2.0))
+# # print(calc_position_size(10000, 1.5, -2.0))
+# print(calc_position_size(10000, 0, 2.0))
