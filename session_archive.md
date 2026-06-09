@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-08 | Week 6 Day 1 | Score: N/A | Difficulty: 4/10
+**Covered:** Polish and bug-fixing session on 07_final_project_adjusted_sns.ipynb. Fixed base_apple_df variable collision, corrected stale methodology note (sales data now correctly described as lower-bound indicator, not omitted), updated key findings with iPhone 13 secondary market king finding and Q4/Prime Day seasonality. Corrected Pro Max claim — data shows Base + Mini lead iPhone 13 sales, not Pro Max. Rejected tier retention barplot in favour of planned annotated shaded bands on tier decay charts.
+**Problems / gaps:** Shaded band annotations on tier decay charts not yet implemented. Polish notebook (06_final_project_pl.ipynb) still not synced with all changes from Weeks 5–6.
+**Reinforce next:** Implement axvspan shaded year bands on tier decay charts, then assess if project is ready to wrap or needs further polish.
+
+---
 ## 2026-06-05 | Week 5 Day 5 | Score: N/A | Difficulty: 8/10
 **Covered:** Major discovery: `monthly_sold` is Keepa's sales estimate buckets (50 = at least 50 units sold), not a sales rank — and existing `mean()` aggregation was methodologically wrong due to varying ASIN counts per submodel. Decision: keep `06_final_project_sns.ipynb` for price decay, rebuild sales section from scratch in `07_final_project_adjusted_sns.ipynb`. New pipeline: `resample('ME').last()` per ASIN + `sum()` across variants, aggregated to `month_year`. Built brand / brand+tier / submodel DataFrames, rebuilt all sales charts, wrote observations for iPhone 11/13/15 submodels. Sales section now has correct methodology and honest framing.
 **Problems / gaps:** `base_apple_df` variable collision in pipeline (overwritten by sales version). Stale methodology note in cell-2 still references old incorrect framing. 1yr/2yr retention by tier not yet built. Key findings missing iPhone 13 Pro Max and seasonality bullets.

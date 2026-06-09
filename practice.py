@@ -1037,3 +1037,155 @@ Test that:
 # print(calc_position_size(10000, 1.5, 2.0))
 # # print(calc_position_size(10000, 1.5, -2.0))
 # print(calc_position_size(10000, 0, 2.0))
+
+
+#CD Python - stats - T232
+
+'''
+Zadanie
+Ile kolumn z danymi numerycznymi ma średnią wartość większą od mediany?
+
+Przypisz liczbę kolumn do zmiennej mean_wins.
+'''
+
+
+# import pandas as pd
+# import numpy as np
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# check_dict = dict()
+# filtered_columns = []
+# for column in df.columns:
+#     if df[column].dtypes == 'int64' or df[column].dtypes == 'int64' == 'float64':
+#         filtered_columns.append(column)
+
+# filtered_df = df[filtered_columns]
+# filtered_df.head()
+
+# for column in filtered_df.columns:
+#     mean = filtered_df[column].mean()
+#     median = filtered_df[column].median()
+    
+#     print(mean, median)
+
+#     if mean > median:
+#         check_dict[column] = 1
+#     else:
+#         continue
+
+
+# print(check_dict)
+# mean_wins = len(check_dict)
+# print(mean_wins)
+
+
+
+#Moje rozwiazanie średnio pythoniczne, poniżej rozwiązanie Kasi
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+
+# num_cols = df.select_dtypes(include="number").columns.tolist()
+
+# mean_wins = 0
+# for col in num_cols:
+#     if df[col].mean() > df[col].median():
+#         mean_wins += 1
+
+# print(mean_wins)
+
+
+
+#CD Python - 233
+
+'''Aby obliczyć wariancję oraz odchylenie standardowe liczymy kwadrat różnicy, czyli dla każdego wiersza liczymy różnicę między wartością tego wiersza a średnią tej kolumny, podniesioną do kwadratu.
+
+Stwórz dwie nowe kolumny w DataFrame df:
+
+diff - liczącą różnicę między wartością w kolumnie price_per_m a średnią w tej kolumnie
+diff_2 - liczącą kwadrat powyższej różnicy
+Ile wynosi wartość największego kwadratu różnicy? Przypisz odpowiedź do zmiennej top_diff_2'''
+
+# import pandas as pd
+# pd.set_option("display.float_format", "{:.2f}".format)
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df['diff'] = df['price_per_m'] - df['price_per_m'].mean()
+# df['diff_2'] = (df['price_per_m'] - df['price_per_m'].mean())**2
+
+# top_diff_2 = max(df['diff_2'])
+# print(top_diff_2)
+
+
+
+#CD Python - 234
+
+'''Zadanie
+Kwadrat różnicy, który liczył(a)ś w poprzednim zadaniu tworzy wartość w dziwnej jednostce, którą ciężko interpretować. Żeby wrócić do pierwotnej jednostki kolumny używamy pierwiastkowania na końcu.
+
+Stwórz dwie nowe kolumny w DataFrame df:
+
+diff - liczącą różnicę między wartością w kolumnie price_per_m a średnią w tej kolumnie
+diff_2 - liczącą kwadrat powyższej różnicy
+Następnie oblicz:
+
+średnią z wartości bezwzględnych kolumny diff
+pierwiastek ze średniej z kolumny diff_2
+Jaka jest różnica między tymi średnimi? Przypisz ją do zmiennej mad_vs_std.
+'''
+
+
+# import pandas as pd
+# import numpy as np
+# pd.set_option("display.float_format", "{:.2f}".format)
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df['diff'] = df['price_per_m'] - df['price_per_m'].mean()
+# df['diff_2'] = (df['price_per_m'] - df['price_per_m'].mean())**2
+
+
+# mad = df['diff'].abs().mean()
+# std = np.sqrt(df['diff_2'].mean())
+
+# mad_vs_std = mad - std
+# print(mad_vs_std)
+
+
+
+
+#CD Python - 235
+'''Zadanie
+Rozstęp międzykwartylowy (IQR) jest wykorzystywany do określania outlierów, czyli wartości odstających, na podstawie wzoru:
+
+outlier < Q1 - 1.5 * IQR
+outlier > Q3 + 1.5 * IQR
+Narysuj boxplot na podstawie kolumny df["build_year"] i zobacz jakie wartości przyjmują outliery (narysowane na wykresie pudełkowym jako kółeczka). Następnie policz liczbę outlierów na podstawie powyższych wzorów i przypisz tę liczbę do zmiennej cnt_outliers.
+
+Żeby pokazać wykres w notatniku na końcu kodu użyj funkcji:
+
+plt.show()'''
+
+
+
+# import matplotlib.pyplot as plt 
+# import seaborn as sns
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+
+# boxplot_1 = sns.boxplot(
+#     data = df['build_year']
+# )
+
+# plt.show()
+
+# q1 = df['build_year'].quantile(0.25)
+# q3 = df['build_year'].quantile(0.75)
+# iqr = q3 - q1
+
+# cnt_outliers = len(df[(df['build_year'] > q1 - 1.5 * iqr) & (df['build_year'] < q3 + 1.5 * iqr)])
+# print(cnt_outliers)
