@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-15 | Week 7 Day 1 | Score: N/A | Difficulty: N/A
+**Covered:** Structural rework of project notebook following Kasia's review. New notebook `08_final_project_sns.ipynb` built via script: pipeline split into logical steps with inline markdown, "show the problem, show the solution" flow throughout, challenges surfaced as data is explored. Grade composition visualised and observed (not used as a filter) — kept all product grades after identifying that filtering to Renewed-only discards 90% of Samsung data. Per-brand grade comparison chart planned. Per-generation decay charts identified as unreadable (too many lines) — to be dropped or replaced tomorrow.
+**Problems / gaps:** Product grade chart by generation (Apple) is unreadable — needs replacing with per-brand grade decay using `groupby(['brand', 'product_grade', 'days_rounded'])`. Per-generation line charts for Apple/Samsung/Google also too cluttered — replacement approach TBD.
+**Reinforce next:** Build per-brand product grade decay charts (one per brand), decide what replaces per-generation charts (retention barplot per generation likely cleaner), continue with Polish translation plan.
+
+---
+## 2026-06-10 | Week 6 Day 3 | Score: N/A | Difficulty: N/A
+**Covered:** Final audit of 07_final_project_adjusted_sns.ipynb — observations added for Samsung/Google base model charts, minor consistency fixes. Key findings section expanded: niche variant depreciation (Edge/Pro Fold), predecessor sales spike, 1–2yr buy-window value, iPhone 11 price convergence finding. Polish version created from scratch (07_final_project_pl.ipynb) using create script, then reviewed and manually polished by Adrian. Project considered complete and shared.
+**Problems / gaps:** None — project wrapped.
+**Reinforce next:** TBD after vacation.
+
+---
 ## 2026-06-08 | Week 6 Day 1 | Score: N/A | Difficulty: 4/10
 **Covered:** Polish and bug-fixing session on 07_final_project_adjusted_sns.ipynb. Fixed base_apple_df variable collision, corrected stale methodology note (sales data now correctly described as lower-bound indicator, not omitted), updated key findings with iPhone 13 secondary market king finding and Q4/Prime Day seasonality. Corrected Pro Max claim — data shows Base + Mini lead iPhone 13 sales, not Pro Max. Rejected tier retention barplot in favour of planned annotated shaded bands on tier decay charts.
 **Problems / gaps:** Shaded band annotations on tier decay charts not yet implemented. Polish notebook (06_final_project_pl.ipynb) still not synced with all changes from Weeks 5–6.
