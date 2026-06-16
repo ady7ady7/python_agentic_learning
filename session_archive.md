@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-16 | Week 7 Day 2 | Score: N/A | Difficulty: N/A
+**Covered:** Replaced unreadable per-generation decay line charts with per-brand product grade decay charts (Apple: Renewed vs Renewed Premium, Samsung/Google: New vs Renewed) and per-brand 1-year retention barplots. Adrian reviewed Tasks 1-2 fully and Task 3 partially — adjusted Samsung/Google grade observations, chart styling, retention bar colours/fonts. Identified price decay in % section as overcluttered vs the cleaner USD section. iPhone 13 submodels chart flagged for simplification (13 vs Pro only). Tier decay charts flagged for similar cleanup (fewer lines, e.g. Base vs Ultra vs Edge for Samsung).
+**Problems / gaps:** Price decay in % section still overcluttered — needs same treatment as USD section (fewer tiers per chart, cleaner line selection). Tasks 4-5 not reached.
+**Reinforce next:** Simplify price decay in % charts manually (Adrian's task). Add pandas groupby practice: extracting specific values from grouped data (e.g. tier with highest monthly decay).
+
+---
 ## 2026-06-15 | Week 7 Day 1 | Score: N/A | Difficulty: N/A
 **Covered:** Structural rework of project notebook following Kasia's review. New notebook `08_final_project_sns.ipynb` built via script: pipeline split into logical steps with inline markdown, "show the problem, show the solution" flow throughout, challenges surfaced as data is explored. Grade composition visualised and observed (not used as a filter) — kept all product grades after identifying that filtering to Renewed-only discards 90% of Samsung data. Per-brand grade comparison chart planned. Per-generation decay charts identified as unreadable (too many lines) — to be dropped or replaced tomorrow.
 **Problems / gaps:** Product grade chart by generation (Apple) is unreadable — needs replacing with per-brand grade decay using `groupby(['brand', 'product_grade', 'days_rounded'])`. Per-generation line charts for Apple/Samsung/Google also too cluttered — replacement approach TBD.
