@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
+from scipy.stats import ttest_ind #added on 17.06.26
+
 #CD Python T200 (#estimated task number, as I've stored previous tasks in pcap_archive/practice.py)
 '''
 Zadanie
@@ -1189,3 +1191,732 @@ plt.show()'''
 
 # cnt_outliers = len(df[(df['build_year'] > q1 - 1.5 * iqr) & (df['build_year'] < q3 + 1.5 * iqr)])
 # print(cnt_outliers)
+
+
+#CD Python - 236
+'''
+Zadanie
+Która kolumna zawiera wartości najbliższe rozkładu normalnemu?
+
+Odpowiedź (nazwę kolumny) przypisz do zmiennej col_like_normal.
+
+'''
+
+
+# import pandas as pd
+# import numpy as np
+# np.random.seed(42)
+# df = pd.DataFrame({"age": np.random.normal(35, 10, 1000), "salary": np.random.lognormal(10, 0.5, 1000), "transactions": np.random.poisson(8, 1000), "session_time": np.random.exponential(15, 1000), "rating": np.random.randint(1, 6, 1000), "city_population": np.random.lognormal(12, 1, 1000), "products_bought": np.random.poisson(3, 1000), "discount_pct": np.random.uniform(0, 50, 1000), "website_visits": np.random.poisson(20, 1000), "account_balance": np.random.exponential(5000, 1000)})
+
+# fig, ax = plt.subplots(2, 5, figsize = (14, 8))
+# sns.histplot(data = df, x = 'age',kde = True, ax = ax[0, 0])
+# sns.histplot(data = df, x = 'salary',kde = True, ax = ax[0, 1])
+# sns.histplot(data = df, x = 'transactions',kde = True, ax = ax[0, 2])
+# sns.histplot(data = df, x = 'session_time',kde = True, ax = ax[0, 3])
+# sns.histplot(data = df, x = 'rating',kde = True, ax = ax[0, 4])
+# sns.histplot(data = df, x = 'city_population',kde = True, ax = ax[1, 0])
+# sns.histplot(data = df, x = 'products_bought',kde = True, ax = ax[1, 1])
+# sns.histplot(data = df, x = 'discount_pct',kde = True, ax = ax[1, 2])
+# sns.histplot(data = df, x = 'website_visits',kde = True, ax = ax[1, 3])
+# sns.histplot(data = df, x = 'account_balance', kde = True, ax = ax[1, 4])
+
+# plt.show()
+
+# col_like_normal = 'age'
+# #Ja to sobie zwizualizowałem, ale w zasadzie rozwiązaniem Kasi było sprawdzenie wartości skew i kurtosis i posrotowanie
+
+
+# df_stats = pd.DataFrame(columns=["col", "skew", "kurtosis"])
+# for col in df.columns:
+#     new_row = {
+#         "col": col,
+#         "skew": abs(df[col].skew()),
+#         "kurtosis": abs(df[col].kurtosis())
+#         }
+
+#     df_stats.loc[len(df_stats)] = new_row
+
+# df_stats["skew_kurtosis"] = df_stats["skew"] + df_stats["kurtosis"]
+# col_like_normal = df_stats.sort_values(by = "skew_kurtosis")["col"].head(1).item()
+# print(col_like_normal)
+
+
+#CD Python - 237
+
+'''Zadanie
+Która kolumna zawiera rozkład najbardziej prawoskośny?
+
+Odpowiedź (nazwę kolumny) przypisz do zmiennej top_skewed_col.'''
+
+# import pandas as pd
+# import numpy as np
+# np.random.seed(42)
+# df = pd.DataFrame({"age": np.random.normal(35, 10, 1000), "salary": np.random.lognormal(10, 0.5, 1000), "transactions": np.random.poisson(8, 1000), "session_time": np.random.exponential(15, 1000), "rating": np.random.randint(1, 6, 1000), "city_population": np.random.lognormal(12, 1, 1000), "products_bought": np.random.poisson(3, 1000), "discount_pct": np.random.uniform(0, 50, 1000), "website_visits": np.random.poisson(20, 1000), "account_balance": np.random.exponential(5000, 1000)})
+
+
+
+# df_stats = pd.DataFrame(columns = ['col', 'skew'])
+# for col in df.columns:
+#     new_row = {
+#         'col': col,
+#         'skew': abs(df[col].skew())
+#     }
+#     df_stats.loc[len(df_stats)] = new_row
+
+# df_stats = df_stats.sort_values(by = 'skew', ascending = False)
+# print(df_stats)
+# top_skewed_col = df_stats['col'].head(1).item()
+
+
+
+#CD Python - 238
+'''
+Zadanie
+Wspominałam podczas lekcji, że rzadko możemy spotkać rozkład normalny w danych niebiologicznych.
+
+Czy są jakieś zmienne w dataframe df, które mają rozkład normalny?
+
+Przypisz odpowiedź True / False do zmiennej is_anything_normal
+'''
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# numeric_cols = [col for col in df.select_dtypes(include='number')]
+
+# normals = []
+# for col in numeric_cols:
+#     skew = abs(df[col].skew())
+#     kurtosis = abs(df[col].kurtosis())
+#     both_sum = skew + kurtosis
+#     normals.append({col: both_sum})
+
+# print(normals)
+
+# is_anything_normal = False
+
+
+
+#CD Python - 239
+'''
+Jak nazywa się rozkład, który opisuje zmienną df["separate_kitchen"]?
+
+Wybierz pośród poniższych wartości i przypisz nazwę rozkładu do zmiennej distribution:
+
+normalny
+jednostajny
+wykladniczy
+log-normalny
+bernoulliego
+dwumianowy
+poisson
+'''
+
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# plot = sns.histplot(data = df, x = 'separate_kitchen', kde = True)
+# plt.show()
+
+# distribution = 'bernoulliego'
+
+
+
+#CD Python - 240
+
+'''Która z poniższych zmiennych charakteryzuje się największym rozproszeniem?
+Przypisz nazwę kolumny do zmiennej top_dispersion.
+'''
+
+'''
+Aby porównywać rozproszenie między RÓŻNYMI zmiennymi, musimy wybrać metrykę rozproszenia,
+która nie jest zależna od jednostki badanych zmiennych - sięgamy zatem po współczynnik zmienności.
+
+Nie chcemy np. porównywać rozkładu międzykwartylowego, który dla kolumny price przyjmuje wartości w złotówkach,
+a area w metrach kwadratowych.
+
+Ponieważ badane zmienne nie mają rozkładu normalnego, sięgamy po pozycyjny współczynnik zmienności.'''
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# filtered_df = df[["area", "price", "floor_no", "latitude", "longitude"]]
+# col_disp = {col:0 for col in filtered_df.columns}
+
+# for col in filtered_df.columns:
+#     q1 = df[col].quantile(0.25)
+#     q3 = df[col].quantile(0.75)
+#     col_disp[col] = (q3 - q1) / (q3 + q1)
+
+# top_dispersion = sorted(col_disp.items(), key = lambda x: x[1], reverse = True)[0][0]
+# print(top_dispersion)
+
+
+#CD Python - 241
+
+'''
+Chociaż nie jestem fanką wynajdowania koła na nowo i uważam, 
+że w normalnych warunkach zawsze powinniśmy korzystać z gotowych funkcji, 
+to dla celów edukacyjnych czasami warto przejść przez obliczenia "ręcznie", krok po kroku,
+żeby dokładnie zrozumieć jak coś działa.
+
+Policz krok po kroku odchylenie standardowe dla kolumny df["price"] nie korzystając z metody lub funkcji std.
+Wynik zaokrąglony do dwóch cyfr po przecinku przypisz do zmiennej price_std.
+'''
+
+# import pandas as pd
+# import numpy as np
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df['diff_squared'] = (df['price'] - df['price'].mean())**2 #najpierw liczymy odchylenie od sredniej podniesione do kwadratu dla kazdej wartosci
+# wariancja = sum(df['diff_squared'])/(len(df)-1) #wariancja to suma kwadratow odchylen podzielona przez dlugosc zbioru-1
+# price_std = np.sqrt(wariancja) #odchylenie standardowe to pierwiastek z wariancji
+# print(price_std)
+
+
+#CD Python - 242
+
+'''
+Zadanie
+Rozkład normalny opisują dwa parametry.
+
+Przypisz te parametry (zaokrąglone do 2 cyfr po przecinku) na podstawie wartości s do zmiennej par_1 i par_2.
+'''
+
+# import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+# s = pd.Series([42]*2 + [43]*4 + [44]*8 + [45]*12 + [46]*18 + [47]*24 + [48]*30 + [49]*35 + [50]*35 + [51]*30 + [52]*30 + [53]*24 + [54]*18 + [55]*12 + [56]*8 + [57]*4 + [58]*2 + [59])
+# sns.histplot(s, bins=17, kde=True)
+# plt.show()
+
+
+# #WAŻNE, BO TU SIĘ POMYLIŁEM
+# #ROZKŁADU NORMALNEGO NIE OPISUJĄ SKEW() I KURTOSIS() - oczywistym jest, że będą bliskie 0
+# #Rozkład normalny opisują średnia i ochylenie standardowe
+# #Średnia określa, gdzie jest środek rozkładu na osi X
+# #Std określa jak bardzo rozproszony jest rozkład
+
+# par_1 = round(s.mean(), 2)
+# par_2 = round(s.std(), 2)
+# print(par_1, par_2)
+
+
+#CD Python - 243
+
+'''
+Zadanie
+Przekształć dane zapisane w zmiennej s tak, aby ich rozkład był bardziej zbliżony do rozkładu normalnego. 
+Użyj jednej operacji matematycznej i przypisz wynik do zmiennej s_transformed.
+'''
+
+#w przypadku rozkładu lognormal, zmienia się on w rozkład normalny po zamianie wartości w logarytmy
+
+
+# import pandas as pd
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# np.random.seed(42)
+
+# s = pd.Series(
+#     np.random.lognormal(mean=2, sigma=0.6, size=1000)
+# )
+# fg = sns.histplot(s)
+# plt.show()
+
+
+# s_transformed = np.log(s)
+# fg = sns.histplot(s_transformed)
+# plt.show()
+
+
+
+#CD Python - 244
+'''
+Zadanie
+Zobacz czy wartości w zmiennej s mają rozkład normalny na zasadzie reguły 68-95-99.7.
+Jeżeli odchylenie jest +- 1.5 punkta procentowego, traktuj to jako rozkład normalny.
+
+Przypisz odpowiedź True / False do zmiennej is_normal.
+'''
+
+# import pandas as pd
+# import numpy as np
+
+# s = pd.Series([42, 45, 48, 50, 52, 55, 58, 60, 62, 64, 66, 68, 70, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 90, 91, 91, 92, 92, 93, 93, 94, 94, 95, 95, 96, 96, 97, 97, 98, 98, 99, 99, 100, 100, 100, 100, 101, 101, 102, 102, 103, 103, 104, 104, 105, 105, 106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 112, 112, 113, 113, 114, 114, 115, 115, 116, 116, 117, 117, 118, 118, 119, 120, 121, 122, 123, 124, 125, 126, 128, 130, 132, 134, 136, 138, 140, 142, 145, 148, 150, 152, 155, 158, 162])
+
+# min_s = s.mean() - s.std() #średnia wartość od której odejmujemy 1std
+# max_s = s.mean() + s.std() #i dodajemy 1std
+
+# #następnie sprawdzamy jaką długość całego zbioru stanowią wartości,
+# #które zawierają się w zakresie między średnią a 1 std
+# print(len(s[(s > min_s) & (s < max_s)]) / len(s)) #0.71
+
+
+# min_s = s.mean() - 2*s.std() #a tutaj 2std
+# max_s = s.mean() + 2*s.std() 
+# print(len(s[(s > min_s) & (s < max_s)]) / len(s)) #0.93
+
+
+# min_s = s.mean() - 3*s.std() #i 3std
+# max_s = s.mean() + 3*s.std()
+# print(len(s[(s > min_s) & (s < max_s)]) / len(s)) #1.0
+
+# #Nie do końca odpowiada to regule 68-95-99,7 i nie mieścimy się w przyjętej granicy tolerancji 1.5pp)
+# is_normal = False
+
+
+#CD Python - 245
+
+'''
+Porównaj która grupa (df["group"]) ma największe rozproszenie danych.
+Wszystkie grupy mają wartości z rozkładu normalnego, ale są opisane w różnych jednostkach.
+
+Przypisz nazwę grupy z największym rozproszeniem do zmiennej top_dispersion_group.
+'''
+
+# import pandas as pd
+# import numpy as np
+# np.random.seed(42)
+# df = pd.DataFrame({"group": ["A"]*100 + ["B"]*100 + ["C"]*100 + ["D"]*100, "value": np.r_[np.random.normal(5, 1, 100), np.random.normal(50, 10, 100), np.random.normal(1500, 200, 100), np.random.normal(600000, 80000, 100)]})
+
+# dispersion_df = pd.DataFrame(columns = ('group', 'dispersion'))
+# groups = df['group'].unique().tolist()
+
+# for group in groups:
+#     filtered_df = df[df['group'] == group]
+#     q1 = filtered_df['value'].quantile(0.25)
+#     q3 = filtered_df['value'].quantile(0.75)
+#     cv = (q3 - q1) / (q3 + q1)
+#     print(cv)
+    
+#     new_row = {
+#         'group': group,
+#         'dispersion': cv
+#     }
+
+#     dispersion_df.loc[len(dispersion_df)] = new_row
+
+# top_dispersion_group = dispersion_df.sort_values(by = 'dispersion', ascending = False).head(1).values.tolist()[0][0]
+# print(top_dispersion_group)
+
+
+#CD Python - 246
+
+
+'''
+Jak nazywa się rozkład, który opisuje zmienną s?
+
+Wybierz pośród poniższych wartości i przypisz nazwę rozkładu do zmiennej distribution:
+
+normalny
+jednostajny
+wykladniczy
+log-normalny
+bernoulliego
+dwumianowy
+poisson
+'''
+
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+
+# s = pd.Series([0.1, 0.2, 0.2, 0.3, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.7, 0.8, 0.8, 0.9, 1.0, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.7, 4.1, 4.6, 5.2, 5.9, 6.7, 7.6, 8.7, 10.0, 12.0])
+
+# plt.hist(s)
+# plt.show()
+
+# distribution = 'wykladniczy'
+
+
+#CD Python - 247
+
+'''
+Dataframe df zawiera informacje o zgłoszeniach do działu obsługi klienta.
+
+Twoim zadaniem jest:
+
+stworzyć histogram, który pokazuje rozkład liczby zgłoszeń na każdą godzinę
+przypisać nazwę powstałego rozkładu do zmiennej distribution
+przypisać do zmiennej cnt_params ile parametrów opisuje powyższy rozkład
+Nazwę rozkładu wybierz pośród poniższych wartości:
+
+normalny
+jednostajny
+wykladniczy
+log-normalny
+bernoulliego
+dwumianowy
+poisson1600
+'''
+
+# import pandas as pd
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# np.random.seed(42)
+
+# hours = pd.date_range("2025-01-01", periods=24*30, freq="h")
+# rows = []
+# ticket_id = 1
+# for dt, cnt in zip(hours, [7, 9, 8, 6, 10, 11, 5, 8, 9, 7, 6, 12, 8, 7, 9, 10, 6, 8, 7, 9, 11, 5, 8, 7] * 30):
+#     for _ in range(cnt):
+#         rows.append([
+#             ticket_id,
+#             dt + pd.Timedelta(minutes=np.random.randint(0, 60)),
+#             np.random.choice([
+#                 "Login issue",
+#                 "Payment failed",
+#                 "Bug report",
+#                 "Feature request",
+#                 "Password reset"
+#             ])
+#         ])
+#         ticket_id += 1
+# df = pd.DataFrame(rows, columns=["ticket_id", "created_at", "description"])
+# df['hour'] = df['created_at'].dt.hour
+
+# hist_plot = sns.histplot(
+#     data = df,
+#     x = 'hour'
+# )
+# plt.show()
+
+# distribution = 'poisson'
+# cnt_params = 1
+
+
+#CD Python - 248
+
+'''
+Czy średnie w grupach A i B różnią się istotnie statystycznie według testu t-Studenta?
+Przyjmijmy poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej is_different.
+'''
+# from scipy.stats import ttest_ind
+# group_a = [48, 52, 55, 57, 58, 59, 60, 61, 62, 64, 65, 67, 69, 71, 74]
+# group_b = [53, 56, 58, 60, 61, 63, 65, 66, 67, 69, 70, 72, 74, 76, 79]
+
+# test_results = ttest_ind(group_a, group_b)
+# print(test_results)
+'''TtestResult(statistic=np.float64(-1.667572025484055),
+pvalue=np.float64(0.10654853467007974), df=np.float64(28.0))'''
+#We adapt the 0.05 as the significance level
+
+# is_different = False
+
+
+#CD Python - 249
+'''Wynik testu t-Studenta zależy od wielkości próby: im większa próba, 
+tym łatwiej wykryć nawet niewielkie różnice między grupami. 
+Porównaj statystycznie dwie grupy, z których każda zawiera po 150 obserwacji.
+
+Czy średnie w grupach A i B różnią się istotnie statystycznie według testu t-Studenta? 
+Przyjmijmy poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej is_different.'''
+
+# import numpy as np
+# np.random.seed(42)
+# group_a = np.round(np.random.normal(60, 8, 150)).astype(int)
+# group_b = np.round(np.random.normal(65, 8, 150)).astype(int)
+
+# print(ttest_ind(group_a, group_b))
+'''TtestResult(statistic=-6.768457931422672, pvalue=6.911415201784208e-11, df=298.0)'''
+#We adapt the 0.05 as the significance level
+
+# is_different = True #this time the p-value is very low, so we have to reject the zero hypothesis
+#Zero hypothesis is obvious here: there's no difference between the groups.
+
+
+#CD Python - 250
+'''
+Czy istnieje istotna statystycznie różnica między grupami A i B?
+Grupy nie mają rozkładu normalnego, użyj nieparametrycznego odpowiednika testu t-Studenta.
+Przyjmijmy poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej is_different.
+'''
+
+# from scipy.stats import mannwhitneyu
+
+# group_a = [2, 3, 4, 4, 5, 5, 6, 7, 8, 10, 12, 15, 20, 28, 45]
+# group_b = [3, 4, 5, 6, 7, 8, 10, 12, 14, 18, 22, 30, 40, 55, 80]
+
+# print(mannwhitneyu(group_a, group_b)) 
+# #We adapt the 0.05 as the significance level
+# '''MannwhitneyuResult(statistic=np.float64(79.0), pvalue=np.float64(0.1704021390871755))'''
+# #We interpret it in the same way as t-test, the p-value is above the significance level,
+# #which means we cannot negate the zero hypothesis = there's no difference
+
+# is_different = False
+
+
+#CD Python - 251
+'''Czy rozkład zmiennej df["x"] jest rozkładem normalnym? 
+Przyjmij poziom istotności 0.05.
+
+Przypisz True / False do zmiennej is_normal.
+'''
+
+# import pandas as pd
+# import numpy as np
+# np.random.seed(42)
+
+# df = pd.DataFrame({"x": np.concatenate([np.random.normal(100, 15, 950),np.random.normal(180, 10, 50)])})
+
+# #zero hypothesis: data comes from normal distribution
+
+# from scipy.stats import normaltest
+# _, pvalue = normaltest(df["x"])
+# print(_, pvalue) #372.47783624941746, 1.310586055533558e-81
+
+# #the value is way below the 0.05 significance level
+# #it's obvious that data does not come from the normal distribution, we reject the zero hypothesis
+
+# is_normal = False
+
+
+#CD Python - 252
+'''
+Czy różnica w cenie za metr dla rynku pierwotnego i wtórnego jest istotna statystycznie?
+Przyjmijmy poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej is_different.
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# from scipy.stats import normaltest
+# pri = df["price_per_m"][df["market_type"]=="primary"]
+# sec = df["price_per_m"][df["market_type"]=="secondary"]
+
+# _, p_value = normaltest(pri) #normal?
+# print(_, p_value)
+# _, p_value = normaltest(sec) #not normal
+# print(_, p_value)
+
+# '''
+# 1.9309194820569853 0.38080808638773117 - normal?
+# 7.0602866163771125 0.02930071653353869 - not normal
+# '''
+
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.histplot(pri)
+# plt.show()
+
+# sns.histplot(sec)
+# plt.show()
+
+
+# from scipy.stats import mannwhitneyu
+# alpha = 0.05
+# _, pvalue = mannwhitneyu(pri, sec)
+# is_different = pvalue < alpha
+# '''963.0 0.20858352442836026'''
+
+# print(is_different) #False
+
+
+#CD Python - 253
+'''
+Sprawdź, czy średnia cena za metr kwadratowy różni się istotnie statystycznie
+pomiędzy poszczególnymi typami budynków (build_type).
+Przyjmij poziom istotności równy 0.05.
+
+Następnie przypisz do listy different_pairs wszystkie pary typów budynków,
+dla których różnica jest istotna statystycznie. Wybierz wartości z poniższej listy:
+
+apartment-tenement
+apartment-block
+tenement-block
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# block = df["price_per_m"][df["build_type"]=="block"]
+# apartment = df["price_per_m"][df["build_type"]=="apartment"]
+# tenement = df["price_per_m"][df["build_type"]=="tenement"]
+
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.histplot(block)
+# plt.show()
+
+# sns.histplot(apartment)
+# plt.show()
+
+# sns.histplot(tenement)
+# plt.show()
+
+# #rozkłady nie są normalne
+
+# from scipy.stats import kruskal
+# kruskal_test = kruskal(block, apartment, tenement)
+# print(kruskal_test)
+
+# '''KruskalResult(statistic=28.595066180957456, pvalue=6.175331470333519e-07)'''
+# #We can clearly see that there is at least one different group, so it's time to check the differences
+
+# from scikit_posthocs import posthoc_dunn
+# x = posthoc_dunn(
+#     df[df['build_type'].isin(['block', 'apartment', 'tenement'])],
+#     val_col = 'price_per_m',
+#     group_col = 'build_type'
+# )
+
+# print(x)
+# '''
+#            apartment     block  tenement
+# apartment   1.000000  0.000003  0.908663
+# block       0.000003  1.000000  0.000128
+# tenement    0.908663  0.000128  1.000000
+# '''
+
+# different_pairs = ['apartment-block', 'tenement-block']
+
+
+
+
+#CD Python - 254
+'''
+Zobacz, jaki wpływ na wynik testu statystycznego ma odchylenie standardowe,
+czyli to, jak bardzo rozkłady nachodzą na siebie.
+
+Mamy dwie grupy po 20 obserwacji każda. Obie pochodzą z rozkładu normalnego:
+
+grupa A ma średnią 60
+grupa B ma średnią 63
+Sprawdź, jak zmienia się wartość p wraz ze zmniejszaniem odchylenia standardowego.
+
+Zmniejszaj odchylenie standardowe o 1, zaczynając od wartości 10, i znajdź pierwszą wartość,
+dla której różnica między grupami stanie się istotna statystycznie przy poziomie istotności 0.05.
+
+Przypisz tę wartość do zmiennej std_stats.
+'''
+
+
+# import numpy as np
+# from scipy.stats import ttest_ind
+
+# std = 10
+
+# # przy zmianie std zawsze uruchamiaj w każdej iteracji poniższy fragment kodu:
+# rng = np.random.default_rng(42)
+# base_a = rng.normal(0, 1, 20)
+# base_b = rng.normal(0, 1, 20)
+# group_a = 60 + base_a * std
+# group_b = 63 + base_b * std
+# # koniec fragmentu
+
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.kdeplot(group_a)
+# sns.kdeplot(group_b)
+# plt.show()
+
+# std_stats = 0
+# for i in range(10, 1, -1):
+#     std = i
+
+#     rng = np.random.default_rng(42)
+#     base_a = rng.normal(0, 1, 20)
+#     base_b = rng.normal(0, 1, 20)
+#     group_a = 60 + base_a * std
+#     group_b = 63 + base_b * std
+
+#     p_value = ttest_ind(group_a, group_b)[1]
+#     if p_value < 0.05:
+#         std_stats = i
+#         break
+ 
+# print(std_stats) #7
+# sns.kdeplot(group_a) 
+# sns.kdeplot(group_b)
+# plt.show()
+
+
+
+# import pandas as pd
+
+# df = pd.read_csv('project1_phones_sales_analytics/data/price_history_full.csv')
+# launch_ref = pd.read_csv('project1_phones_sales_analytics/data/official_launch_prices.csv')
+# # small sample: 500 rows per brand
+# df = df.groupby('brand').sample(n=500, random_state=42).reset_index(drop=True)
+# df = df.merge(launch_ref, on = 'submodel_name')
+
+# print(df.shape)
+# print(df['brand'].value_counts())
+# print(df.head())
+
+#W7 D3 - Pandas practice T4
+'''
+Given a DataFrame with columns `['brand', 'submodel_name', 'price_pct_of_launch']`, find:
+- The submodel with the highest average `price_pct_of_launch` per brand
+- The submodel with the lowest average per brand
+
+One line per brand, value is the tier name.
+'''
+
+# df = df[df['new_price'].notna()]
+# df['new_price'] = df['new_price'] * 100
+# df['price_pct_of_launch'] = round(df['new_price'] / df['official_launch_price'] * 100, 2)
+
+# df_submodels_avg_prices = df.groupby(['brand', 'submodel_name'])['price_pct_of_launch'].mean().reset_index()
+
+# df_submodels_top_model = df.groupby(['brand', 'submodel_name'])['price_pct_of_launch'].mean().idxmax()
+# df_submodels_worst_model = df.groupby(['brand', 'submodel_name'])['price_pct_of_launch'].mean().idxmin()
+
+
+#T5 
+'''
+Given the same data:
+- What is the average `price_pct_of_launch` for Samsung's Ultra tier specifically?
+- Extract it as a single float, not a DataFrame or Series
+'''
+
+# filtered_df = df[(df['brand'] == 'Samsung') & (df['submodel_name'].str.contains('Ultra'))]
+# print(filtered_df.head())
+# avg_price = filtered_df['price_pct_of_launch'].mean()
+# print(avg_price)
+
+# acg_price = filtered_df
+
+
+#T6
+'''
+Task 6 — rank() within groups
+
+Add a new column `retention_rank` that ranks each tier within its brand by average `price_pct_of_launch`, 
+from highest (rank 1) to lowest. 
+
+The result stays in a DataFrame — one row per brand+tier combination.
+'''
+
+
+
+# df['retention_rank'] = df.groupby(['brand', 'generation_name'])['price_pct_of_launch'].transform('rank', ascending = False)
+# df = df.sort_values(by = 'retention_rank', ascending = True)
+# print(df.head())

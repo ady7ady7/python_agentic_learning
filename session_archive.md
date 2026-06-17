@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-17 | Week 7 Day 3 | Score: N/A | Difficulty: N/A
+**Covered:** Price decay in % section cleaned up: tier decay charts simplified to 2-3 key tiers per brand, heatmaps added as a cleaner alternative (chart variety point from Kasia addressed). iPhone 13 chart reduced to Base vs Pro Max only. All-brands combined chart verified clean. Pandas practice started: T4 (idxmax/idxmin), T5 (scalar extraction), T6 (rank within groups) — all attempted, corrections given on idxmax multi-level gotcha and transform vs aggregate-then-rank distinction.
+**Problems / gaps:** Pandas practice tasks not fully resolved — corrections given but not yet re-implemented by Adrian.
+**Reinforce next:** Re-do T4-T6 with corrected patterns, then move on to Tasks 4-5 in notebook (retention barplot duplicate check, boxplot, sales section review).
+
+---
 ## 2026-06-16 | Week 7 Day 2 | Score: N/A | Difficulty: N/A
 **Covered:** Replaced unreadable per-generation decay line charts with per-brand product grade decay charts (Apple: Renewed vs Renewed Premium, Samsung/Google: New vs Renewed) and per-brand 1-year retention barplots. Adrian reviewed Tasks 1-2 fully and Task 3 partially — adjusted Samsung/Google grade observations, chart styling, retention bar colours/fonts. Identified price decay in % section as overcluttered vs the cleaner USD section. iPhone 13 submodels chart flagged for simplification (13 vs Pro only). Tier decay charts flagged for similar cleanup (fewer lines, e.g. Base vs Ultra vs Edge for Samsung).
 **Problems / gaps:** Price decay in % section still overcluttered — needs same treatment as USD section (fewer tiers per chart, cleaner line selection). Tasks 4-5 not reached.
