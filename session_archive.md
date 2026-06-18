@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-18 | Week 7 Day 4 | Score: N/A | Difficulty: N/A
+**Covered:** Pandas practice completed: tier lambda extraction, idxmax/idxmin per brand (chained groupby pattern), aggregate-then-rank pattern for retention_rank. Key gotcha noted: groupby column order affects tuple output of idxmax — `['brand', 'tier']` needed for `.str[1]` to extract tier correctly. Notebook: USD decay section annotated, retention barplot consolidated to one instance, font sizes and chart code structure tidied. Sales section identified as needing annotations (Q4 spike, new iPhone launch effect, weak model callouts). Launch prices barplot highlights planned (Pixel 9 Pro Max outlier, flagship parity, 'a' series budget zone).
+**Problems / gaps:** Sales chart annotations not yet added. Launch prices barplot highlights not yet added.
+**Reinforce next:** Add sales annotations (Q4, launch effect, weak models) and launch price highlights. idxmax tuple order gotcha worth revisiting.
+
+---
 ## 2026-06-17 | Week 7 Day 3 | Score: N/A | Difficulty: N/A
 **Covered:** Price decay in % section cleaned up: tier decay charts simplified to 2-3 key tiers per brand, heatmaps added as a cleaner alternative (chart variety point from Kasia addressed). iPhone 13 chart reduced to Base vs Pro Max only. All-brands combined chart verified clean. Pandas practice started: T4 (idxmax/idxmin), T5 (scalar extraction), T6 (rank within groups) — all attempted, corrections given on idxmax multi-level gotcha and transform vs aggregate-then-rank distinction.
 **Problems / gaps:** Pandas practice tasks not fully resolved — corrections given but not yet re-implemented by Adrian.

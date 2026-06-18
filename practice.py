@@ -1920,3 +1920,306 @@ The result stays in a DataFrame — one row per brand+tier combination.
 # df['retention_rank'] = df.groupby(['brand', 'generation_name'])['price_pct_of_launch'].transform('rank', ascending = False)
 # df = df.sort_values(by = 'retention_rank', ascending = True)
 # print(df.head())
+
+
+
+
+#CD Python - 255 
+
+'''
+Zadanie
+Zobacz, jaki wpływ na wynik testu statystycznego ma liczebność.
+
+Mamy dwie grupy, obie pochodzą z rozkładu normalnego i mają odchylenie standardowe 10:
+
+grupa A ma średnią 60
+grupa B ma średnią 63
+Sprawdź, jak zmienia się wartość p wraz ze zwiększaniem liczebności (n).
+
+Zwiększaj liczebność każdej grupy o 10, zaczynając od wartości 10, i znajdź pierwszą wartość n,
+dla której różnica między grupami stanie się istotna statystycznie przy poziomie istotności 0.05.
+
+Przypisz tę wartość do zmiennej n_stats.
+'''
+
+# import numpy as np
+# from scipy.stats import ttest_ind
+
+# n = 10
+
+# # przy zmianie liczebności zawsze uruchamiaj w każdej iteracji poniższy fragment kodu:
+# rng = np.random.default_rng(42)
+# base_a = rng.normal(0, 1, 100)
+# base_b = rng.normal(0, 1, 100)
+# group_a = 60 + base_a[:n] * 10
+# group_b = 63 + base_b[:n] * 10
+# # koniec fragmentu
+
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.kdeplot(group_a)
+# sns.kdeplot(group_b)
+# plt.show()
+
+# n_stats = 0
+
+# for i in range(10, 500, 10):
+#     n = i
+
+#     rng = np.random.default_rng(42)
+#     base_a = rng.normal(0, 1, 100)
+#     base_b = rng.normal(0, 1, 100)
+#     group_a = 60 + base_a[:n] * 10
+#     group_b = 63 + base_b[:n] * 10
+
+#     p_value = ttest_ind(group_a, group_b)[1]
+#     print(p_value)
+
+#     if p_value < 0.05:
+#         print(f'p_value {p_value} is statistically significant with n = {n}')
+#         n_stats = n
+#         break
+
+
+#CD Python - 256 
+'''
+Zadanie
+Centralne Twierdzenie Graniczne (ang. Central Limit Theorem, CLT) mówi, 
+że średnie z wielu próbek zaczynają przypominać rozkład normalny, nawet jeśli oryginalne dane mają inny rozkład.
+
+W df mamy ocenę rating czatów prowadzonych przez agentów działu obsługi klienta.
+
+Zobacz jaki rozkład ma ta cecha, a następnie policz średnią ocenę dla każdego agenta
+i zobacz jak zmienia się rozkład.
+
+Przeprowadź normaltest dla średnich ocen agentów
+i na jego podstawie przypisz wartość True/False do zmiennej is_normal.
+Jeżeli rozkład jest normalny na poziomie istotności 0.05, przypisz wartość True.
+'''
+
+# import pandas as pd
+# import numpy as np
+# from scipy.stats import normaltest
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+# np.random.seed(42)
+
+# df = pd.DataFrame({"ticket_id": range(1, 301), "agent": np.random.choice([f"agent_{i}" for i in range(1, 16)], size=300), "rating": np.random.choice([1, 2, 3, 4, 5], size=300, p=[0.02, 0.03, 0.05, 0.20, 0.70])})
+# df.head()
+
+# global_avg_rating = df['rating'].mean()
+# print(global_avg_rating)
+# rating_distribution = sns.histplot(
+#     df['rating']
+# )
+# plt.show()
+
+
+# agent_df = df["rating"].groupby(df["agent"]).mean() 
+'''
+there was a trap of using transform to add mean to each agent to the origianl df here, which I've done at the begininning
+It altered the results as each mean value was then recalculated and aggregated, which changed the mean
+'''
+
+# sns.histplot(agent_df)
+# plt.show()
+
+# is_normal = normaltest(agent_df)[1] > 0.05
+# print(is_normal)
+
+
+#CD Python - 257
+
+'''
+Studenci podchodzili do testu z języka hiszpańskiego przed i po kursie. 
+Użyj odpowiedniego testu statystycznego i zobacz czy ich wynik po kursie się zmienił. 
+Przypisz wartość p z tego testu do zmiennej p_value.
+
+'''
+
+
+# import pandas as pd
+# from scipy.stats import normaltest, ttest_rel
+
+# df = pd.DataFrame({"student_id":[7,2,10,4,1,8,3,6,9,5,2,7,1,10,4,9,8,5,3,6],"score":[44,55,47,61,42,52,38,57,60,49,68,57,58,60,74,73,65,61,52,70],"created_at":pd.to_datetime(["2025-01-10","2025-01-10","2025-01-10","2025-01-10","2025-01-10","2025-01-10","2025-01-10","2025-01-10","2025-01-10","2025-01-10","2025-03-20","2025-03-20","2025-03-20","2025-03-20","2025-03-20","2025-03-20","2025-03-20","2025-03-20","2025-03-20","2025-03-20"])})
+# df.head(15)
+
+# before_test = df[df['created_at'] < '2025-03-20'].sort_values('student_id')['score'] #VERY IMPORTANT - for this t-test we must sort data
+# after_test = df[df['created_at'] >= '2025-03-20'].sort_values('student_id')['score']
+
+# normal_test1 = normaltest(before_test['score']) #0.6 - normal distribution
+# normal_test2 = normaltest(after_test['score']) #0.63 - nromal distribution
+# print(normal_test1, normal_test2)
+
+# _, p_value = ttest_rel(before_test['score'], after_test['score'])
+# print(_, p_value) #p_value bliskie zeru, czyli chyba się nie zmienił, nie można odrzucić hipotezy zerowej
+# #-39.701983889378575 2.029761902012733e-11
+
+
+#CD Python - 258
+
+'''
+Głównym problemem testów statystycznych jest to, że zawsze zwrócą jakiś wynik,
+nawet jeśli ich założenia nie są spełnione.
+
+To od osoby przeprowadzającej testy zależy, czy przed ich wykonaniem sprawdzi poprawność zastosowania.
+
+Zobacz, jak wyglądają rozkłady w grupach A i B. Następnie wykonaj test parametryczny oraz test nieparametryczny i porównaj ich wyniki.
+
+Przypisz do zmiennych odpowiedź True, jeżeli mamy dowody, by odrzucić hipotezę zerową:
+
+dla testu parametrycznego: param_stats
+dla testu nieparametrycznego: non_param_stats
+W innym przypadku przypisz False.
+
+Przyjmij poziom istotności 0.05.
+'''
+
+# import numpy as np
+# from scipy.stats import normaltest, ttest_ind, mannwhitneyu
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+# group_a = np.array([10] * 30 + [1000] * 3)
+# group_b = np.array([20] * 33)
+
+# # x = normaltest(group_a) #tu się udaje, przy drugiej grupie nie
+
+# # plot1 = sns.kdeplot(group_a)
+# # plt.show()
+# # plot2 = sns.kdeplot(group_b)
+# # plt.show()
+
+# t_test = ttest_ind(group_a, group_b)
+# print(t_test)
+# param_stats = ttest_ind(group_a, group_b)[1] < 0.05
+
+# mann_w = mannwhitneyu(group_a, group_b)
+# non_param_stats =  mannwhitneyu(group_a, group_b)[1] < 0.05
+
+# print(param_stats, non_param_stats)
+#p-value = jak prawdopodobne byłoby zaobserwaoanie takich (lub bardziej ekstremalnych) danych
+#gdyby hipoteza zerowa była prawdziwa
+
+#jeśli wartość p jest mała to znaczy, że dane byłyby bardzo nietypwoe
+#oznacza to, że obserwowana różnica między grupami prawdopoddobnie nie jest dziełem przypadku
+#oznacza to, że możemy odzrzucić hipotezę zerową
+
+#Hipoteza zerowa: Nie ma rzeczywistej różnicy/efektu, nic się nie dzieje.
+
+
+#CD Python - 259
+
+'''
+Istotność statystyczna nie mówi, czy różnica między grupami jest duża lub ważna z biznesowego punktu widzenia.
+Świadczy jedynie o tym, że zaobserwowana różnica prawdopodobnie nie wynika z losowego przypadku.
+
+W tym zadaniu:
+
+narysuj jeden wykres KDE plot z dwoma grupami
+oblicz statystykę testu t Studenta i przypisz wartość p do zmiennej p_value
+przypisz do zmiennej mean_diff bezwzględną różnicę między średnimi w obu grupach, zaokrągloną do 2 cyfr po przecinku
+
+'''
+
+# import numpy as np
+# import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+# from scipy.stats import ttest_ind
+
+# np.random.seed(42)
+
+# group_a = np.random.normal(100, 10, 5000)
+# group_b = np.random.normal(101, 10, 5000)
+
+# df = pd.DataFrame({
+#     "group": ["A"] * 5000 + ["B"] * 5000,
+#     "score": np.concatenate([group_a, group_b])
+# })
+# df.head()
+
+# kde_plot = sns.kdeplot(
+#     df,
+#     x = 'score',
+#     hue = 'group'
+# )
+
+# ttest = ttest_ind(group_a, group_b)
+# print(ttest) #TtestResult(statistic=-4.211541023064685, pvalue=2.5585752137847796e-05, df=9998.0)
+# mean_diff = round(abs(np.mean(group_a) - np.mean(group_b)), 2)
+# print(mean_diff) #0.85 
+
+
+
+#CD Python - 260
+'''
+Aby określić istotność biznesową możemy użyć miary wielkości efektu,
+np. miara d Cohena pozwala określić siłę efektu dla porównywania średnich.
+Sprawdza ona o ile odchyleń standardowych różnią się średnie dwóch grup - im mniejsza miara, tym rozkłady są bliżej.
+
+Najczęstsza interpretacja d Cohena:
+
+d = 0.2  → mały efekt
+d = 0.5  → średni efekt
+d = 0.8  → duży efekt
+Oblicz wartość d Cohena dla grup używanych w poprzednim zadaniu na podstawie wzoru:
+
+d = abs(średnia 1. grupy - średnia 2. grupy) / std
+Przyjmij wartość std = 10.
+
+Przypisz wartość d Cohena do zmiennej d. Zaokrąglij do 2 cyfr po przecinku.
+'''
+
+# import numpy as np
+# import pandas as pd
+# np.random.seed(42)
+
+# group_a = np.random.normal(100, 10, 5000)
+# group_b = np.random.normal(101, 10, 5000)
+
+# d = round(abs(group_a.mean() - group_b.mean()) / 10, 2) #tutaj przyjmujemy STD jako 10
+# print(d)
+
+
+#W7 D4 - T1 + T2
+'''
+Yesterday you used `submodel_name` instead of `tier` because you forgot the lambda. Fix it.
+
+Goal: one row per brand, showing which tier has the highest average price_pct_of_launch and which has the lowest.
+'''
+
+
+import pandas as pd
+
+df = pd.read_csv('project1_phones_sales_analytics/data/price_history_full.csv')
+launch_ref = pd.read_csv('project1_phones_sales_analytics/data/official_launch_prices.csv')
+# small sample: 500 rows per brand
+df = df.groupby('brand').sample(n=500, random_state=42).reset_index(drop=True)
+df = df.merge(launch_ref, on = 'submodel_name')
+
+df['tier'] = df.apply(lambda row: row['submodel_name'].replace(row['generation_name'], '').strip(), axis = 1)
+df['tier'] = df['tier'].replace('', 'Base')
+
+
+df = df[df['new_price'].notna()]
+df['new_price'] = df['new_price'] * 100
+df['price_pct_of_launch'] = round(df['new_price'] / df['official_launch_price'] * 100, 2)
+
+
+best_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmax()
+worst_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmin()
+print(best_prices_by_tier)
+print(worst_prices_by_tier)
+check_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean()
+print(check_prices_by_tier)
+
+#W7 D4 - T3
+'''`transform('rank')` ranks individual rows within a group, not per-tier averages. 
+Your output had one rank per row, not one per tier. The correct approach: aggregate first, then rank.
+'''
+
+tier_avg = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().reset_index()
+tier_avg['retention_rank'] = tier_avg.groupby('brand')['price_pct_of_launch'].rank(ascending=False)
+
+df = df.merge(tier_avg, on = ['brand', 'tier'])
