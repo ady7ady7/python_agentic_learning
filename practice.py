@@ -2207,14 +2207,14 @@ df['new_price'] = df['new_price'] * 100
 df['price_pct_of_launch'] = round(df['new_price'] / df['official_launch_price'] * 100, 2)
 
 
-best_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmax()
-worst_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmin()
+best_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmax().str[1]
+worst_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmin().str[1]
 print(best_prices_by_tier)
 print(worst_prices_by_tier)
 check_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean()
 print(check_prices_by_tier)
 
-#W7 D4 - T3
+# #W7 D4 - T3
 '''`transform('rank')` ranks individual rows within a group, not per-tier averages. 
 Your output had one rank per row, not one per tier. The correct approach: aggregate first, then rank.
 '''
@@ -2223,3 +2223,148 @@ tier_avg = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().reset_ind
 tier_avg['retention_rank'] = tier_avg.groupby('brand')['price_pct_of_launch'].rank(ascending=False)
 
 df = df.merge(tier_avg, on = ['brand', 'tier'])
+
+
+#CD Python - 261
+
+'''
+Sprawdź, czy średnia wartość w grupie group różni się istotnie statystycznie od 35. 
+Przyjmij poziom istotności 0.05. 
+
+Przypisz wartość True lub False do zmiennej is_different.
+'''
+
+
+# from scipy.stats import ttest_1samp
+
+# group = [29, 31, 32, 33, 34, 35, 36, 37, 38, 41]
+
+# p_value = ttest_1samp(group, 35)[1] #tutaj ttest 1samp (porównanie średniej grupy z próbką albo oczekiwaną wartością średniej)
+# is_different = p_value < 0.05 #False
+# print(p_value) #0.73
+# print(is_different) #False
+
+
+#CD Python - 262
+
+'''
+W teście jednostronnym łatwiej uzyskać istotność statystyczną, 
+ponieważ od początku zakładamy konkretny kierunek efektu i szukamy dowodów tylko na jego potwierdzenie. 
+
+Jeżeli chcemy sprawdzić, czy grupa B osiąga wyższe wyniki niż grupa A, nie interesuje nas sytuacja odwrotna.
+Dzięki temu cały „budżet błędu” (poziom istotności α) jest przeznaczony na wykrycie różnicy w jednym kierunku.
+
+W teście dwustronnym musimy natomiast uwzględnić dwa możliwe scenariusze: 
+że grupa B ma wyniki wyższe lub niższe od grupy A. 
+
+Kryterium odrzucenia hipotezy zerowej jest więc bardziej rygorystyczne,
+ponieważ dowody muszą być wystarczająco silne niezależnie od kierunku różnicy.
+
+Przeprowadź jednostronny test t-Studenta sprawdzający, czy grupa B ma większą średnią niż grupa A.
+Odpowiedź jako True / False przypisz do zmiennej b_is_greater. Przyjmij poziom istotności 0.05.
+'''
+
+
+# from scipy.stats import ttest_ind
+
+# group_a = [50, 51, 52, 50, 52, 47, 50, 51, 49, 52]
+# group_b = [52, 53, 50, 51, 54, 49, 52, 53, 51, 52]
+
+# _, p_value = ttest_ind(group_a, group_b, alternative = 'less') #chcemy sprawdzić, cz B ma większą średnią
+# #używamy tu argumentu 'less' sprawdzając, czy srednia a jest mniejsza od b, bo tak są w kolejności
+# print(p_value) #0.0373 - hipotezę zerową można odrzucić
+
+# b_is_greater = True
+
+
+#CD Python - 263
+
+'''
+Aby obliczyć moc testu t-Studenta możemy użyć funkcji TTestIndPower.
+
+Równanie na moc testu możemy także wykorzystać przy obliczeniu jakich liczebności
+potrzebujemy przy założonej wielkości efektu, poziomie istotności i mocy.
+
+Zobacz jak zmieni się sample_size, gdy zmienisz wielkość efektu na 0.5.
+
+Zanim uruchomisz kod, zastanów się - sądzisz, że liczebność pójdzie w górę, czy w dół?
+'''
+
+# import numpy as np
+# from statsmodels.stats.power import TTestIndPower
+
+# effect_size = 0.5
+# alpha = 0.05
+# power = 0.8
+
+# sample_size = np.ceil(
+#     TTestIndPower().solve_power(
+#         effect_size=effect_size,
+#         alpha=alpha,
+#         power=power,
+#         alternative="two-sided"
+#     )
+# )
+
+# print(sample_size)
+
+
+#sample size wyraźnie maleje wraz ze wzrostem siły efektu
+
+
+
+#CD Python - 264
+
+'''
+Przeprowadź testy statystyczne, aby sprawdzić, czy kwoty (amount)
+różnią się istotnie statystycznie między poszczególnymi miesiącami zamówień.
+
+Wykonaj analizę krok po kroku:
+
+Sprawdź normalność grup
+Wybierz odpowiedni test
+Przeprowadź dodatkowe testy post hoc, jeżeli jest taka potrzeba.
+Przypisz do zmiennej months_different liczbę par miesięcy, które różnią się istotnie statystycznie.
+
+Przykład: jeżeli jest taka różnica w styczniu-lutym i styczniu-marcu:
+
+months_different = 2
+Przyjmij poziom istotności 0.05.
+
+Wskazówka
+Możesz przypisać wartości kwot poszczególnych miesięcy do list w liście,
+a następnie przekazać tę listę jako argument do funkcji testu używając znaku *:
+
+groups = [[1,2,3], [3,4,5]]
+test(*groups)
+'''
+
+# import pandas as pd
+# from scipy.stats import normaltest, kruskal
+
+# df = pd.read_csv("orders.csv")
+
+# df.dtypes
+# df['month'] = pd.to_datetime(df['order_date']).dt.month
+# df.head()
+
+# #testy na normalnosc normaltestem
+# for i in range(1, 13):
+#     tested_group = df['amount'][df['month'] == i]
+#     test_result = normaltest(tested_group)[1]
+#     print(f'Month {i} results: {test_result}')
+# #March dataset is too small, April,  August and October are below the p-value as non-normal
+# #czyli ANOVA odpada, musimy zrobić test Kruskal
+
+# groups = []
+# for month in df["month"].unique():
+#     groups.append(df["amount"][df["month"]==month].values.tolist())
+# print(groups)
+
+# alpha = 0.05
+# p_value = kruskal(*groups)
+# print(p_value) #p_value powyzej 0.05, hipoteza zerowa zostaje, nei ma roznic miedzy srednimi miesiecy
+
+# months_different = 0
+
+
