@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-22 | Week 8 Day 1 | Score: N/A | Difficulty: N/A
+**Covered:** Statistical validation section added after all-brands decay chart. Correct flow: normaltest (all brands fail normality, p=0.0000) → Kruskal-Wallis (p=1.8e-10, significant) → Dunn post-hoc with Holm correction (all three pairwise comparisons p < 0.001). Key concepts reinforced: H0/H1 framing for normaltest, Holm vs Bonferroni trade-off, large-sample caveat for significance testing.
+**Problems / gaps:** Final read-through not done — deferred to tomorrow.
+**Reinforce next:** Full top-to-bottom read-through of 08_final_project_sns.ipynb, decide if ready to publish.
+
+---
 ## 2026-06-18 | Week 7 Day 4 | Score: N/A | Difficulty: N/A
 **Covered:** Pandas practice completed: tier lambda extraction, idxmax/idxmin per brand (chained groupby pattern), aggregate-then-rank pattern for retention_rank. Key gotcha noted: groupby column order affects tuple output of idxmax — `['brand', 'tier']` needed for `.str[1]` to extract tier correctly. Notebook: USD decay section annotated, retention barplot consolidated to one instance, font sizes and chart code structure tidied. Sales section identified as needing annotations (Q4 spike, new iPhone launch effect, weak model callouts). Launch prices barplot highlights planned (Pixel 9 Pro Max outlier, flagship parity, 'a' series budget zone).
 **Problems / gaps:** Sales chart annotations not yet added. Launch prices barplot highlights not yet added.
