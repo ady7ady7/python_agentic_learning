@@ -2368,3 +2368,179 @@ test(*groups)
 # months_different = 0
 
 
+#CD Python - 265
+
+'''
+Zadanie
+Czy jest relacja między ceną, a ceną za metr?
+Ile wynosi współczynnik korelacji Pearsona dla zależności między ceną, a ceną za metr?
+
+Odpowiedź przypisz do zmiennej corr.
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# corr = df['price'].corr(df['price_per_m'])
+# print(corr)
+
+#CD Python - 266
+
+'''
+Zadanie
+Czy istnieje zależność między datą (df["date"]), a ceną za metr?
+Mając kolumnę z datami, by wyciągnąć więcej informacji,
+często przetwarzamy ją na kolumnę numeryczną,
+np. odejmując datę w danym wierszu od minimalnej daty z kolumny 
+- tworząc przez to kolumnę z różnicą w dniach.
+
+Stwórz taką kolumnę i oblicz współczynnik korelacji Pearsona między tą kolumną, a ceną za metr.
+Odpowiedź przypisz do zmiennej corr.
+
+'''
+
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df["date"] = pd.to_datetime(df["date"])
+# df["date_days"] = df["date"] - df["date"].min()
+
+# corr = df["date_days"].corr(df["price_per_m"])
+# print(corr)
+
+
+#CD Python - 267
+
+'''
+Czy istnieje zależność między datą (df["date"]), a ceną za metr?
+Mając kolumnę z datami, by wyciągnąć więcej informacji, często przetwarzamy ją na kolumnę numeryczną,
+np. odejmując datę w danym wierszu od minimalnej daty z kolumny - tworząc przez to kolumnę z różnicą w dniach.
+
+Stwórz taką kolumnę i oblicz współczynnik korelacji Pearsona między tą kolumną, a ceną za metr. Odpowiedź przypisz do zmiennej corr.
+'''
+
+#CD Python - 268
+
+'''
+Zadanie
+Czy istnieją statystyczne dowody na to, że cena za metr jest zależna od piętra (df["floor_no"])?
+
+Przypisz odpowiedź True / False do zmiennej are_related.
+'''
+
+# import pandas as pd
+
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df = df[['floor_no', 'price_per_m']]
+# corr = df['floor_no'].corr(df['price_per_m'], method = 'spearman')
+# print(corr) #0.076 - powyżej 0.05, nie możemy obalić hipotezy zerowej, zależności nie ma.
+
+# are_related = False
+
+
+
+#CD Python - 269
+
+
+'''
+Dopasuj wzór na regresję liniową, który na podstawie metrażu będzie przewidywał cenę za metr.
+
+Przypisz odpowiednie wartości zaokrąglone do 2 cyfr po przecinku do zmiennych a i b,
+by poniższy kod pokazywał cały wzór:
+
+wzor = f"cena za metr = {a} * metr + {b}"
+print(wzor)
+
+
+'''
+
+# import pandas as pd
+# from scipy.stats import linregress
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# x = linregress(df['area'], df['price_per_m'])
+# print(x)
+
+# a = round(x.slope, 2)
+# #slope to A 
+# b = round(x.intercept, 2)
+# #intercept to B
+
+# wzor = f"cena za metr = {a} * metr + {b}"
+# print(wzor)
+
+
+
+#CD Python - 270
+
+'''
+Zadanie
+Ile powinna wynosić cena za metr dla mieszkania, które ma 65 m2 według modelu regresji liniowej,
+który stworzyła/eś w poprzednim zadaniu?
+
+Przypisz odpowiedź (cenę za metr) do zmiennej predicted_price.
+'''
+
+# import pandas as pd
+# from scipy.stats import linregress
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# x = linregress(df['area'], df['price_per_m'])
+
+# a = x.slope #-19 
+# b = x.intercept #11369
+
+# predicted_price = a * 65 + b
+# print(predicted_price) #wychodzi 10100
+
+
+
+#CD Python - 271
+
+'''
+Zadanie
+Obliczmy, jak dobrze działa nasz pierwszy model regresji liniowej:
+
+Stwórz model regresji liniowej, który przewiduje cenę za metr na podstawie metrażu mieszkania.
+Stwórz nową kolumnę w DataFrame df["predicted_price_per_m"],
+która dla każdej oferty mieszkania zawiera przewidywaną cenę na podstawie modelu.
+Oblicz średni błąd bezwzględny: średnią bezwzględnych różnic między rzeczywistą ceną (df["price_per_m"]), 
+a przewidywaną (df["predicted_price_per_m"]).
+
+Przypisz ją do zmiennej mae (skrót od Mean Absolute Error).
+Jak uważasz, średnia różnica między rzeczywistymi cenami a przewidywanymi jest duża, czy mała?
+
+Wskazówka
+Aby wykonać to zadanie polecam stosowanie funkcji LinearRegression z biblioteki sklearn.
+Po stworzeniu modelu możemy przewidzieć wiele wartości za pomocą metody predict(), jej użycie było pokazane na lekcji.
+'''
+
+# from sklearn.linear_model import LinearRegression
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df = df[['price_per_m', 'area']]
+
+# x = LinearRegression()
+# x.fit(df[['area']], df['price_per_m'])
+
+# print(x.coef_, x.intercept_)
+
+# df['predicted_price_per_m'] = x.predict(df[['area']])
+# df['prediction_difference'] = df['predicted_price_per_m'] - df['price_per_m']
+
+# mae = round(df['prediction_difference'].abs().mean())
+# print(mae)
+# df.head()
+
