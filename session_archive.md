@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-23 | Week 8 Day 2 | Score: N/A | Difficulty: N/A
+**Covered:** Final read-through started. Identified a better placement for statistical testing: product grade check in Step 3, to back up the New vs Renewed price difference claim per brand. Read-through paused at price decay section — to continue tomorrow.
+**Problems / gaps:** Read-through not completed. Statistical test for product grade section not yet added.
+**Reinforce next:** Add normaltest → Kruskal → Dunn with Holm for product grade comparison in Step 3, then continue read-through from price decay section onwards.
+
+---
 ## 2026-06-22 | Week 8 Day 1 | Score: N/A | Difficulty: N/A
 **Covered:** Statistical validation section added after all-brands decay chart. Correct flow: normaltest (all brands fail normality, p=0.0000) → Kruskal-Wallis (p=1.8e-10, significant) → Dunn post-hoc with Holm correction (all three pairwise comparisons p < 0.001). Key concepts reinforced: H0/H1 framing for normaltest, Holm vs Bonferroni trade-off, large-sample caveat for significance testing.
 **Problems / gaps:** Final read-through not done — deferred to tomorrow.

@@ -1,27 +1,31 @@
-# Tasks — Week 8 Day 2
+# Tasks — Week 8 Day 3
 
 ---
 
-## Final read-through: 08_final_project_sns.ipynb
+## Task 1 — Statistical validation for product grade section (Step 3)
 
-Go through the notebook top to bottom as if you're a reader seeing it for the first time.
+After the grade barplot (New vs Renewed per brand), add the same statistical flow as the brand comparison:
 
-### Flow and narrative
-- [ ] Story makes sense from start to finish without jumping back?
-- [ ] Every chart followed by an observation?
-- [ ] No passive voice, no em dashes, first person throughout?
-- [ ] Statistical section (normaltest → Kruskal → Dunn): reads naturally, not forced?
+1. Normaltest per product grade group
+2. Kruskal-Wallis if normality fails
+3. Dunn with Holm correction to identify which grade pairs differ
 
-### Charts
-- [ ] All annotations visible and not overlapping?
-- [ ] Heatmaps readable — colour scale and font sizes correct?
-- [ ] Sales charts: Q4 annotations, launch effect callout, weak model arrows all in place?
-- [ ] Launch prices barplot: three highlights present?
+The question being answered: "Are the price retention differences between New and Renewed statistically significant, or could they be noise?"
 
-### Key findings
-- [ ] All findings match what the charts actually show?
-- [ ] Statistical result reflected in the findings?
-- [ ] Nothing outdated from the restructure this week?
+Write the observation to connect back to the decision to keep all grades in the dataset.
+
+---
+
+## Task 2 — Continue read-through from price decay section
+
+Pick up where you left off. Check:
+
+- [ ] Price decay % section: flow, observations, annotations all clean?
+- [ ] USD decay section: same check
+- [ ] Retention barplots: accurate, readable?
+- [ ] Boxplot: observation matches chart?
+- [ ] Sales section: Q4 annotations, launch effect, weak model callouts all in place?
+- [ ] Key findings: statistical results reflected? All findings still accurate?
 
 ### Final call
 - Ready to publish as-is?
@@ -29,4 +33,4 @@ Go through the notebook top to bottom as if you're a reader seeing it for the fi
 
 ---
 
-**Total: 1 task (full read-through + publish decision)**
+**Total: 2 tasks**
