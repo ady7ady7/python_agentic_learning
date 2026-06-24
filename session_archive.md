@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-06-24 | Week 8 Day 3 | Score: N/A | Difficulty: N/A
+**Covered:** Sales section annotations added (date-axis annotate pattern with pd.Timestamp). Product grade statistical test dropped — would clutter an already long notebook, visual evidence sufficient. Third part of analysis reworked: overconfident claims removed, key findings trimmed and reordered. Opted for logical minimalism — facts over speculation. Notebook considered near-ready for publication.
+**Problems / gaps:** One final check tomorrow before publish decision.
+**Reinforce next:** Final pass tomorrow, then Polish translation decision.
+
+---
 ## 2026-06-23 | Week 8 Day 2 | Score: N/A | Difficulty: N/A
 **Covered:** Final read-through started. Identified a better placement for statistical testing: product grade check in Step 3, to back up the New vs Renewed price difference claim per brand. Read-through paused at price decay section — to continue tomorrow.
 **Problems / gaps:** Read-through not completed. Statistical test for product grade section not yet added.
