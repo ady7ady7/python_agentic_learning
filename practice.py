@@ -2544,3 +2544,1708 @@ Po stworzeniu modelu możemy przewidzieć wiele wartości za pomocą metody pred
 # print(mae)
 # df.head()
 
+
+
+#CD Python - 272
+
+'''
+Korelacja jest symetryczna, czyli porównując dwie cechy nie jest istotne jaką przyjmą kolejność w funkcji pearsonr.
+
+Regresja liniowa nie jest symetryczna - wyróżniamy tutaj zmienną zależną i niezależną.
+Oblicz współczynnik kierunkowy regresji liniowej, 
+która przewiduje metraż na podstawie ceny za metr. 
+Odpowiedź przypisz do zmiennej coeff.
+
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# # korelacja jest symetryczna
+# from scipy.stats import pearsonr
+# from sklearn.linear_model import LinearRegression #I used the sklearn's Class first, but Kasia's task expected the scipy linregress version
+# a = df["area"]
+# b = df["price_per_m"]
+# print(pearsonr(a, b))
+# print(pearsonr(b, a))
+
+# model = LinearRegression() #
+# model.fit(df[['price_per_m']], df['area'])
+# print(model)
+# coeff = model.coef_
+# print(coeff[0])
+
+
+# from scipy.stats import linregress
+# result = linregress(b, a)
+# coeff = result.slope
+# print(coeff)
+
+
+#CD Python - 273
+'''
+Regresja liniowa może być oparta na wielu zmiennych. 
+Użyj algorytmu regresji liniowej do przewidzenia ceny za metr
+na podstawie na podstawie szerokości i długości geograficznej.
+
+Przypisz odpowiednie wartości zaokrąglone do 2 cyfr po przecinku do zmiennych a1, a2 i b,
+by poniższy kod pokazywał cały wzór:
+
+wzor = f"cena za metr = {a1} * latitude + {a2} * longitude + {b}"
+print(wzor)
+'''
+
+
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# model = LinearRegression()
+# model.fit(df[['latitude', 'longitude']], df['price_per_m'])
+# print(model.coef_)
+# a1 = (model.coef_)[0]
+# a2 = (model.coef_)[1]
+# b = model.intercept_
+
+# wzor = f"cena za metr = {a1} * latitude + {a2} * longitude + {b}"
+# print(wzor)
+
+
+
+#CD Python - 274
+
+'''
+Czy istnieje statystycznie istotna zależność między typem rynku (market_type), a typem ogrzewania (heating)?
+
+Przyjmij poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej are_related.
+'''
+
+# import pandas as pd
+# from scipy.stats import chi2_contingency
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# tab = pd.crosstab(df['market_type'], df['heating'])
+# print(tab)
+
+# result = chi2_contingency(tab)
+# print(result) #0.02 - sa skorelowane, bo p-valuej jest ponizej poziomu istotnosci - nie ma tu przypadku,
+# #hipoteza zerowa ('Nie ma korelacji') do odrzucenia
+
+# are_related = True
+
+
+
+#CD Python - 275 
+
+'''
+Czy zarobki między analitykiem danych, a inżynierem danych różnią się istotnie statystycznie?
+
+Przyjmij poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej is_significant.
+'''
+
+
+# import pandas as pd
+# from scipy.stats import normaltest, kruskal
+# df = pd.DataFrame({"position": ["Data Analyst"] * 18 + ["Data Engineer"] * 25, "salary": [7200, 7500, 7800, 8100, 8400, 7600, 7900, 8200, 8500, 8800, 7300, 7700, 8000, 8300, 8600, 8100, 7900, 8450, 8800, 9200, 9500, 9800, 10100, 9400, 9700, 9900, 10300, 9600, 10000, 10500, 9300, 10200, 10800, 9700, 9900, 10400, 11000, 9800, 10100, 10600, 11200, 10900, 10700]})
+# df.head()
+
+
+# da_salary = df[df['position'] == 'Data Analyst']
+# de_salary = df[df['position'] == 'Data Engineer']
+
+
+# x = normaltest(da_salary['salary'])
+# print(x)
+# x = normaltest(de_salary['salary'])
+# print(x)
+
+# from scipy.stats import ttest_ind
+# result = ttest_ind(da_salary['salary'], de_salary['salary'])
+# alpha = 0.05
+# is_significant = result.pvalue < 0.05
+
+
+#CD Python - 276
+
+'''
+Czy istnieje istotna statystycznie zależność pomiędzy kanałem pozyskania użytkownika a dokonaniem zakupu?
+
+Przyjmij poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej is_significant.
+
+'''
+
+
+# import pandas as pd
+# users = pd.DataFrame({"user_id": range(1, 221), "channel": ["Google"] * 120 + ["Facebook"] * 100})
+# events = pd.DataFrame({"user_id": list(range(1, 221)), "event": ["purchase"] * 42 + ["page_view"] * 78 + ["purchase"] * 24 + ["page_view"] * 76})
+# #mamy tu danych kategorialnych i w zasadzie możemy bazować tylko na liczebnościach (kontyngencja) - czyli chi2
+
+# users.head()
+
+# #najpierw tworzymy crosstaba z kanałem pozyskania i eventami
+# x = pd.crosstab(users['channel'], events['event'])
+# print(x)
+# #teraz pora na test chi kwadrat (chi2_contingency)
+# from scipy.stats import chi2_contingency
+# test = chi2_contingency(x)
+# print(test)
+
+
+# is_significant = test.pvalue < 0.05 #p_value 0.10, hipoteza zerowa się utrzymuje - NIE MA statystycznie istotnej ZALEŻNOŚCI między kanałami
+# print(is_significant)
+
+
+#CD Python - 277
+
+'''
+Zadanie
+Czy kwota pierwszej transakcji użytkownika jest istotnie statystycznie związana z czasem,
+jaki upłynął od założenia konta do wykonania tej transakcji?
+
+Przyjmij poziom istotności 0.05.
+
+Przypisz odpowiedź True / False do zmiennej is_significant.
+'''
+
+
+# import pandas as pd
+# import numpy as np
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+# np.random.seed(42)
+
+# users = pd.DataFrame({
+#     "user_id": range(1, 31),
+#     "created_at": pd.to_datetime("2025-01-01") + pd.to_timedelta(np.random.randint(0, 90, 30), unit="D")
+# })
+
+# transactions = pd.DataFrame({
+#     "user_id": np.random.choice(users["user_id"], 120),
+#     "transaction_type": np.random.choice(
+#         ["deposit", "purchase", "withdrawal", "transfer"],
+#         120,
+#         p=[0.25, 0.45, 0.15, 0.15]
+#     ),
+#     "amount": np.random.randint(20, 2000, 120)
+# })
+
+# transactions["created_at"] = (
+#     transactions["user_id"]
+#     .map(users.set_index("user_id")["created_at"])
+#     + pd.to_timedelta(np.random.randint(1, 180, len(transactions)), unit="D")
+# )
+
+# #najpierw kilka transformacji, zmieniam nazwę dla porządku i jasności
+# users['acc_created_at'] = users['created_at']
+# del users['created_at']
+
+# df = users.merge(transactions, on = 'user_id', how = 'left') #mergujemy
+
+# df_first_transactions = df.groupby(['user_id', 'acc_created_at']).agg(
+#     first_transaction_amt = ('amount', 'first'),
+#     first_transaction_date = ('created_at', 'first')
+#     ).reset_index()
+
+# #agregacja z wymaganymi do porównania danymi
+
+
+# #przeksztacenia do datetime i odejmowanie
+# df_first_transactions['days_passed'] = (pd.to_datetime(df_first_transactions['first_transaction_date']) - pd.to_datetime(df_first_transactions['acc_created_at'])).dt.days
+# df_first_transactions.head()
+
+# #teraz pora na korelację - ale przedtem trzeba jeszcze sprawdzić na scatterplocie jak wygląda zależność
+# sns.scatterplot(
+#     data = df_first_transactions,
+#     x = 'first_transaction_amt',
+#     y = 'days_passed'
+# )
+# plt.show()
+
+# #raczej mocno nieliniowo to wygląda, rozkłąd jest porozrzucany mocno, więc skorzystam z metody Spearmana zamiast standardowego Pearsona
+# #najpierw machnąłem się i użyłem standardowej opcji, ale ogarnąłem w porę, że to nie jest właściwa droga.
+
+# corr_test = df_first_transactions['first_transaction_amt'].corr(df_first_transactions['days_passed'], method = 'spearman')
+# print(corr_test) #0.1072 - brak istotnie statystycznej różnicy, co ciekawe podobny wynik co Pearson i tak
+
+# is_significant = False
+
+
+#CD Python - 278
+
+'''
+Współczynnik korelacji nie zależy od jednostki ani skali, w jakiej wyrażone są dane.
+
+Oblicz współczynnik korelacji Pearsona dla lat doświadczenia i pozostałych zmiennych w df.
+
+Dla jakiej kolumny (salary_pln czy performance_score) współczynnik jest wyższy? 
+Przypisz nazwę kolumny do zmiennej more_correlated.
+'''
+
+
+# import pandas as pd
+# df = pd.DataFrame({
+#     "experience_years": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+#     "salary_pln": [5200, 5800, 6100, 6800, 7200, 7900, 8600, 9100, 9800, 10500, 11100, 11800, 12600, 13400, 14300],
+#     "performance_score": [42, 47, 50, 55, 58, 63, 67, 71, 75, 79, 83, 87, 90, 94, 99]
+# })
+# df.head()
+
+# salary_correlation = df['experience_years'].corr(df['salary_pln'], method = 'pearson')
+# performance_correlation = df['experience_years'].corr(df['performance_score'], method = 'pearson')
+# print(salary_correlation, performance_correlation)
+# #0.9969359780698949 0.9996371491619361 
+# #Minimalnie wieksza korelacja w przypadku performance_score
+
+# #Tak czy inaczej mocna korelacja w obu przypadkach
+
+# more_correlated = 'performance_score'
+
+
+#CD Python - 279
+
+
+'''
+Stwórz model regresji liniowej przewidujący zarobki na podstawie lat doświadczenia.
+
+Ile powinna zarabiać według wzoru regresji osoba, która ma 0 lat doświadczenia?
+
+Zaokrąglij liczbę do 2 cyfr po przecinku i przypisz do zmiennej salary.
+
+'''
+
+
+
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+
+# df = pd.DataFrame({
+#     "experience_years": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+#     "salary_pln": [5200, 5800, 6100, 6800, 7200, 7900, 8600, 9100, 9800, 10500, 11100, 11800, 12600, 13400, 14300],
+# })
+# df.head()
+# x = LinearRegression()
+# x.fit(df[['experience_years']], df['salary_pln'])
+# print(x.coef_, x.intercept_)
+
+# salary = x.coef_[0] * 0 + x.intercept_
+# print(salary)
+
+
+
+#CD Python - 280
+
+'''
+Czy kampania marketingowa Spring Sale wpłynęła istotnie statystycznie na współczynnik konwersji (liczba sprzedaży do liczby odwiedzin)? 
+Porównaj wskaźnik konwersji przed kampanią i od dnia kampanii (uwzględniając ten dzień).
+
+Przypisz wartość p z odpowiedniego testu statystycznego do zmiennej p_value.
+'''
+
+# import numpy as np
+# import pandas as pd
+# rng = np.random.default_rng(42)
+
+# marketing_campaigns = pd.DataFrame({
+#     "campaign_id": [1],
+#     "campaign_name": ["Spring Sale"],
+#     "date": ["2025-03-15"],
+# })
+
+# days = pd.date_range("2025-03-01", "2025-03-31")
+# events = []
+# for day in days:
+#     visits = rng.poisson(350 if "2025-03-15" <= str(day.date()) <= "2025-03-21" else 120)
+#     purchases = rng.poisson(40 if "2025-03-15" <= str(day.date()) <= "2025-03-21" else 8)
+
+#     events += [{"event_time": day, "event_type": "visit"} for _ in range(visits)]
+#     events += [{"event_time": day, "event_type": "purchase"} for _ in range(purchases)]
+
+# events = pd.DataFrame(events)
+# events['after_campaign'] = pd.to_datetime(events['event_time']) >= pd.to_datetime('2025-03-15') #data kampanii
+# events.head() 
+
+# table = pd.crosstab(events['event_type'], events['after_campaign']) #crosstab na ilosci danych eventow pod katem tego, czy jest przed czy po kampanii
+
+# from scipy.stats import chi2_contingency
+# result = chi2_contingency(table)
+# p_value = result.pvalue
+# print(p_value) #p value wynosi 0.01 - czyli można odrzucić H0, że zmienne są niezależne (czyli są zależne i jest jakiś związek)
+
+#CD Python - 281
+
+'''
+Stwórz model regresji liniowej przewidujący cenę za metr na podstawie wszystkich kolumn z danymi numerycznymi 
+(oczywiście prócz kolumny price). Aby dopasować model, usuń wiersze z brakującymi wartościami.
+
+Wytrenowany model przypisz do zmiennej model.
+
+Oblicz średni błąd bezwzględny (mean_absolute_error) i przypisz go do zmiennej mae.
+'''
+
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df = df.select_dtypes(include='number')
+# cond = df.notna().all(axis=1)
+# df[cond].shape
+# df = df[cond]
+
+# df.head()
+# model = LinearRegression()
+# x = df.drop(columns=["price", "price_per_m"])
+# y = df["price_per_m"]
+# model.fit(x, y)
+
+# from sklearn.metrics import mean_absolute_error
+# y_pred = model.predict(x)
+# mae = round(mean_absolute_error(y, y_pred), 2)
+# print(mae)
+#Wychodzi mae 1442
+
+
+#CD Python - 281
+
+'''
+Zadanie
+Skopiuj kod z poprzedniego zadania dotyczącego regresji liniowej i poeksplorujmy jakie wartości przewiduje model.
+
+Stwórz wykres punktowy (ang. scatterplot), który pokazuje na osi X rzeczywiste wartości price_per_m, a na osi Y wartości przewidziane przez model. Gdyby model przewidywał wartości idealnie, wszystkie punkty ułożyłyby się na prostej linii. Na podstawie wykresu oceń, czy model popełnia większe błędy dla określonych zakresów cen, np. dla tańszych lub droższych nieruchomości.
+
+Możemy także stworzyć bardziej zaawansowane wizualizacje. Stwórz wykres punktowy, który przedstawia metraż względem ceny za metr kwadratowy, a jako kolor (argument hue w seaborn.scatterplot) wykorzystaj bezwzględną różnicę między ceną przewidzianą przez model a rzeczywistą ceną. Na podstawie wykresu oceń, dla jakich nieruchomości model popełnia największe błędy.
+
+Żeby pokazać wykres w notatniku na końcu kodu użyj funkcji:
+
+plt.show()
+
+'''
+
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+# from sklearn.metrics import mean_absolute_error
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df = df.select_dtypes(include='number')
+# cond = df.notna().all(axis=1)
+# df[cond].shape
+# df = df[cond]
+
+# df.head()
+# model = LinearRegression()
+# x = df.drop(columns=["price", "price_per_m"])
+# y = df["price_per_m"]
+# model.fit(x, y)
+
+# df['price_predicted'] = model.predict(x)
+# check_df = df[['price_predicted', 'price_per_m']]
+# df['diff'] = (df['price_predicted'] - df['price_per_m']).abs
+
+# plot = sns.scatterplot(
+#     check_df,
+#     x = 'price_per_m',
+#     y = 'price_predicted'
+# )
+# plt.show()
+
+# scatterplot2 = sns.scatterplot(
+#     df,
+#     x = 'area',
+#     y = 'price_per_m',
+#     hue = 'diff'
+# )
+# plt.show()
+
+#CD Python - 282
+
+'''
+Zadanie
+Stwórz model regresji logistycznej przewidujący czy mieszkanie ma garaż (df["garage"])
+na podstawie wszystkich kolumn z danymi numerycznymi. 
+Aby dopasować model, usuń wiersze z brakującymi wartościami.
+
+Wytrenowany model przypisz do zmiennej model.
+
+Oblicz dokładność (accuracy_score) i przypisz go do zmiennej accuracy.
+'''
+
+
+# import pandas as pd
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.metrics import accuracy_score
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# #najpierw wybieramy tylko dane numeryczne i tylko not nulle
+# df = df.select_dtypes(include = 'number')
+# cond = df.notna().all(axis = 1)
+# df = df[cond]
+
+# #df treningowy, wywalamy garage
+# training_df = df.drop(columns=["garage"])
+# model = LogisticRegression()
+# model.fit(training_df, df['garage']) #trenujemy model
+# print(model)
+
+
+# df['predicted_garage'] = model.predict(training_df) #dodajemy predykcje
+# accuracy = round(accuracy_score(df['garage'], df['predicted_garage']), 2) #porównujemy predykcje accuracy scorem
+# print(accuracy) #0.72 wychodzi, 72% poprwaności predykcji
+
+#CD Python - 283
+'''
+Zadanie
+Stwórz listę i przypisz do zmiennej wrong_predictions indeksy (index) mieszkań, 
+dla których model błędnie przewidział klasę.
+'''
+
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# from sklearn.linear_model import LogisticRegression
+# model = LogisticRegression()
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+# model.fit(X, y)
+
+# df['pred'] = model.predict(X)
+# df.head()
+
+# wrong_predictions = []
+# for index, row in df.iterrows():
+#     garage = row['garage']
+#     prediction = row['pred']
+#     if garage != prediction:
+#         wrong_predictions.append(index)
+
+# print(wrong_predictions)
+
+
+#CD Python - 284
+'''
+Zadanie
+Modele klasyfikacyjne oprócz przewidywanej klasy potrafią 
+również zwrócić prawdopodobieństwo przynależności do każdej z klas.
+
+Metoda predict_proba() zwraca dla każdej obserwacji prawdopodobieństwa wszystkich klas. 
+Przykładowo wynik [0.43121095, 0.56878905] oznacza, że model ocenia prawdopodobieństwo klasy 0 na około 43%, 
+a klasy 1 na około 57%.
+
+Stwórz listę i przypisz do zmiennej most_likely 10 indeksów reprezentujących mieszkania
+o najwyższym prawdopodobieństwie przynależności do klasy 1.
+'''
+
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# from sklearn.linear_model import LogisticRegression
+# model = LogisticRegression()
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+# model.fit(X, y)
+# y_pred_proba = model.predict_proba(X)
+# print(y_pred_proba)
+
+# #Kasia's approach (the correct one - this is very imporatnt because my faulty approach was giving wrong indexes)
+# #dropping null columns drops indexes but without resetting them here, so we get gaps e.g. 0, 2, 3, 7 etc.
+# df["predict_proba"] = y_pred_proba[:, 1]
+# most_likely = list(df.sort_values(by="predict_proba", ascending=False).head(10).index)
+# print(most_likely)
+
+
+
+#CD Python - 285
+
+'''
+Zadanie
+Stwórz model, który będzie przewidywał czy ktoś kupi kurs df["bought_course"].
+
+Wytrenowany model przypisz do zmiennej model.
+'''
+
+
+# import pandas as pd
+# import numpy as np
+# from sklearn.linear_model import LogisticRegression
+# np.random.seed(42)
+
+# n = 500
+# df = pd.DataFrame({
+#     "age": np.random.randint(18, 55, n),
+#     "days_since_signup": np.random.randint(1, 180, n),
+#     "visited_pricing_page": np.random.choice([0, 1], n, p=[0.45, 0.55]),
+#     "watched_webinar": np.random.choice([0, 1], n, p=[0.65, 0.35]),
+#     "opened_email": np.random.choice([0, 1], n, p=[0.4, 0.6]),
+#     "time_on_page": np.random.normal(6, 2, n).round(2),
+#     "number_of_visits": np.random.poisson(4, n),
+# })
+# score = (
+#     0.8 * df["visited_pricing_page"] + 1.2 * df["watched_webinar"] + 0.7 * df["opened_email"] + 0.15 * df["number_of_visits"] + 0.08 * df["time_on_page"] - 0.01 * df["days_since_signup"] + np.random.normal(0, 0.8, n)
+# )
+# probability = 1 / (1 + np.exp(-score))
+# df["bought_course"] = (probability > 0.65).astype(int)
+
+# x = df.drop(columns = ['bought_course'])
+# y = df['bought_course']
+
+# model = LogisticRegression()
+# model.fit(x, y)
+# print(model)
+
+
+
+#CD Python - 286
+'''
+Zadanie
+Stwórz model regresji liniowej przewidujący powierzchnię mieszkania na podstawie ceny za metr, 
+piętra i roku budynku.
+
+O ile zmienia się przewidywana powierzchnia mieszkania przy wzroście piętra o 1,
+zakładając, że pozostałe cechy pozostają bez zmian? 
+Przypisz odpowiedź zaokrągloną do 2 cyfr po przecinku do zmiennej floor_coef.
+
+'''
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+# df.head()
+
+# X = df.drop(columns = ['area'])
+# y = df['area']
+# model = LinearRegression()
+# model.fit(X, y)
+# df['pred_area'] = model.predict(X)
+# df.head()
+
+# floor_coef = round(model.coef_[1], 2)
+
+
+
+#CD Python - 287 
+
+'''
+Zadanie
+Stwórz model regresji liniowej przewidujący powierzchnię mieszkania na podstawie ceny za metr, piętra i roku budynku.
+
+Jaki jest przewidywany metraż dla mieszkania, które kosztuje 9500 zł/m2, jest na 2 piętrze i powstało w 2021 roku?
+
+Przypisz odpowiedź zaokrągloną do 2 cyfr po przecinku do zmiennej predicted_area.
+'''
+
+
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+# df.head()
+
+# check_df = df.drop(columns = ['area'])
+# predicted_df = df['area']
+
+# model = LinearRegression()
+# model.fit(check_df, predicted_df)
+# predicted_area = model.predict([[9500, 2.0, 2021.0]])[0].round(2)
+
+# print(predicted_area)
+
+
+
+
+#CD Python - 287 
+
+'''
+Stwórz model drzewa decyzyjnego, który przewiduje cenę za metr. 
+Jako cechy do wytrenowania modelu możesz wybrać cokolwiek dostępnego w df. 
+
+Ustaw maksymalną głębokość drzewa na 3 (argument max_depth).
+
+Przypisz wytrenowany model do zmiennej model.
+
+Oblicz średni błąd bezwzględny (mean_absolute_error) i przypisz go do zmiennej mae.
+
+'''
+
+
+# import pandas as pd
+# from sklearn.tree import DecisionTreeRegressor
+# from sklearn.metrics import mean_absolute_error
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+
+# training_df= df[['area', 'rooms_no', 'floor_no', 'separate_kitchen', 'air_conditioning', 'balcony', 'garage']]
+# predicted_df = df['price_per_m']
+
+# model = DecisionTreeRegressor(max_depth = 3)
+# model.fit(training_df, predicted_df)
+# print(model)
+
+# df['predicted_ppm'] = model.predict(training_df)
+# mae = mean_absolute_error(df['price_per_m'], df['predicted_ppm'])
+# print(mae)
+
+
+
+#CD Python - 289 
+'''
+Zadanie
+Współczynniki kierunkowe w modelu regresji liniowej mogą pomóc określić, 
+które cechy mają największy wpływ na przewidywaną wartość.
+
+Takie porównanie ma jednak sens tylko wtedy, 
+gdy wszystkie cechy są zapisane w tej samej skali. 
+Trudno porównywać współczynnik dla powierzchni (area),
+wyrażonej w metrach kwadratowych z liczbą pięter (floor_no), czy rokiem wybudowania budynku (build_year).
+
+Będziemy się uczyć w kolejnych tygodniach jak przygotować dane do modelu, 
+ale już teraz możecie zobaczyć jak działa skalowanie danych, które sprowadza wszystkie cechy do porównywalnej skali.
+
+Kod trenuje model regresji liniowej przewidujący cenę za metr na wyskalowanych danych. 
+Porównując współczynniki kierunkowe określ, która cecha ma największy wpływ na przewidywaną wartość
+i przypisz nazwę tej kolumny do zmiennej most_important_feature.
+
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.drop(columns=["price"])
+# df = df.dropna()
+
+# X = df.drop(columns=["price_per_m"])
+# y = df["price_per_m"]
+
+# # sprowadź cechy do porównywalnej skali
+# from sklearn.preprocessing import StandardScaler
+# scaler = StandardScaler()
+# scaler.fit(X)
+# X_scaled = scaler.transform(X)
+
+# # wytrenuj model na wyskalowanych cechach
+# from sklearn.linear_model import LinearRegression
+# model = LinearRegression()
+# model.fit(X_scaled, y)
+
+# # znajdź współczynniki kierunkowe dla cech
+# import numpy as np
+# df_coef = pd.DataFrame({"col": X.columns, "coef": np.abs(model.coef_)})
+# df_coef.head()
+
+# '''
+# 	col	coef
+# 0	area	747.877450
+# 1	rooms_no	1799.929739
+# 2	floor_no	416.886916
+# 3	build_year	939.885562
+# 4	build_floor_num	418.043071
+# '''
+
+# most_important_feature = 'rooms_no'
+
+
+#CD Python - 290
+'''
+Zadanie
+Algorytm drzewa decyzyjnego może być wykorzystywany zarówno do regresji, jak i klasyfikacji.
+
+Znajdź odpowiednią funkcję w bibliotece scikit-learn i zmień kod tak, 
+aby model przewidywał, czy mieszkanie ma garaż, wykorzystując algorytm drzewa decyzyjnego. 
+
+Wytrenowany model przypisz do zmiennej model.
+
+Po wytrenowaniu modelu znajdź kolejną funkcję z biblioteki scikit-learn, która zwizualizuje drzewo graficznie.
+'''
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.tree import DecisionTreeClassifier, plot_tree
+# model = DecisionTreeClassifier()
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+# model.fit(X, y)
+
+# y_pred = model.predict(X)
+# x = plot_tree(model, max_depth = 2, feature_names = X.columns)
+# plt.show()
+
+
+
+#CD Python - 291
+
+'''
+Zadanie
+Wytrenowany model możemy zapisać do pliku, 
+aby później wykorzystać go np. w aplikacji lub procesie automatyzacji do przewidywania wyników dla nowych danych.
+
+Możemy do tego wykorzystać funkcję dump z biblioteki joblib.
+
+Zapisz wytrenowany model do pliku o nazwie "model.pkl" i usuń z przestrzeni roboczej Pythona zmienną model.
+
+import joblib
+joblib.dump(model, nazwa_pliku)
+
+'''
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# from sklearn.linear_model import LogisticRegression
+# model = LogisticRegression()
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+# model.fit(X, y)
+
+# import joblib
+# joblib.dump(model, 'model.pkl')
+# del model
+
+
+#CD Python - 292
+'''
+Regularyzacja to technika, która ogranicza złożoność modelu, dzięki czemu zmniejsza ryzyko przeuczenia.
+
+Lasso to jeden z rodzajów regularyzacji. Podczas trenowania model "karze" duże wartości współczynników regresji. 
+W efekcie współczynniki mniej istotnych cech stają się coraz mniejsze, 
+część z nich może zostać ustawiona dokładnie na 0.
+
+Przypisz nazwy kolumn, których współczynniki wynoszą 0 do zmiennej not_important_features.
+
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.drop(columns=["price"])
+# df = df.dropna()
+
+# X = df.drop(columns=["price_per_m"])
+# y = df["price_per_m"]
+
+# # sprowadź cechy do porównywalnej skali
+# from sklearn.preprocessing import StandardScaler
+# scaler = StandardScaler()
+# scaler.fit(X)
+# X_scaled = scaler.transform(X)
+
+# # wytrenuj model na wyskalowanych cechach
+# from sklearn.linear_model import Lasso
+# model = Lasso(alpha=100)
+# model.fit(X_scaled, y)
+
+# print(X.columns)
+# df_coef = pd.DataFrame({"col": X.columns, "coef": model.coef_})
+# print(df_coef)
+
+# not_important_features = ['build_floor_num', 'balcony', 'garden', 'nan', 'two_storey']
+
+
+
+#CD Python - 293
+
+'''
+Zadanie
+Porównaj dokładność (ang. accuracy) modelu regresji logistycznej z modelem drzewa decyzyjnego.
+
+Oblicz metrykę dla obu modeli, a następnie przypisz wyniki (zaokrąglone do 2 miejsc po przecinku) 
+do zmiennych accuracy_log_reg oraz accuracy_tree.
+'''
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.metrics import accuracy_score
+# model = LogisticRegression()
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+# model.fit(X, y)
+# y_pred = model.predict(X)
+
+# accuracy_log_reg = round(accuracy_score(y_pred, df['garage']), 2)
+# print(accuracy_score)
+
+# from sklearn.tree import DecisionTreeClassifier
+# model = DecisionTreeClassifier()
+# model.fit(X, y)
+# y_pred = model.predict(X)
+
+# accuracy_tree = round(accuracy_score(y_pred, df['garage']), 2)
+# print(accuracy_tree)
+
+
+#CD Python - 294
+
+'''
+Zadanie
+Wytrenuj model przewidujący wynagrodzenie (salary) na podstawie pozostałych cech. 
+Użyj obojętnie jakiego algorytmu. Przypisz model do zmiennej model, 
+oceń model za pomocą odpowiedniej metryki i przypisz ją do zmiennej metric.
+'''
+
+
+# import numpy as np
+# import pandas as pd
+# np.random.seed(42)
+# n = 300
+# experience = np.random.randint(0, 16, n)
+# education = np.random.choice([0, 1, 2], n, p=[0.4, 0.4, 0.2])  # lic., mgr, phd
+# remote = np.random.choice([0, 1], n)
+# company_size = np.random.randint(20, 5000, n)
+
+# salary = (5000 + experience * 900 + education * 2500 + remote * 1200 + company_size * 0.8 + np.random.normal(0, 2500, n))
+
+# df = pd.DataFrame({ "experience": experience, "education": education, "remote": remote, "company_size": company_size, "salary": salary.round()})
+# df.head()
+
+# #wybieram regresję liniową i mae - regresja, bo dane numeryczne i pasuje mi
+# from sklearn.linear_model import LinearRegression
+# from sklearn.metrics import mean_absolute_error
+
+# X = df.drop(columns = ['salary'])
+# y = df['salary']
+
+# model = LinearRegression()
+# model.fit(X, y)
+# y_pred = model.predict(X)
+
+# metric = mean_absolute_error(y_pred, y)
+# print(metric)
+
+
+#CD Python - 295
+
+'''
+Zadanie
+Rozdziel dane w sposób losowy dla zmiennych X i y na:
+
+zbiór treningowy, zawierający 80% rekordów
+zbiór testowy, zawierający 20% rekordów
+Przypisz zbiory do zmiennych X_train, X_test, y_train, y_test.
+'''
+
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
+# df = pd.read_csv("mini-df.csv")
+
+# X = df[["area", "rooms_no", "floor_no"]]
+# y = df["price_per_m"]
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X, y, test_size=0.20, random_state=42)
+
+
+
+#CD Python - 296
+
+'''
+Nie każdy zbiór danych dzielimy na zbiór treningowy i testowy w sposób losowy. 
+W przypadku szeregów czasowych, gdzie każdy wiersz reprezentuje kolejny moment w czasie (np. dzień), 
+taki podział mógłby prowadzić do wykorzystania informacji z przyszłości podczas trenowania modelu.
+
+Dlatego chcemy, aby podział jak najlepiej odzwierciedlał rzeczywistą sytuację, 
+czyli model powinien uczyć się na wcześniejszych danych i przewidywać wartości dla późniejszych.
+
+Chcemy stworzyć model przewidujący sprzedaż (sales) na podstawie pozostałych kolumn. 
+Utwórz zmienne X_train, X_test, y_train, y_test, w których pierwsze 80% obserwacji 
+(uporządkowanych według kolumny df["date"]) znajduje się w zbiorze treningowym, a pozostałe 20% w zbiorze testowym.
+'''
+
+
+# import pandas as pd; 
+# from sklearn.model_selection import train_test_split
+# import numpy as np; np.random.seed(42); 
+# df = pd.DataFrame({"date": pd.date_range("2025-01-01", "2025-03-31"), "sales": np.random.randint(80, 180, 90), "orders": np.random.randint(5, 30, 90), "temperature": np.random.randint(-5, 31, 90), "marketing": np.random.choice([0, 1], 90, p=[0.8, 0.2])})
+
+# df.head()
+# df.tail()
+
+# X = df.drop(columns = ['sales'])
+# y = df['sales']
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X, 
+#     y,
+#     shuffle = False,
+#     test_size = 0.2
+# )
+
+
+
+#CD Python - 297
+
+'''
+Zadanie
+Stwórz model, który będzie przewidywał czy ktoś kupi kurs df["bought_course"]. 
+Model wytrenuj na zbiorze treningowym, a oceń model na zbiorze testowym.
+
+Wytrenowany model przypisz do zmiennej model, a odpowiednią metrykę ewaluacji do zmiennej metric.
+
+'''
+# import pandas as pd
+# import numpy as np
+# from sklearn.model_selection import train_test_split
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.metrics import accuracy_score
+# np.random.seed(42)
+
+# n = 500
+# df = pd.DataFrame({
+#     "age": np.random.randint(18, 55, n),
+#     "days_since_signup": np.random.randint(1, 180, n),
+#     "visited_pricing_page": np.random.choice([0, 1], n, p=[0.45, 0.55]),
+#     "watched_webinar": np.random.choice([0, 1], n, p=[0.65, 0.35]),
+#     "opened_email": np.random.choice([0, 1], n, p=[0.4, 0.6]),
+#     "time_on_page": np.random.normal(6, 2, n).round(2),
+#     "number_of_visits": np.random.poisson(4, n),
+# })
+# score = (
+#     0.8 * df["visited_pricing_page"] + 1.2 * df["watched_webinar"] + 0.7 * df["opened_email"] + 0.15 * df["number_of_visits"] + 0.08 * df["time_on_page"] - 0.01 * df["days_since_signup"] + np.random.normal(0, 0.8, n)
+# )
+# probability = 1 / (1 + np.exp(-score))
+# df["bought_course"] = (probability > 0.65).astype(int)
+
+# df.head()
+
+# X = df.drop(columns = ['bought_course'])
+# y = df['bought_course']
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X,
+#     y,
+#     test_size = 0.3
+# )
+
+
+# model = DecisionTreeClassifier()
+# model.fit(X_train, y_train)
+# y_pred = model.predict(X_test)
+# print(model)
+
+# metric = accuracy_score(y_test, y_pred)
+# print(metric)
+
+
+#CD Python - 298
+
+'''
+Zadanie
+Ile razy dla zbioru testowego model przewidział, że mieszkanie ma garaż, a nie powinien tego przewidzieć?
+
+Odpowiedź przypisz do zmiennej false_positives.
+'''
+
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+
+# from sklearn.model_selection import train_test_split
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# model = LogisticRegression()
+# model.fit(X_train, y_train)
+# y_pred = model.predict(X_test)
+
+# matrix = confusion_matrix(y_test, y_pred)
+# ConfusionMatrixDisplay(matrix).plot()
+# plt.show() #widać tu 3 false positives
+
+
+#CD Python - 299
+
+'''
+Zadanie
+Oblicz metrykę precyzji (ang. precision) dla zbioru testowego, czyli określ, 
+jaki odsetek obserwacji przewidzianych przez model jako pozytywne rzeczywiście należał do klasy pozytywnej.
+
+Odpowiedź przypisz do zmiennej precision.
+'''
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from sklearn.metrics import precision_score
+# from sklearn.model_selection import train_test_split
+# from sklearn.linear_model import LogisticRegression
+
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# model = LogisticRegression()
+# model.fit(X_train, y_train)
+# y_pred = model.predict(X_test)
+
+# precision = precision_score(y_test, y_pred)
+# print(precision) #0.4 
+
+
+#CD Python - 300
+'''
+Zadanie
+Porównaj dokładność (ang. accuracy) modelu drzewa decyzyjnego na całym zbiorze danych
+z wynikami uzyskanymi przez model stworzony z podziałem na zbiór treningowy i testowy.
+
+Oblicz metrykę dla obu modeli, a następnie przypisz wyniki do zmiennych accuracy_entire_dataset oraz accuracy_split_dataset.
+
+'''
+
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from sklearn.model_selection import train_test_split
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.metrics import accuracy_score
+
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# model = DecisionTreeClassifier(random_state=42)
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# model.fit(X, y)
+
+# y_full = model.predict(X)
+# accuracy_entire_dataset = accuracy_score(y, y_full)
+# print(accuracy_entire_dataset) #1.0 XD
+
+
+
+# model.fit(X_train, y_train)
+# y_split = model.predict(X_test)
+# accuracy_split_dataset = accuracy_score(y_test, y_split)
+# print(accuracy_split_dataset) #tu juz wychodzi 0.61
+
+
+
+#CD Python - 301
+
+'''
+Metryki precyzji (ang. precision) oraz czułości (ang. recall) są szczególnie przydatne, 
+gdy dane są niezbalansowane, czyli jedna z klas występuje znacznie rzadziej od drugiej.
+
+Stwórz model wykorzystujący algorytm Lasu Losowego przewidujący czy wiadomość e-mail jest spamem.
+
+Którą metrykę wybierzesz jako ważniejszą, jeżeli zależy Ci na tym, 
+aby jak najmniej wiadomości spam trafiło do skrzynki odbiorczej użytkownika? 
+Wybierz metrykę i przypisz jaką wartość otrzymuje na zbiorze testowym do zmiennej metric.
+'''
+
+
+# import numpy as np
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import recall_score #w tym kontekście interesuje nas czułość - chcemy wręcz za często być alarmowani
+
+# np.random.seed(42)
+# n = 1000
+# df = pd.DataFrame({"message_length": np.random.randint(10, 500, n),"uppercase_ratio": np.random.beta(1, 8, n),
+# "exclamation_count": np.random.poisson(2, n), "link_count": np.random.poisson(0.5, n), "digit_ratio": np.random.beta(2, 10, n),
+# "contains_free": np.random.binomial(1, 0.15, n), "contains_win": np.random.binomial(1, 0.10, n), "contains_urgent": np.random.binomial(1, 0.12, n),"sender_reputation": np.random.uniform(0, 1, n),
+# })
+# score = (1.8 * df["contains_free"] + 2.2 * df["contains_win"] + 1.6 * df["contains_urgent"] + 1.5 * df["link_count"] + 8 * df["uppercase_ratio"]
+#     + 0.03 * df["message_length"] + 5 * df["digit_ratio"] - 4 * df["sender_reputation"] + np.random.normal(0, 2, n)
+# )
+# threshold = np.percentile(score, 70)
+# df["is_spam"] = (score > threshold).astype(int)
+
+# X = df.drop(columns=["is_spam"])
+# y = df["is_spam"]
+
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# model = RandomForestClassifier(random_state=42)
+# model.fit(X_train, y_train)
+# y_pred = model.predict(X_test)
+
+# metric = recall_score(y_test, y_pred)
+# print(metric)
+
+
+#CD Python - 302
+
+'''
+Zadanie
+Pojedyncze drzewa decyzyjne mają tendencję do przeuczania się (ang. overfitting). 
+Jednym ze sposobów sprawdzenia, czy model jest przeuczony, jest porównanie jego wyników na zbiorze treningowym i testowym. 
+Jeżeli model osiąga znacznie lepsze wyniki na zbiorze treningowym niż na testowym, może to świadczyć o przeuczeniu.
+
+Oblicz średni błąd bezwzględny (ang. Mean Absolute Error, MAE) dla zbioru treningowego oraz testowego. 
+Przypisz otrzymane wartości do zmiennych mae_train oraz mae_test, a następnie porównaj je, aby ocenić, 
+czy model wykazuje oznaki przeuczenia.
+'''
+
+
+
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
+# from sklearn.tree import DecisionTreeRegressor
+# from sklearn.metrics import mean_absolute_error
+
+# df = pd.read_csv("mini-df.csv")
+
+# X = df[["area", "rooms_no", "floor_no"]]
+# y = df["price_per_m"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# model = DecisionTreeRegressor(random_state=42)
+# model.fit(X_train, y_train)
+
+# y_pred_train = model.predict(X_train)
+# mae_train = round(mean_absolute_error(y_train, y_pred_train), 2)
+# print(mae_train) #roznica 47.89 - ewidentnie bardzo mała, co nie dziwi w tym kotneskcie
+
+
+# y_pred_test = model.predict(X_test)
+# mae_test = round(mean_absolute_error(y_test, y_pred_test), 2)
+# print(mae_test) #roznica 3251 - alarmujaca roznica w porownaniu do zbioru testowego
+
+
+#CD Python - 303 
+
+'''
+Zadanie
+Pojedyncze drzewa decyzyjne często przeuczają się, ponieważ potrafią się rozbudowywać bez końca, 
+próbując się dopasować do każdego przypadku w danych - 
+zamiast uczyć się ogólnych zależności zbyt mocno dopasowują się do szumu informacyjnego.
+
+Aby ograniczyć ten problem, stosuje się drzewa losowe (ang. Random Forest). 
+Zamiast jednego drzewa model buduje wiele drzew decyzyjnych,
+a każde z nich jest trenowane na losowej próbce danych oraz wykorzystuje losowy podzbiór cech podczas podejmowania decyzji. 
+Dzięki temu poszczególne drzewa uczą się nieco innych zależności, 
+a końcowa predykcja powstaje na podstawie ich wspólnego głosu (w klasyfikacji) lub średniej przewidywanej wartości (w regresji).
+
+Wytrenuj model Random Forest przewidujący price_per_m,
+a następnie oblicz pierwiastek ze średniego błądu kwadratowego (ang. root mean squared error, RMSE) 
+dla zbioru treningowego i testowego. Przypisz wynik do zmiennych rmse_train oraz rmse_test.
+'''
+
+
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
+# from sklearn.ensemble import RandomForestRegressor
+# from sklearn.metrics import root_mean_squared_error
+
+# df = pd.read_csv("mini-df.csv")
+
+# X = df[["area", "rooms_no", "floor_no"]]
+# y = df["price_per_m"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# model = RandomForestRegressor(random_state=42)
+# model.fit(X_train, y_train)
+
+# y_train_pred = model.predict(X_train)
+# rmse_train = round(root_mean_squared_error(y_train, y_train_pred), 2)
+
+# y_test_pred = model.predict(X_test)
+# rmse_test = round(root_mean_squared_error(y_test, y_test_pred), 2)
+
+# print(rmse_train, rmse_test)
+
+
+#CD Python - 304
+
+'''
+Zbudowano dwa modele uczenia maszynowego, które przewidują różne zmienne: sprzedaż (sales) oraz zysk (profit).
+
+Porównaj jakość obu modeli, wybierając metrykę, która pozwala porównywać różne modele regresji. 
+Na podstawie wybranej metryki określ, który model osiąga lepsze wyniki.
+
+Określ, który z celów jest łatwiejszy do przewidywania i przypisz jego nazwę ("sales" lub "profit") 
+do zmiennej better_to_predict.
+'''
+
+# import pandas as pd
+# from sklearn.ensemble import RandomForestRegressor
+# from sklearn.metrics import mean_absolute_percentage_error, r2_score
+
+# df = pd.DataFrame({
+#     "employees": [5, 7, 9, 11, 13, 16, 18, 21, 24, 27, 30, 34, 38, 42, 46, 50, 55, 60, 66, 72],
+#     "marketing_budget": [2000, 2400, 2800, 3500, 4200, 5000, 5800, 6700, 7600, 8600, 9700, 10900, 12200, 13600, 15100, 16700, 18400, 20200, 22100, 24100],
+#     "website_visits": [700, 850, 980, 1150, 1350, 1600, 1850, 2150, 2450, 2800, 3150, 3550, 3950, 4400, 4850, 5350, 5900, 6500, 7150, 7800],
+#     "avg_order_value": [82, 84, 86, 88, 90, 92, 94, 96, 98, 99, 101, 103, 105, 107, 109, 111, 113, 115, 117, 120],
+#     "sales": [45000, 51000, 58000, 66000, 74000, 86000, 95000, 109000, 122000, 137000, 151000, 168000, 185000, 204000, 223000, 245000, 268000, 292000, 318000, 345000],
+#     "profit": [6200, 7100, 9800, 8700, 12600, 11900, 15800, 14900, 18600, 17300, 22400, 20700, 25500, 23900, 28600, 27100, 33200, 30400, 37100, 34800]
+# })
+
+# # model przewidujący sprzedaż
+# X_1 = df.drop(columns=["sales"])
+# y_1 = df["sales"]
+# model_1 = RandomForestRegressor(max_depth=2, random_state=42)
+# model_1.fit(X_1, y_1)
+# y_pred_1 = model_1.predict(X_1)
+
+# # model przewidujący zysk
+# X_2 = df.drop(columns=["profit"])
+# y_2 = df["profit"]
+# model_2 = RandomForestRegressor(max_depth=2, random_state=42)
+# model_2.fit(X_2, y_2)
+# y_pred_2 = model_2.predict(X_2)
+
+# # Współczynnik determinacji R2
+# sales = round(r2_score(y_1, y_pred_1), 4)
+# profit = round(r2_score(y_2, y_pred_2), 4)
+# print(f"sprzedaż: {sales}, zysk: {profit}")
+
+# #blad procentowy MAPE
+# mape1 = mean_absolute_percentage_error(y_1, y_pred_1)
+# mape2 = mean_absolute_percentage_error(y_2, y_pred_2)
+# print(mape1, mape2)
+
+# better_to_predict = 'sales'
+
+
+
+#CD Python - 305
+'''
+Standardowo modele klasyfikacyjne przypisują obserwację do klasy pozytywnej, 
+jeżeli prawdopodobieństwo tej klasy wynosi co najmniej 0.5.
+
+Sprawdź, jak zmieni się precyzja (precision), 
+jeżeli zamiast domyślnego progu 0.5 zastosujemy próg 0.7. 
+Oznacza to, że obserwacja zostanie przypisana do klasy pozytywnej tylko wtedy, 
+gdy przewidywane prawdopodobieństwo klasy 1 będzie wynosiło co najmniej 0.7.
+
+Prawdopodobieństwo predykcji otrzymasz używając metody predict_proba() na wytrenowanym modelu.
+
+Obliczoną wartość przypisz do zmiennej new_threshold_precision.
+
+'''
+
+# import numpy as np
+# import pandas as pd
+
+# from sklearn.model_selection import train_test_split
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import precision_score
+
+
+# np.random.seed(42)
+# n = 1000
+# df = pd.DataFrame({"message_length": np.random.randint(10, 500, n),"uppercase_ratio": np.random.beta(1, 8, n),
+# "exclamation_count": np.random.poisson(2, n), "link_count": np.random.poisson(0.5, n), "digit_ratio": np.random.beta(2, 10, n),
+# "contains_free": np.random.binomial(1, 0.15, n), "contains_win": np.random.binomial(1, 0.10, n), "contains_urgent": np.random.binomial(1, 0.12, n),"sender_reputation": np.random.uniform(0, 1, n),
+# })
+# score = (1.8 * df["contains_free"] + 2.2 * df["contains_win"] + 1.6 * df["contains_urgent"] + 1.5 * df["link_count"] + 8 * df["uppercase_ratio"]
+#     + 0.03 * df["message_length"] + 5 * df["digit_ratio"] - 4 * df["sender_reputation"] + np.random.normal(0, 2, n)
+# )
+# threshold = np.percentile(score, 70)
+# df["is_spam"] = (score > threshold).astype(int)
+
+# X = df.drop(columns=["is_spam"])
+# y = df["is_spam"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# model = RandomForestClassifier(random_state=42)
+# model.fit(X_train, y_train)
+
+# y_pred = model.predict(X_test)
+# standard_precision = precision_score(y_test, y_pred)
+# print(standard_precision) #wychodzi 78%
+
+# new_threshold_pred = model.predict_proba(X_test)[:, 1] >= 0.7
+# new_threshold_precision = precision_score(y_test, new_threshold_pred)
+# print(new_threshold_precision) #tutaj juz 89%
+
+
+#CD Python - 306
+
+'''
+Zadanie
+Uruchom kod i odpowiedz na pytanie: czy zbudowany model lepiej rozróżnia klasy niż model losowy? 
+Przypisz True lub False do zmiennej answer.
+'''
+# import numpy as np
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from sklearn.metrics import roc_curve, roc_auc_score
+# from sklearn.model_selection import train_test_split
+# from sklearn.ensemble import RandomForestClassifier
+
+# np.random.seed(42)
+# n = 1000
+# df = pd.DataFrame({"message_length": np.random.randint(10, 500, n),"uppercase_ratio": np.random.beta(1, 8, n),
+# "exclamation_count": np.random.poisson(2, n), "link_count": np.random.poisson(0.5, n), "digit_ratio": np.random.beta(2, 10, n),
+# "contains_free": np.random.binomial(1, 0.15, n), "contains_win": np.random.binomial(1, 0.10, n), "contains_urgent": np.random.binomial(1, 0.12, n),"sender_reputation": np.random.uniform(0, 1, n),
+# })
+# score = (1.8 * df["contains_free"] + 2.2 * df["contains_win"] + 1.6 * df["contains_urgent"] + 1.5 * df["link_count"] + 8 * df["uppercase_ratio"]
+#     + 0.03 * df["message_length"] + 5 * df["digit_ratio"] - 4 * df["sender_reputation"] + np.random.normal(0, 2, n)
+# )
+# threshold = np.percentile(score, 70)
+# df["is_spam"] = (score > threshold).astype(int)
+
+# X = df.drop(columns=["is_spam"])
+# y = df["is_spam"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# model = RandomForestClassifier(random_state=42)
+# model.fit(X_train, y_train)
+# y_pred_proba = model.predict_proba(X_test)[:, 1]
+
+# # ROC AUC
+# roc_auc = roc_auc_score(y_test, y_pred_proba)
+# print(f"ROC AUC = {roc_auc:.3f}")
+
+# # Krzywa ROC
+# fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+# plt.figure(figsize=(6, 6))
+# plt.plot(fpr, tpr, label=f"ROC AUC = {roc_auc:.3f}")
+# plt.plot([0, 1], [0, 1], "--", color="gray", label="Losowy model")
+# plt.xlabel("False Positive Rate")
+# plt.ylabel("True Positive Rate")
+# plt.title("Krzywa ROC")
+# plt.legend()
+# plt.grid(True)
+# plt.show()
+
+# answer = True
+
+
+
+#CD Python - 306
+'''
+Zadanie
+Nie wszystkie kolumny są przydatne do budowy modelu. 
+Przykładowo, identyfikatory użytkowników czy numer zamówienia mają zazwyczaj unikalną wartość dla każdej obserwacji. 
+Takie kolumny nie zawierają informacji, które model mógłby wykorzystać do znalezienia zależności, 
+dlatego przed trenowaniem często są usuwane.
+
+Usuń z DataFrame df wszystkie kolumny, w których co najmniej 99% wartości jest unikalnych.
+
+Wynik przypisz ponownie do zmiennej df.
+'''
+# import numpy as np
+# import pandas as pd
+
+# np.random.seed(42)
+# n = 1000
+
+# df = pd.DataFrame({
+#     "user_id": np.arange(100000, 101000),
+#     "order_id": np.arange(500000, 501000),
+#     "email": [f"user{i}@example.com" for i in range(n)],
+#     "age": np.random.randint(18, 70, n),
+#     "salary": np.random.randint(3000, 18000, n),
+#     "city": np.random.choice(
+#         ["Warszawa", "Kraków", "Gdańsk", "Poznań"],
+#         size=n
+#     ),
+#     "purchased": np.random.randint(0, 2, n)
+# })
+
+# print(df.nunique())
+
+# df = df.drop(columns = ['user_id', 'order_id', 'email'])
+
+
+
+#CD Python - 307
+'''
+Zadanie
+Chcemy przewidzieć, czy klient zrezygnuje z subskrypcji (df["churn"]). 
+Dane są niezbalansowane, tylko około 15% klientów rezygnuje z usługi.
+
+Jaka metryka będzie najlepsza, jeżeli:
+
+nie chcemy pomijać klientów, którzy odejdą
+jednocześnie nie chcemy błędnie oznaczać zbyt wielu lojalnych klientów jako zagrożonych odejściem
+
+Zadanie
+
+Wytrenowany model przypisz do zmiennej model
+
+Wybierz odpowiednią metrykę i przypisz jej nazwę jako string do zmiennej metric:
+accuracy
+precision
+recall
+f1-score
+
+Oblicz wartość tej metryki dla zbioru testowego i przypisz ją do zmiennej result
+'''
+
+
+# import numpy as np
+# import pandas as pd
+# from sklearn.ensemble import RandomForestClassifier #random forest sprawdza się idealnie, gdy nie wiemy do końca, co badamy
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import f1_score #f1 score w tym wypadku dla zbalansowania czułości i precyzji - to średnia harmoniczna z obu,
+# #średnia harmoniczna balansuje te wartości, ALE TEŻ USTAWIA JE TAK, ŻEBY NIE BYŁY ZA MAŁE
+
+# np.random.seed(42)
+# n = 500
+
+# df = pd.DataFrame({
+#     "months_as_customer": np.random.randint(1, 73, n),
+#     "monthly_fee": np.random.randint(30, 201, n),
+#     "logins_last_month": np.random.poisson(10, n),
+#     "support_tickets": np.random.poisson(2, n),
+#     "late_payments": np.random.poisson(1, n),
+#     "contract_months": np.random.choice([1, 6, 12, 24], n, p=[0.35, 0.20, 0.30, 0.15])
+# })
+# churn_score = (
+#     -0.04 * df["months_as_customer"]
+#     + 0.015 * df["monthly_fee"]
+#     - 0.10 * df["logins_last_month"]
+#     + 0.50 * df["support_tickets"]
+#     + 0.70 * df["late_payments"]
+#     - 0.08 * df["contract_months"]
+#     + np.random.normal(0, 1.5, n)
+# )
+# df["churn"] = (churn_score >= churn_score.quantile(0.85)).astype(int)
+
+# X = df.drop(columns = 'churn')
+# y = df['churn']
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X,
+#     y,
+#     test_size = 0.3,
+#     random_state = 42
+# )
+
+# model = RandomForestClassifier()
+# model.fit(X_train, y_train)
+# y_pred = model.predict(X_test)
+# metric = 'f1-score'
+# result = f1_score(y_test, y_pred)
+# print(result)
+
+
+#CD Python - 308
+
+'''
+Przy niezbalansowanych danych warto podczas podziału na zbiór treningowy i testowy upewnić się, 
+że proporcja obu klas będzie podobna w obu zbiorach.
+
+Spróbuj użyć argumentu stratify=y w metodzie train_test_split 
+i zobacz czy proporcja zostaje zachowana w zbiorze treningowym i testowym.
+
+Przypisz do zmiennej positive_share odsetek pozytywnych klas w zbiorze testowym, zaokrąglony do 2 cyfr po przecinku.
+'''
+
+# import numpy as np
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import f1_score
+
+# np.random.seed(42)
+# n = 500
+
+# df = pd.DataFrame({
+#     "months_as_customer": np.random.randint(1, 73, n),
+#     "monthly_fee": np.random.randint(30, 201, n),
+#     "logins_last_month": np.random.poisson(10, n),
+#     "support_tickets": np.random.poisson(2, n),
+#     "late_payments": np.random.poisson(1, n),
+#     "contract_months": np.random.choice([1, 6, 12, 24], n, p=[0.35, 0.20, 0.30, 0.15])
+# })
+# churn_score = (
+#     -0.04 * df["months_as_customer"]
+#     + 0.015 * df["monthly_fee"]
+#     - 0.10 * df["logins_last_month"]
+#     + 0.50 * df["support_tickets"]
+#     + 0.70 * df["late_payments"]
+#     - 0.08 * df["contract_months"]
+#     + np.random.normal(0, 1.5, n)
+# )
+# df["churn"] = (churn_score >= churn_score.quantile(0.85)).astype(int)
+
+# X = df.drop(columns=["churn"])
+# y = df["churn"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, 
+# y, 
+# test_size=0.3, 
+# random_state=42,
+# stratify = y
+# )
+
+# print(f"train share: {y_train.sum()/len(y_train)}")
+# positive_share = y_test.sum()/len(y_test) #train share: 0.15142857142857144
+# print(f"test share: {positive_share}") #test share: 0.14666666666666667
+
+
+
+#CD Python - 309
+
+'''
+Pojedyncze drzewo decyzyjne ma tendencje do przeuczania się.
+
+Zapoznaj się z dokumentacją i zobacz jakie hiperparametry można zmienić dla algorytmu drzewa, 
+zrób research które z nich wpływają na przeuczenie i spróbuj zbudować trochę lepszy model.
+
+Spróbuj dodać argumenty do DecisionTreeClassifier(random_state=42),
+aby dokładność na zbiorze testowym wyszła trochę wyższa niż 0.62.
+
+'''
+
+
+
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import accuracy_score
+
+# df = pd.read_csv("mini-df.csv")
+# df = df.select_dtypes(include="number")
+# df = df.dropna()
+
+# model = DecisionTreeClassifier(
+#     splitter = 'random',
+#     min_samples_leaf = 3,
+#     max_depth = 3,
+#     random_state=42)
+# X = df.drop(columns=["garage"])
+# y = df["garage"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# model.fit(X_train, y_train)
+
+# y_pred_test = model.predict(X_test)
+# accuracy = round(accuracy_score(y_test, y_pred_test), 2)
+# print(accuracy)
+
+
+
+#CD Python - 310
+
+
+'''
+Użyj wybranej metody kodowania, aby zamienić wartości kategorialne w df na wartości numeryczne lub True/False, 
+które są akceptowane przez model. 
+
+Zapisz przekształcony DataFrame ponownie w zmiennej df.
+'''
+
+# import pandas as pd
+# df = pd.read_csv("mini-df.csv")
+# df = df[["heating", "build_owner", "build_type", "market_type"]]
+# df.head()
+
+# df = pd.get_dummies(df)
+# df.head()
+
+
+#CD Python - 311
+
+'''
+Przeskaluj wartości w df tak, aby znajdowały się w przedziale od 0 do 1. 
+
+Zapisz przekształcony DataFrame ponownie w zmiennej df.
+'''
+
+# import pandas as pd
+# from sklearn.preprocessing import MinMaxScaler
+
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["area", "price_per_m", "rooms_no"]]
+# df.head()
+
+# scaler = MinMaxScaler()
+# df = pd.DataFrame(scaler.fit_transform(df), columns = df.columns)
+# print(df)
+
+
+#CD Python - 312
+
+'''
+Stwórz model regresji liniowej przewidujący powierzchnię mieszkania na podstawie ceny za metr, piętra i roku budynku.
+
+Dodaj do pipeline'u na odpowiednim etapie:
+
+podział na zbiór treningowy i testowy
+wyskalowanie jednostek zmiennych używanych do przewidywania metrażu
+Oblicz metrykę RMSE jaką model osiąga dla zbioru testowego i przypisz ją do zmiennej rmse.
+
+'''
+
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+# from sklearn.metrics import root_mean_squared_error
+# from sklearn.model_selection import train_test_split
+# from sklearn.preprocessing import StandardScaler
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+# df.head()
+
+# X = df.drop(columns = ['area'])
+# y = df['area']
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X,
+#     y,
+#     test_size = 0.2,
+#     random_state=42
+# )
+
+# scaler = StandardScaler()
+# scaled_X_train = scaler.fit_transform(X_train)
+
+# model = LinearRegression()
+# model.fit(scaled_X_train, y_train)
+
+# X_test_scaled = scaler.transform(X_test)
+# y_pred = model.predict(X_test_scaled)
+
+# rmse = root_mean_squared_error(y_test, y_pred)
+# print(round(rmse), 2) #35 2
