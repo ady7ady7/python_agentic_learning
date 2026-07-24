@@ -4249,3 +4249,592 @@ Oblicz metrykę RMSE jaką model osiąga dla zbioru testowego i przypisz ją do 
 
 # rmse = root_mean_squared_error(y_test, y_pred)
 # print(round(rmse), 2) #35 2
+
+
+#CD Python - 313
+
+'''
+Tworząc kodowanie typu one-hot encoding musimy uważać na liczbę kategorii, 
+aby nie tworzyć mnóstwo kolumn dla pojedynczych przypadków.
+
+Kolumna country zawiera wiele różnych krajów. Zamień wszystkie kraje, 
+które stanowią mniej niż 1% wszystkich obserwacji na kategorię Other.
+
+Następnie stwórz transformację typu one-hot encoding i zapisz przetworzone dane pod zmienną df.
+'''
+
+# import numpy as np
+# import pandas as pd
+
+
+# np.random.seed(42)
+# countries = np.random.permutation(["Poland"]*40 + ["Germany"]*20 + ["France"]*15 + ["Spain"]*10 + ["Italy"]*8 + ["Netherlands"]*5 + ["Czech Republic"]*5 + ["Portugal"]*4 + ["Sweden"]*3 + ["Norway"]*3 + ["Denmark"]*2 + ["Finland"]*2 + ["Belgium"]*2 + ["Austria"]*2 + ["Hungary", "Romania", "Bulgaria", "Croatia", "Serbia", "Greece", "Turkey", "Japan", "South Korea", "Brazil", "Mexico", "Australia", "New Zealand", "South Africa", "India", "Singapore"])
+# np.random.shuffle(countries)
+# df = pd.DataFrame({"country": countries})
+
+
+# df.value_counts()
+# threshold = len(df)/100
+
+# countries_list = df.value_counts().reset_index()
+# countries_list = countries_list['country'][countries_list['count'] <= threshold].values.tolist()
+# df['country'] = df['country'].replace(countries_list, 'Other')
+
+# df = pd.get_dummies(df)
+# df.head()
+
+
+#CD Python - 314
+
+'''
+Sprawdź, która cecha ma największy wpływ na przewidywanie, 
+czy użytkownik kupi kurs (df["bought_course"]). 
+
+Uzupełnij kod o odpowiednie kroki, które pozwolą to określić.
+
+Nazwę cechy o największym wpływie przypisz do zmiennej most_important_feature.
+'''
+
+# import pandas as pd
+# import numpy as np
+# from sklearn.model_selection import train_test_split
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.preprocessing import RobustScaler
+
+# np.random.seed(42)
+
+# n = 500
+# df = pd.DataFrame({
+#     "age": np.random.randint(18, 55, n),
+#     "days_since_signup": np.random.randint(1, 180, n),
+#     "visited_pricing_page": np.random.choice([0, 1], n, p=[0.45, 0.55]),
+#     "watched_webinar": np.random.choice([0, 1], n, p=[0.65, 0.35]),
+#     "opened_email": np.random.choice([0, 1], n, p=[0.4, 0.6]),
+#     "time_on_page": np.random.normal(6, 2, n).round(2),
+#     "number_of_visits": np.random.poisson(4, n),
+# })
+# score = (
+#     0.8 * df["visited_pricing_page"] + 1.2 * df["watched_webinar"] + 0.7 * df["opened_email"] + 0.15 * df["number_of_visits"] + 0.08 * df["time_on_page"] - 0.01 * df["days_since_signup"] + np.random.normal(0, 0.8, n)
+# )
+# probability = 1 / (1 + np.exp(-score))
+# df["bought_course"] = (probability > 0.65).astype(int)
+
+# df.head()
+
+
+# X = df.drop(columns="bought_course")
+# y = df["bought_course"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+# model = LogisticRegression()
+
+# scaler = RobustScaler()
+# scaled_X_train = scaler.fit_transform(X_train)
+
+# model.fit(scaled_X_train, y_train)
+# print(model.coef_)
+
+# most_important_feature = 'watched_webinar'
+
+
+#CD Python - 315
+
+'''
+Przetwórz dane czasowe i dodaj do df nowe kolumny:
+
+time_to_purchase_minutes – liczba minut, 
+    które upłynęły między wejściem na stronę (visit_time) a zakupem kursu (purchase_time),
+month – miesiąc, w którym dokonano zakupu
+dow – dzień tygodnia, w którym dokonano zakupu
+is_weekend – informacja True / False czy zakupu dokonano w weekend
+hour – godzina, w której dokonano zakupu
+'''
+
+# import pandas as pd
+
+# df = pd.DataFrame({
+#     "visit_time": [
+#         "2026-07-01 09:15:24",
+#         "2026-07-01 10:42:10",
+#         "2026-07-02 14:08:35",
+#         "2026-07-03 18:20:12",
+#         "2026-07-04 08:55:41",
+#         "2026-07-05 16:11:53",
+#         "2026-07-06 12:37:29",
+#         "2026-07-07 19:45:08",
+#     ],
+#     "purchase_time": [
+#         "2026-07-01 09:28:15",
+#         "2026-07-01 11:05:42",
+#         "2026-07-02 14:51:18",
+#         "2026-07-03 19:43:56",
+#         "2026-07-04 09:12:30",
+#         "2026-07-05 17:48:04",
+#         "2026-07-06 13:05:10",
+#         "2026-07-07 20:01:39",
+#     ]
+# })
+# df.head()
+
+# df['visit_time'] = pd.to_datetime(df['visit_time'])
+# df['purchase_time'] = pd.to_datetime(df['purchase_time'])
+
+# df['time_to_purchase_minutes'] = round((df['purchase_time'] - df['visit_time']).dt.total_seconds() / 60, 0)
+# df.head()
+
+# df['month'] = df['purchase_time'].dt.month
+# df['dow'] = df['purchase_time'].dt.dayofweek
+# df["hour"] = df["purchase_time"].dt.hour
+# df['is_weekend'] = df['dow'].isin([5, 6])
+# df.head()
+
+
+
+#CD Python - 316
+
+'''
+Podczas pracy nad modelem często nie dzielimy danych tylko na zbiór treningowy i testowy.
+
+Nie chcemy, aby wynik zależał od jednego, konkretnego podziału danych, 
+ponieważ może się zdarzyć, że model osiągnie wyjątkowo dobry lub słaby wynik tylko dlatego, 
+że do zbioru testowego trafiły łatwiejsze lub trudniejsze obserwacje.
+
+Nie chcemy także wielokrotnie sprawdzać metryk na zbiorze testowym, 
+ponieważ doprowadzamy wtedy do wycieku danych. 
+Za każdym razem, gdy analizujemy wyniki na zbiorze testowym i na ich podstawie zmieniamy model lub hiperparametry,
+pośrednio "uczymy się" tego zbioru. 
+
+W efekcie zbiór testowy przestaje być niezależny, a uzyskane metryki stają się zbyt optymistyczne.
+
+Aby uzyskać bardziej wiarygodną ocenę jakości modelu, 
+stosujemy walidację krzyżową (ang. cross validation): dane są dzielone na kilka części (ang. folds), 
+a model jest trenowany i oceniany wielokrotnie na różnych podziałach.
+
+Zadanie
+Aby przeprowadzić walidację krzyżową i dopasować model do kilku różnych części, 
+użyjemy funkcji KFold oraz cross_validate z biblioteki Sklearn.
+
+Zmień podany kod tak, aby dzielił zbiór treningowy na 4 części (foldy). 
+
+Następnie oblicz średnią wartość metryki uzyskaną podczas walidacji krzyżowej i przypisz ją do zmiennej mean_score.
+'''
+
+
+# import pandas as pd
+# from sklearn.model_selection import train_test_split, KFold, cross_validate
+# from sklearn.linear_model import LinearRegression
+
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+
+# X = df[["area", "floor_no", "build_year"]]
+# y = df["price_per_m"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# model = LinearRegression()
+
+# cv = KFold(
+#     n_splits=4,
+#     shuffle=True,
+#     random_state=42
+# )
+
+# cv_results = cross_validate(model, X_train, y_train, cv=cv, return_train_score=True, scoring="neg_mean_absolute_error")
+# print(cv_results["test_score"])
+
+# mean_score = sum([float(i) for i in cv_results["test_score"]]) / len([float(i) for i in cv_results["test_score"]])
+# print(mean_score)
+
+
+#CD Python - 317
+
+'''
+Mamy zbiór danych w którym każdy wiersz reprezentuje liczbę ticketów rozwiązanych przez konkretnego agenta danego dnia.
+
+Chcemy zbudować model przewidujący liczbę rozwiązanych zgłoszeń. 
+
+Aby sprawdzić jak model poradzi sobie z nowymi agentami, nie będziemy dzielić danych losowo po wierszach. 
+Zamiast tego cały zestaw danych każdego agenta powinien trafić wyłącznie do zbioru treningowego
+lub wyłącznie do zbioru testowego.
+
+Wylosuj 5 unikalnych wartości z kolumny agent_id. 
+
+Wszystkie obserwacje dotyczące tych agentów przypisz do zbioru treningowego (df_train), 
+a obserwacje pozostałych 3 agentów do zbioru testowego (df_test).
+'''
+
+
+# import numpy as np
+# import pandas as pd
+# import random
+# from sklearn.model_selection import train_test_split
+
+
+
+# agents = pd.DataFrame({
+#     "agent_id": [101, 102, 103, 104, 105, 106, 107, 108],
+#     "team_id": ["A", "A", "A", "B", "B", "B", "C", "C"],
+#     "seniority": ["Junior", "Mid", "Senior", "Junior", "Mid", "Senior", "Mid", "Senior"]
+# })
+
+# df = (
+#     pd.DataFrame({"date": pd.date_range("2025-01-01", periods=30)})
+#     .merge(agents, how="cross")
+# )
+
+# rng = np.random.default_rng(42)
+
+# base = df["seniority"].map({"Junior": 12, "Mid": 18, "Senior": 24})
+# team_bonus = df["team_id"].map({"A": 0, "B": 2, "C": -1})
+
+# df["tickets_resolved"] = (
+#     base + team_bonus + rng.normal(0, 2.5, len(df))
+# ).round().clip(lower=0).astype(int)
+
+# df.head()
+
+# agent_ids = df["agent_id"].unique().tolist()
+# train_agent_ids = random.sample(agent_ids, k=5)
+# df_train = df[df["agent_id"].isin(train_agent_ids)]
+# df_test = df[~df["agent_id"].isin(train_agent_ids)]
+
+
+#CD Python - 318 
+
+'''
+Zadanie
+Aby obliczyć odległość od danego punktu, najlepiej użyć dedykowanej biblioteki, np. geopy.
+
+Dodaj do df dodatkową kolumnę distance_to_center,
+która dla każdej oferty mieszkania (kolumn latitude i longitude) liczy odległość od rynku w Krakowie.
+'''
+
+# import pandas as pd
+# from geopy.distance import geodesic
+
+# df = pd.read_csv("mini-df.csv")
+
+# krakow_rynek = (50.0617, 19.9373)
+# punkt = (50.0670, 19.9450)
+# distance = geodesic(krakow_rynek, punkt).km
+# print(distance)
+
+# df['distance_to_center'] = df[['latitude', 'longitude']].apply(
+#     lambda row: geodesic(krakow_rynek, (row['latitude'], row['longitude'])).km,
+#     axis = 1
+# )
+# df.head()
+
+
+#CD Python - 319
+
+'''
+Zadanie
+Wyciągnij kwotę wynagrodzenia z tekstu i przypisz ją jako wartość numeryczną (nie tekstową) do nowej kolumny salary.
+
+'''
+
+
+# import pandas as pd
+
+# df = pd.DataFrame({
+#     "offer": [
+#         "Junior Data Analyst | Wynagrodzenie: 8500 PLN miesięcznie",
+#         "Python Developer (B2B) - stawka 18 000 PLN + premie",
+#         "Poszukujemy SQL Developera. Oferujemy 11500 PLN brutto.",
+#         "Data Scientist | Zarobki od 22 000 PLN miesięcznie",
+#         "Business Analyst - wynagrodzenie 9900 PLN",
+#         "Senior Data Engineer | Pensja: 27 500 PLN + bonus roczny",
+#         "ML Engineer - oferujemy nawet 24000 PLN!",
+#         "Analityk Danych | Widełki zaczynają się od 10 800 PLN",
+#         "BI Developer | Wynagrodzenie: 16200 PLN brutto",
+#         "Staż Data Analyst - stypendium 4 800 PLN miesięcznie",
+#         "Data Engineer | Oferujemy 14500 PLN oraz prywatną opiekę medyczną",
+#         "AI Engineer | Wynagrodzenie: 31 000 PLN + akcje spółki"
+#     ]
+# })
+# df.head()
+
+
+# df['salary'] = df[['offer']].apply(
+#     lambda row: float(''.join([str(num) for num in row['offer'].split() if num.isnumeric()])),
+#     axis = 1
+# )
+# df.head()
+
+
+
+
+#CD Python - 320
+
+'''
+Zadanie
+Użyj biblioteki shap, aby zrozumieć która cecha była najważniejsza
+do przewidywania ceny za metr dla mieszkania o indexie == 2.
+
+Przypisz nazwę cechy do zmiennej feature.
+'''
+
+
+# import pandas as pd
+# from sklearn.tree import DecisionTreeRegressor
+# import shap
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+
+# X = df[["area", "floor_no", "build_year"]]
+# y = df["price_per_m"]
+
+# model = DecisionTreeRegressor()
+# model.fit(X, y)
+
+# explainer = shap.TreeExplainer(model)
+# shap_values = explainer(X)
+# shap.plots.bar(shap_values[2])
+# shap.plots.waterfall(shap_values[2])
+
+# feature = 'area'
+
+
+
+#CD Python - 321
+
+'''
+Zadanie
+Stwórz nową kolumnę seniority i przypisz jej wartości numeryczne:
+
+1 - jeżeli nazwa stanowiska zawiera słowo junior
+3 - jeżeli nazwa stanowiska zawiera słowo senior
+2 - w innych przypadkach
+'''
+
+#Ja zrobiłem to tak jak poniżej najpierw
+
+
+# import pandas as pd
+# from sklearn.preprocessing import OrdinalEncoder
+
+# df = pd.DataFrame({
+#     "job_offer": [
+#         "Junior Data Analyst",
+#         "Data Analyst",
+#         "Senior Data Scientist",
+#         "Python Developer",
+#         "Mid Data Engineer",
+#         "Senior BI Developer",
+#         "Machine Learning Engineer",
+#         "Junior SQL Developer",
+#         "Analytics Engineer",
+#         "Lead Data Engineer",
+#         "Senior Python Developer",
+#         "Data Engineer (Junior)",
+#         "Business Intelligence Analyst",
+#         "Junior Machine Learning Engineer",
+#         "Principal Data Scientist",
+#         "Data Analyst - Senior",
+#         "ETL Developer",
+#         "Junior BI Specialist",
+#         "Senior Analytics Engineer",
+#         "Data Scientist"
+#     ]
+# })
+# df.head()
+
+# seniorities = ['junior', 'senior']
+
+# def find_seniority(text):
+#     split_text = text.lower().split()
+#     for seniority in seniorities:
+#         if seniority in split_text:
+#             return seniority
+#     return 'other'
+
+# df['seniority'] = df[['job_offer']].apply(
+#     lambda row: find_seniority(row['job_offer']),
+#     axis = 1
+# )
+
+
+# encoder = OrdinalEncoder(categories = [['junior', 'other', 'senior']])
+# print(encoder)
+
+# df['seniority'] = encoder.fit_transform(
+#     df[['seniority']],
+# )
+
+# df.head()
+
+
+#rozwiazanie było w sumie o wiele prostsze i nawet nie korzystało z encodingu,
+# ale ozstawiam też powyższe, bo przyda się w trudniejszych sytuacjach
+
+
+# def ordinal_encoding(row):
+#     seniority = 2
+#     if "junior" in row.lower():
+#         seniority = 1
+#     elif "senior" in row.lower():
+#         seniority = 3
+#     return seniority
+
+# df["seniority"] = df["job_offer"].apply(ordinal_encoding)
+# df.head()
+
+
+#CD Python - 322
+
+'''
+W kolumnie salary znajdują się wartości odstające.
+
+Przeskaluj wartości w kolumnie salary, 
+wybierając metodę skalowania odpowiednią dla danych zawierających wartości odstające. 
+
+Zapisz wynik w nowej kolumnie salary_scaled.
+'''
+
+
+# import pandas as pd
+# from sklearn.preprocessing import RobustScaler #w tym wypadku RobustScaler, dobrze radzi sobie z outlierami, bazuje na medianie i IQR
+
+
+# df = pd.DataFrame({
+#     "job_title": [
+#         "Junior Data Analyst",
+#         "Data Analyst",
+#         "Senior Data Analyst",
+#         "Junior Data Scientist",
+#         "Data Scientist",
+#         "Senior Data Scientist",
+#         "Junior Data Engineer",
+#         "Data Engineer",
+#         "Senior Data Engineer",
+#         "Analytics Engineer",
+#         "BI Analyst",
+#         "Machine Learning Engineer"
+#     ],
+#     "salary": [
+#         7000,
+#         10500,
+#         16000,
+#         8000,
+#         14000,
+#         21000,
+#         7500,
+#         13500,
+#         20000,
+#         14500,
+#         9500,
+#         120000
+#     ]
+# })
+# df.head()
+# scaler = RobustScaler()
+# df['salary_scaled'] = scaler.fit_transform(df[['salary']])
+# df.head()
+
+
+
+#CD Python - 323
+
+'''
+Popraw błędy w kodzie.
+
+
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+df = pd.read_csv("mini-df.csv")
+df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+
+X = df[["price_per_m", "floor_no", "build_year"]]
+y = df["area"]
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+
+model = LinearRegression()
+model.fit(X_train_scaled, y_train)
+
+y_pred = model.predict(X_test)
+
+from sklearn.metrics import root_mean_squared_error
+rmse = root_mean_squared_error(y_train, y_pred)
+print(round(rmse, 2))
+'''
+
+
+# import pandas as pd
+# from sklearn.linear_model import LinearRegression
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import root_mean_squared_error
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["pe_per_m", "floor_no", "build_year", "area"]].dropna()
+
+# X = df[["price_per_m", "floor_no", "build_year"]]
+# y = df["area"]
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X, 
+#     y,
+#     test_size=0.2,
+#     random_state=42)
+
+# scaler = StandardScaler()
+# X_train_scaled = scaler.fit_transform(X_train) #po pierwsze skalowanie danych treningowych
+
+# model = LinearRegression()
+# model.fit(X_train_scaled, y_train) #trenowanie
+
+# X_test_scaled = scaler.transform(X_test) #teraz ważne skalowanie danych testowych, ALE BEZ FIT, wykorzystujemy już wyuczone dane z danych treningowych
+# y_pred = model.predict(X_test_scaled) #i dopiero predykcja na wyskalowanych danych testowych
+
+# rmse = root_mean_squared_error(y_test, y_pred) #tu też był błąd - oczywiście chcemy dane y_test
+# print(round(rmse, 2))
+
+
+
+
+#CD Python - 324
+
+'''
+Która cecha ma największy wpływ na przewidywanie ceny za metr kwadratowy przy użyciu algorytmu lasu losowego?
+
+Przypisz nazwę cechy/ kolumny do zmiennej top_feature.
+'''
+
+
+
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
+# from sklearn.ensemble import RandomForestRegressor
+# import shap
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area", "garage"]].dropna()
+
+
+# X = df[["area", "floor_no", "build_year", "garage"]]
+# y = df["price_per_m"]
+
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# model = RandomForestRegressor(random_state=42)
+# model.fit(X_train, y_train)
+# print(model.feature_importances_) #mozna też po prostu tak i też od razu widać, ta opcja była w zadaniu
+
+# explainer = shap.TreeExplainer(model) #ja skorzystałem z shapa akurat
+# shap_values = explainer(X_test)
+# shap.plots.bar(shap_values)
+
+# top_feature = 'build_year'
