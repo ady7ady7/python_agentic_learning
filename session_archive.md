@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-07-30 | Week 9 Day 1 | Score: N/A | Difficulty: N/A
+**Covered:** Project 2 setup (XAUUSD m5 Dukascopy data). Folder structure created: `project2_xauusd_analysis/` with notebooks, data, requirements.txt, .env.example. SQLAlchemy + psycopg2 connection to DigitalOcean PostgreSQL. Full dataset pulled: 391,955 rows, Jan 2021 to Jul 2026, 8 columns. Dtype cleanup (day_of_week int, trade_date datetime). Gap analysis: all 190k missing bars explained by weekend closures, daily 17:00-18:00 ET settlement break, and ~228 holiday closures per slot. Zero nulls. Data quality confirmed good.
+**Problems / gaps:** None — clean session, setup complete.
+**Reinforce next:** Price overview chart, candle range distribution, time-of-day and weekday volume/range patterns.
+
+---
 ## 2026-06-24 | Week 8 Day 3 | Score: N/A | Difficulty: N/A
 **Covered:** Sales section annotations added (date-axis annotate pattern with pd.Timestamp). Product grade statistical test dropped — would clutter an already long notebook, visual evidence sufficient. Third part of analysis reworked: overconfident claims removed, key findings trimmed and reordered. Opted for logical minimalism — facts over speculation. Notebook considered near-ready for publication.
 **Problems / gaps:** One final check tomorrow before publish decision.

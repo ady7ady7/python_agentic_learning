@@ -1,22 +1,19 @@
-# Tasks — Week 8 Day 4
+# Tasks — Week 9 Day 2
 
 ---
 
-## Task 1 — Final check and publish decision
+## Task 1 — Price overview chart
 
-One last read-through of 08_final_project_sns.ipynb. Focus on:
+- [ ] Full-period close price line chart (et_time on x-axis)
+- [ ] Distribution of candle range (high - low) — spot outliers
 
-- [ ] Any remaining overconfident claims or speculative language?
-- [ ] All annotations rendering correctly, no overlaps?
-- [ ] Key findings match the trimmed analysis?
-- [ ] First person, no em dashes, no passive voice throughout?
-- [ ] Ready to publish?
+## Task 2 — Time-of-day & weekday patterns
 
-## Task 2 — Polish translation decision
-
-After the publish decision:
-- Translate 08 to Polish (new notebook 08_final_project_pl.ipynb)?
-- Or leave English only for now?
+- [ ] Add `candle_range` column: `high - low`
+- [ ] Add `et_hour` and `et_minute` columns from et_time
+- [ ] Tick volume by 30-min bucket (average across all bars in that bucket)
+- [ ] Average candle range by 30-min bucket
+- [ ] Both metrics by weekday
 
 ---
 
