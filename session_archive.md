@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-07-31 | Week 9 Day 5 | Score: N/A | Difficulty: N/A
+**Covered:** XAUUSD EDA continued. Missing bars deep-dive: naive date_range comparison showed 190k missing bars, then properly broken down by day_of_week and hour — all explained by weekends, daily 17:00-18:00 ET settlement break, and holidays. Installed `pandas_market_calendars`, used CMEGlobex_Gold calendar to cross-reference expected vs actual trading days. Dropped Sunday bars (logically belong to Monday session). 1437 trade_dates in df vs 1430 in CME calendar — 8 holidays where Dukascopy still quotes (Christmas, New Year), 1 missing day (2021-10-15). Data coverage 99.9% complete.
+**Problems / gaps:** Volume analysis noted as unreliable (tick volume only, not real market volume) — documented in notebook.
+**Reinforce next:** Price overview chart, candle range distribution, time-of-day activity patterns (30-min ET buckets). Quiz format rethink needed for ML phase starting next week.
+
+---
 ## 2026-07-30 | Week 9 Day 1 | Score: N/A | Difficulty: N/A
 **Covered:** Project 2 setup (XAUUSD m5 Dukascopy data). Folder structure created: `project2_xauusd_analysis/` with notebooks, data, requirements.txt, .env.example. SQLAlchemy + psycopg2 connection to DigitalOcean PostgreSQL. Full dataset pulled: 391,955 rows, Jan 2021 to Jul 2026, 8 columns. Dtype cleanup (day_of_week int, trade_date datetime). Gap analysis: all 190k missing bars explained by weekend closures, daily 17:00-18:00 ET settlement break, and ~228 holiday closures per slot. Zero nulls. Data quality confirmed good.
 **Problems / gaps:** None — clean session, setup complete.
