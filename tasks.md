@@ -1,18 +1,17 @@
-# Tasks — Week 10 Day 1
+# Tasks — Week 10 Day 2
 
 ---
 
-## Task 1 — Price overview chart
+## Task 1 — Weekday patterns
 
-- [ ] Full-period close price line chart (et_time on x-axis)
-- [ ] Candle range (high - low) distribution — spot outliers
+- [ ] Average candle range by day of week
+- [ ] Bar chart — is there a clear pattern?
 
-## Task 2 — Time-of-day activity patterns
+## Task 2 — Session analysis
 
-- [ ] Add `candle_range` column: `high - low`
-- [ ] Average candle range by 30-min ET bucket
-- [ ] Mark known market hours on gold (London open, NY open, Comex open/close)
-- [ ] Identify periods of highest activity
+- [ ] Define session labels: Asia (18:00-02:00 ET), London (02:00-08:00 ET), NY (08:00-13:00 ET), Off (13:00-18:00 ET)
+- [ ] Add `session` column to df
+- [ ] Average candle range per session — which session is most active?
 
 ---
 

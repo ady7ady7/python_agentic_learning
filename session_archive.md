@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-03 | Week 10 Day 1 | Score: N/A | Difficulty: N/A
+**Covered:** Activity analysis section started. Added `candle_range`, `et_hour`, `et_minute` columns. Full-period close price chart, candle range boxplot (outliers visible, scale unreadable without bucketing). 30-min ET bucket column via `dt.floor('30min').dt.strftime('%H:%M')`. Average candle range per bucket — busiest periods identified.
+**Problems / gaps:** Bucket assignment took time — pandas rustiness after CD Python task period.
+**Reinforce next:** Weekday patterns (task 4), then move to feature engineering for ML. Also: quiz format rethink and ML phase structure to discuss.
+
+---
 ## 2026-07-31 | Week 9 Day 5 | Score: N/A | Difficulty: N/A
 **Covered:** XAUUSD EDA continued. Missing bars deep-dive: naive date_range comparison showed 190k missing bars, then properly broken down by day_of_week and hour — all explained by weekends, daily 17:00-18:00 ET settlement break, and holidays. Installed `pandas_market_calendars`, used CMEGlobex_Gold calendar to cross-reference expected vs actual trading days. Dropped Sunday bars (logically belong to Monday session). 1437 trade_dates in df vs 1430 in CME calendar — 8 holidays where Dukascopy still quotes (Christmas, New Year), 1 missing day (2021-10-15). Data coverage 99.9% complete.
 **Problems / gaps:** Volume analysis noted as unreliable (tick volume only, not real market volume) — documented in notebook.
