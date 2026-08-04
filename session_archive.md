@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-04 | Week 10 Day 2 | Score: N/A | Difficulty: N/A
+**Covered:** HOD/LOD formation by 30-min ET bucket. Used `idxmax`/`idxmin` per `trade_date` to find which bucket forms the High/Low of Day. Key finding: 07:30-09:00 ET dominates real HOD/LOD formation (London + Comex pre-market). 00:00 and 23:30 top the list as artefacts from daily rollover.
+**Problems / gaps:** Short session, no weekday patterns yet.
+**Reinforce next:** Gap analysis (overnight gap direction vs day direction), weekday patterns, then move to feature engineering.
+
+---
 ## 2026-08-03 | Week 10 Day 1 | Score: N/A | Difficulty: N/A
 **Covered:** Activity analysis section started. Added `candle_range`, `et_hour`, `et_minute` columns. Full-period close price chart, candle range boxplot (outliers visible, scale unreadable without bucketing). 30-min ET bucket column via `dt.floor('30min').dt.strftime('%H:%M')`. Average candle range per bucket — busiest periods identified.
 **Problems / gaps:** Bucket assignment took time — pandas rustiness after CD Python task period.
