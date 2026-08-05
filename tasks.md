@@ -1,17 +1,17 @@
-# Tasks — Week 10 Day 3
+# Tasks — Week 10 Day 4
 
 ---
 
-## Task 1 — Gap analysis
+## Task 1 — Weekday patterns
 
-- [ ] For each trade_date: gap = first bar open - previous day last bar close
-- [ ] Distribution of gaps — histogram
-- [ ] Gap direction vs day direction — does a positive gap predict a bullish day?
+- [ ] Average candle range by day of week (on filtered_df)
+- [ ] Bar chart — is there a clear pattern?
+- [ ] Day direction (bullish rate) by weekday — any edge?
 
-## Task 2 — Weekday patterns
+## Task 2 — Feature engineering prep
 
-- [ ] Average candle range by day of week
-- [ ] Bar chart
+- [ ] Think about what features to build for the ML model
+- [ ] Start building feature DataFrame from daily aggregations
 
 ---
 

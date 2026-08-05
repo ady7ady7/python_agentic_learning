@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-05 | Week 10 Day 3 | Score: N/A | Difficulty: N/A
+**Covered:** Session filtering — Asia dropped (03:00-16:30 ET focus). Daily aggregations: `session_open` (first bar at 03:00 ET), `session_close` (bar at 16:25 ET), `gap_size`, `day_bullish`, `gap_bullish`. Gap analysis: distribution right-skewed (gold upside gaps more frequent). Gap direction has no predictive power for day direction (48.8% vs 49.0% bullish rate).
+**Problems / gaps:** None.
+**Reinforce next:** Weekday patterns, then feature engineering for ML model.
+
+---
 ## 2026-08-04 | Week 10 Day 2 | Score: N/A | Difficulty: N/A
 **Covered:** HOD/LOD formation by 30-min ET bucket. Used `idxmax`/`idxmin` per `trade_date` to find which bucket forms the High/Low of Day. Key finding: 07:30-09:00 ET dominates real HOD/LOD formation (London + Comex pre-market). 00:00 and 23:30 top the list as artefacts from daily rollover.
 **Problems / gaps:** Short session, no weekday patterns yet.
