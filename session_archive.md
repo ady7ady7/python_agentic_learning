@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-06 | Week 10 Day 4 | Score: N/A | Difficulty: N/A
+**Covered:** Fixed `daily` DataFrame — session_close via `.last()` (not hardcoded 16:25 ET) gives 1425 rows vs 669 before. Added session_high, session_low, daily_range via chained merges. Weekday patterns: Friday/Thursday most active by range, Monday slowest. Bullish rate flat across all days (47-51%) — no directional edge by weekday.
+**Problems / gaps:** Chained merge syntax — `.merge([list])` doesn't work, must chain `.merge().merge()`.
+**Reinforce next:** Feature engineering for ML model — build feature matrix from daily aggregations.
+
+---
 ## 2026-08-05 | Week 10 Day 3 | Score: N/A | Difficulty: N/A
 **Covered:** Session filtering — Asia dropped (03:00-16:30 ET focus). Daily aggregations: `session_open` (first bar at 03:00 ET), `session_close` (bar at 16:25 ET), `gap_size`, `day_bullish`, `gap_bullish`. Gap analysis: distribution right-skewed (gold upside gaps more frequent). Gap direction has no predictive power for day direction (48.8% vs 49.0% bullish rate).
 **Problems / gaps:** None.

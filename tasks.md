@@ -1,17 +1,17 @@
-# Tasks — Week 10 Day 4
+# Tasks — Week 10 Day 5
 
 ---
 
-## Task 1 — Weekday patterns
+## Task 1 — Feature engineering
 
-- [ ] Average candle range by day of week (on filtered_df)
-- [ ] Bar chart — is there a clear pattern?
-- [ ] Day direction (bullish rate) by weekday — any edge?
+- [ ] Define target Y: `day_bullish` (already in daily)
+- [ ] Build feature matrix X from daily: gap_size, gap_bullish, daily_range, day_of_week, prev_close direction
+- [ ] Think about lag features: previous day range, previous day bullish
 
-## Task 2 — Feature engineering prep
+## Task 2 — Train/test split
 
-- [ ] Think about what features to build for the ML model
-- [ ] Start building feature DataFrame from daily aggregations
+- [ ] Split daily into train/test — time-based split (not random), e.g. last 20% of dates as test
+- [ ] Why time-based? Discuss and document
 
 ---
 
