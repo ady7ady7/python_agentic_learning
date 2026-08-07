@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-07 | Week 10 Day 5 | Score: N/A | Difficulty: N/A
+**Covered:** London/NY session split (03:00-07:59 ET vs 08:00-16:00 ET). Built session OHLC aggregations for both, merged into daily DataFrame. Key findings: London direction has no predictive power for NY direction (49.3% continuation — coin flip). Gap direction + weekday combo shows modest spread (44-54% bullish rate). All simple signals near 50% — consistent with efficient market behavior on spot gold.
+**Problems / gaps:** None — clean session.
+**Reinforce next:** Feature engineering before ML: gap_to_range_ratio, lag features (prev_day_bullish, prev_day_range), rolling volatility regime. Quiz Saturday.
+
+---
 ## 2026-08-06 | Week 10 Day 4 | Score: N/A | Difficulty: N/A
 **Covered:** Fixed `daily` DataFrame — session_close via `.last()` (not hardcoded 16:25 ET) gives 1425 rows vs 669 before. Added session_high, session_low, daily_range via chained merges. Weekday patterns: Friday/Thursday most active by range, Monday slowest. Bullish rate flat across all days (47-51%) — no directional edge by weekday.
 **Problems / gaps:** Chained merge syntax — `.merge([list])` doesn't work, must chain `.merge().merge()`.

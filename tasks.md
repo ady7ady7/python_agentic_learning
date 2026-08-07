@@ -1,17 +1,18 @@
-# Tasks — Week 10 Day 5
+# Tasks — Week 11 Day 1
 
 ---
 
 ## Task 1 — Feature engineering
 
-- [ ] Define target Y: `day_bullish` (already in daily)
-- [ ] Build feature matrix X from daily: gap_size, gap_bullish, daily_range, day_of_week, prev_close direction
-- [ ] Think about lag features: previous day range, previous day bullish
+- [ ] Add `gap_to_range_ratio = abs(gap_size) / london_range`
+- [ ] Add lag features: `prev_day_bullish`, `prev_day_range`, `prev_london_bullish`
+- [ ] Add rolling volatility: 5-day rolling mean of daily_range
+- [ ] Final feature matrix — drop NaNs, check shape
 
 ## Task 2 — Train/test split
 
-- [ ] Split daily into train/test — time-based split (not random), e.g. last 20% of dates as test
-- [ ] Why time-based? Discuss and document
+- [ ] Time-based split (not random) — last 20% of dates as test
+- [ ] Document why time-based split matters for financial data
 
 ---
 
