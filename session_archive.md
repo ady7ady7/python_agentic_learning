@@ -4,6 +4,12 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-10 | Week 11 Day 1 | Score: N/A | Difficulty: N/A
+**Covered:** Weekend quiz (92%, 11/12). Feature engineering: london_close_location, london_session_return, normalized_london_range (rolling 14-day ATR with shift), asian_gap, ovn_gap_filled (np.where), prev_day_bullish, prev_day_range, full_day_range, gap_to_range_ratio. daily shape after dropna: 1398x23. consecutive_streak deferred to tomorrow.
+**Problems / gaps:** Chain assignment bug (prev_day_bullish overwrote london_bullish — fixed). np.where vs if/else on Series. london_close_location direction convention (high-to-low vs low-to-high).
+**Reinforce next:** consecutive_streak, then train/test split and baseline model.
+
+---
 ## 2026-08-07 | Week 10 Day 5 | Score: N/A | Difficulty: N/A
 **Covered:** London/NY session split (03:00-07:59 ET vs 08:00-16:00 ET). Built session OHLC aggregations for both, merged into daily DataFrame. Key findings: London direction has no predictive power for NY direction (49.3% continuation — coin flip). Gap direction + weekday combo shows modest spread (44-54% bullish rate). All simple signals near 50% — consistent with efficient market behavior on spot gold.
 **Problems / gaps:** None — clean session.

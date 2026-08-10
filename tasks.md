@@ -1,19 +1,24 @@
-# Tasks — Week 11 Day 1
+# Tasks — Week 11 Day 2
 
 ---
 
-## Task 1 — Feature engineering
+## Task 1 — Finish feature engineering
 
-- [ ] Add `gap_to_range_ratio = abs(gap_size) / london_range`
-- [ ] Add lag features: `prev_day_bullish`, `prev_day_range`, `prev_london_bullish`
-- [ ] Add rolling volatility: 5-day rolling mean of daily_range
-- [ ] Final feature matrix — drop NaNs, check shape
+- [ ] Add consecutive_streak
+- [ ] Final check: print all feature columns, verify no leakage
 
 ## Task 2 — Train/test split
 
-- [ ] Time-based split (not random) — last 20% of dates as test
-- [ ] Document why time-based split matters for financial data
+- [ ] Time-based split 80/20
+- [ ] Define X (features) and y (ny_bullish)
+- [ ] Document which columns are features vs metadata
+
+## Task 3 — Baseline model
+
+- [ ] Logistic Regression as baseline
+- [ ] Fit on train, evaluate on test
+- [ ] Accuracy + confusion matrix
 
 ---
 
-**Total: 2 tasks**
+**Total: 3 tasks**
