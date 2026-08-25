@@ -4,6 +4,14 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-17 | ML Phase — Week 1 Day 1 | Score: 93% | Difficulty: 5/10
+**Covered:** ML phase diagnostic on xauusd_m5_et.csv. Load/inspect, session aggregation (03:00-16:00 ET), rolling features with shift(1), groupby aggregations, train/test split, leakage identification.
+**Problems / gaps:** Pandas idioms rusty — .mean() on binary column for percentages. Task 5 was badly designed (full daily OHLC makes bullish prediction pure leakage) — Adrian caught this himself and refused to trust 99.5% accuracy.
+**Strong:** Leakage instinct excellent. shift(1) in rolling windows correct without prompting. Ranked leakage severity correctly (A > D > C by brutality, C least detectable).
+**Corrections to my grading:** hour<=15 filter was correct (hour 16 empty in this dataset); Asia session liquidity claim was unverified — both retracted.
+**Reinforce next:** Proper task design where prediction is possible. Volatility/range target instead of direction. Pandas method drilling alongside. Tasks for W1 D2 already written.
+
+---
 ## 2026-08-10 | Week 11 Day 1 | Score: N/A | Difficulty: N/A
 **Covered:** Weekend quiz (92%, 11/12). Feature engineering: london_close_location, london_session_return, normalized_london_range (rolling 14-day ATR with shift), asian_gap, ovn_gap_filled (np.where), prev_day_bullish, prev_day_range, full_day_range, gap_to_range_ratio. daily shape after dropna: 1398x23. consecutive_streak deferred to tomorrow.
 **Problems / gaps:** Chain assignment bug (prev_day_bullish overwrote london_bullish — fixed). np.where vs if/else on Series. london_close_location direction convention (high-to-low vs low-to-high).
