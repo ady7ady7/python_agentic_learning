@@ -4,6 +4,14 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-18 | ML Phase - Week 1 Day 2 | Score: 83% | Difficulty: 7-8/10 (too high)
+**Covered:** Day split into observation (03:00-09:55 ET) and target (10:00-16:00 ET) windows. Features knowable at 10:00 only. Distribution/scatter/lineplot viz. normaltest -> Mann-Whitney chain. LinearRegression on us_range.
+**Result:** Model MAE 14.89 / R2 0.490 on test, beating the best baseline (us_atr14, MAE 18.62) by 20%. Adrian could not see this because the baseline task was unclear.
+**Problems / gaps:** Task 5 (baselines) and Task 7 (error buckets) introduced concepts never taught, no worked example - excluded from scoring, moved to next session. Stats (Mann-Whitney, correlations, posthoc) shaky and flagged by Adrian as a priority. Heatmap missing .corr(). qcut created but not grouped. Unnecessary .sample(200) in stat tests. Regime shift in data undiagnosed (us_range mean 11.1 train vs 40.3 test - gold went 2094 -> 4194).
+**My errors:** Session was overloaded - 7 tasks, 3+ hours. Three new concepts with no scaffolding. Correlation type unspecified in Task 2. Wrongly hypothesised date-as-feature leakage before checking.
+**Reinforce next:** Max 4 tasks. Every new concept: idea -> worked example -> use -> repeat across sessions. Baselines and error analysis properly taught. Stats gets its own dedicated session.
+
+---
 ## 2026-08-17 | ML Phase — Week 1 Day 1 | Score: 93% | Difficulty: 5/10
 **Covered:** ML phase diagnostic on xauusd_m5_et.csv. Load/inspect, session aggregation (03:00-16:00 ET), rolling features with shift(1), groupby aggregations, train/test split, leakage identification.
 **Problems / gaps:** Pandas idioms rusty — .mean() on binary column for percentages. Task 5 was badly designed (full daily OHLC makes bullish prediction pure leakage) — Adrian caught this himself and refused to trust 99.5% accuracy.
