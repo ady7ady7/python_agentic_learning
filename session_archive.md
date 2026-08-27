@@ -4,6 +4,15 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-19 | ML Phase - Week 1 Day 3 | Score: 78% | Difficulty: 6-7/10 | 2h
+**Covered:** Baselines as non-models (train mean/median, prev_day, atr14). Error analysis by quantile bucket. Regime shift diagnosis. Normalised target attempt.
+**Key result:** Model beats best baseline (atr14) - Adrian could finally see this. WAPE showed train 36.7% vs test 36.9% - model equally accurate in both periods, the MAE jump 4 -> 15 was pure scale artefact from gold 2094 -> 4194.
+**Errors found:** MAE computed from group means instead of per-row (that is bias, not MAE). Task 4 compared MAE across different target units without converting back. Feature/target normalisation mismatch - target divided by ATR, features left in points.
+**Strong:** Added MAPE unprompted. Asked why not MAPE instead of WAPE - good instinct. Stated openly that WAPE was copied and not understood, which prevented me building on a gap. Spotted the Q5 problem and intuited quantile regression without knowing the name.
+**Adrian's feedback:** Concept blocks with worked examples work well, wants more. Concepts need reinforcement across sessions, not one pass. My .apply(lambda) example was too AI-flavoured and unnatural - rewrote using plain .agg().
+**Reinforce next:** WAPE (third attempt, different angle). qcut. bias vs MAE. Redo normalisation with features and target in matching units. Introduce quantile idea for Q5 days.
+
+---
 ## 2026-08-18 | ML Phase - Week 1 Day 2 | Score: 83% | Difficulty: 7-8/10 (too high)
 **Covered:** Day split into observation (03:00-09:55 ET) and target (10:00-16:00 ET) windows. Features knowable at 10:00 only. Distribution/scatter/lineplot viz. normaltest -> Mann-Whitney chain. LinearRegression on us_range.
 **Result:** Model MAE 14.89 / R2 0.490 on test, beating the best baseline (us_atr14, MAE 18.62) by 20%. Adrian could not see this because the baseline task was unclear.
