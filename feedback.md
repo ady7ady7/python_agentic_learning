@@ -2,51 +2,59 @@
 
 <!-- Fill in at end of session, then archive to session_archive.md. -->
 
-**Date:** 2026-08-19
-**Session:** ML Phase - Week 1 Day 3
+**Date:** 2026-08-20
+**Session:** ML Phase - Week 1 Day 4 (reinforcement)
 **My score of your work:** 78%
 
 ---
 
 **Difficulty (1-10, 5 = ideal):**
-6-7
+5-6
 
 **How long did it actually take:**
-2hr
+60-75 min
 
 ---
 
-**Which tasks were clear, which were not:**
+**Did the repetition help? Which concepts feel solid now, which still do not:**
 
-- Task 1 (baselines): +, at first I struggled, as it was a bit unclear, but I understand the idea behind it
-- Task 2 (error by bucket): that's also an idea I generally understand, but I struggled with getting things done properly at first
-- Task 3 (regime shift + WAPE): It was easy for me to calculate the values, wape was a new concepts I don't feel comfortable with
-- Task 4 (normalised target): retraining the model was easy
+- baselines: still need spractice
+- buckets + qcut: still needs practice
+- bias vs MAE: still needs some practice
+- WAPE: still needs some practice
 
----
+None of the concepts WERE too difficult with checking on the notes.
+As yesterday, I get the ideas, it's just that I don't yet do everything intuitively without checking.
 
-**Concepts I still do not feel solid on:**
-
-<!-- You already flagged WAPE. Anything else? qcut? R2? bias vs MAE? -->
-
--- already flagged them above
 
 ---
 
-**What worked well in how it was taught:**
+**Reinforcement vs new material - was today the right balance?**
 
-<!-- The "Concept" blocks with worked examples - better or unnecessary? -->
+<!-- Same concepts, different target. Useful practice or too repetitive? -->
 
-- concepts work well, also you can add more examples as we go.
-These concepts DEFINITELY NEED renforcement to get properly understood and used by me.
+Yep, all good.
 
 ---
 
 **What to do differently next session:**
--
+
+Idk, your call.
 
 ---
 
-**Anything I want to revisit before moving on:**
+## Week 1 wrap-up
 
+**Scores:** D1 93% | D2 83% | D3 78% | D4 78%
+
+**Looking back at the whole week - what stuck, what did not:**
+These concepts still need reinforcement.
+
+**What was the most useful thing this week:**
+A lot of useful concepts
+
+**What was the biggest waste of time:**
 -
+
+**For next week - what do you want more of, less of:**
+

@@ -4,6 +4,16 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-20 | ML Phase - Week 1 Day 4 | Score: 78% | Difficulty: 5-6/10 | 60-75 min
+**Covered:** Reinforcement, no new concepts. Same four ideas (baselines, buckets, bias vs MAE, WAPE) applied to a new target: eu_range predicted from yesterday's data only.
+**Result:** Model MAE 21.24 / R2 0.310 vs best baseline eu_atr14 MAE 23.98 / R2 0.159 - beats it by 11%. Harder problem than D3 (nothing from today available) and still wins.
+**Errors found:** WAPE computed from the wrong numbers - used a baseline's test MAE against the train mean, never computed train predictions at all, got 190% and noticed it looked wrong without chasing it. Task 1 leakage question answered as "I dropped them" rather than naming the mechanism. Bias sign convention inverted vs the standard (pred - actual).
+**Strong:** Per-row MAE/bias done correctly after D3 correction. Recognised the same Q1-to-Q5 bias pattern independently and explained why a skewed target causes it. Good observation that rolling ATR self-adjusts to regime, which is why it is the hard baseline.
+**Adrian's feedback:** All four concepts understood but not yet automatic - needs to check notes. Wants continued reinforcement, difficulty 5-6 is right. Repetition on a new target was the right format.
+**Week 1 summary:** 93 / 83 / 78 / 78. Session length down from 3h to 60-75 min after cutting task count from 7 to 3-4 and adding worked examples.
+**Reinforce next:** All four concepts again in new contexts. Always compute metrics on train AND test. Leakage mechanism naming, not just removal. Quantile regression for the Q5 problem he keeps identifying.
+
+---
 ## 2026-08-19 | ML Phase - Week 1 Day 3 | Score: 78% | Difficulty: 6-7/10 | 2h
 **Covered:** Baselines as non-models (train mean/median, prev_day, atr14). Error analysis by quantile bucket. Regime shift diagnosis. Normalised target attempt.
 **Key result:** Model beats best baseline (atr14) - Adrian could finally see this. WAPE showed train 36.7% vs test 36.9% - model equally accurate in both periods, the MAE jump 4 -> 15 was pure scale artefact from gold 2094 -> 4194.
