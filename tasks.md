@@ -1,99 +1,141 @@
-# Tasks - ML Phase Week 1 Day 4
+# Tasks - ML Phase Week 2 Day 1
 
-**Theme:** reinforcement. No new concepts today - the same four ideas, applied again.
+**Theme:** the Q5 problem. You have raised it three times unprompted - today it gets solved.
 **Data:** `xauusd_m5_et.csv`
-**Time:** target 60 min. If you pass 75, stop and tell me.
+**Time:** target 60 min.
 
-You said the concepts need repetition to stick. So today you use baselines, buckets,
-bias-vs-MAE and WAPE again - on a **different target**, so it is practice rather than
-copy-paste.
+Quiz result: 62%. Leakage 92%, code recall 25%. So today starts with a five-minute drill,
+then moves to the one thing you keep asking about.
 
-**New target: `eu_range`** - the morning session range, predicted from *yesterday's* data.
-Same dataframe, same features, one change: you now forecast the morning instead of the
-afternoon, using only what closed before today started.
+
+#Start 13:00
 
 ---
 
-## Reminder 1 - MAE is per row, then averaged
+## Warm-up - code from memory (5 min, no notes)
 
-Yesterday you wrote:
+Write these three from memory first. Then check against your week-1 files and note what
+you got wrong. This is not scored - it is calibration.
 
-```python
-mae = abs(mean_actual - mean_pred)     # this is bias, not MAE
-```
+1. A baseline predicting the training median, with its MAE.
+2. The bucket table: `mean_actual`, `mean_pred`, `mae`, `bias`, `n` per quantile.
+3. WAPE for train and test.
 
-The difference matters: if a bucket has errors of +20 and -20, the difference of means is
-0 while the true MAE is 20. Compute the error **per row first**, then group:
+Do not skip this because it feels trivial. The quiz says it is not yet automatic.
 
-```python
-res['abs_error'] = (res['actual'] - res['pred']).abs()   # per row
-res['error']     = res['pred'] - res['actual']           # per row, keeps sign
 
-res.groupby('bucket', observed=True).agg(
-    mae  = ('abs_error', 'mean'),
-    bias = ('error', 'mean'),
-)
-```
+1. 
 
-`bias` is a real term - mean error. It tells you the *direction* of the mistake.
-`mae` tells you the *size*. You need both.
+from sklearn.metrics import mean_absolute_error
+
+mean_training = np.full(len(y_test), y_train.median())
+train_mae = mean_absolute_error(y_test, mean_training)
+
+2. 
+#struggle here
+
+y_pred = model.predict(X_test)
+mean_actual = np.full(len(y_test), y_test.mean())
+mean_pred = np.full(len(y_test), y_pred.mean())
+
+quantiles_df = pd.DataFrame({'actual': y_test, 'pred': y_pred})
+quantiles_df['mae'] = abs(quantiles_df['mean_actual'] - quantiles_df['mean_pred'])
+quantiles_df['bias'] = quantiles_df['mean_actual'] - quantiles_df['mean_pred']
+
+quantiles_df['bucket'] = pd.qcut(quantiles_df['actual'], 5, ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'])
+quantiles_df = quantiles_df.groupby('bucket').agg(
+     mean_actual = ('actual', 'mean'),
+     mean_pred = ('pred', 'mean'),
+     mae = ('mae', 'mean'),
+     bias = ('bias', 'mean'),
+     n = ('bucket', 'count')
+).reset_index()
+
+
+test_mae = mean_absolute_error(y_test, y_pred)
+
+train_wape = train_mae / y_train.mean() * 100
+test_wape = test_mae / y_test.mean() * 100 #mock here
+
+#finished this part at 13:33
 
 ---
 
-## Reminder 2 - WAPE, one more time
+## Concept - your model cannot predict Q5, and that is not a bug
 
-You have two error numbers from different periods and want to know which is worse.
-You cannot compare them directly if the scales differ.
+Every day this week the same pattern appeared:
 
 ```
-train MAE  4.06   with typical values around 11
-test  MAE 14.89   with typical values around 40
+Q1  bias +11.5    model over-predicts quiet days
+Q5  bias -44.1    model under-predicts violent days
 ```
 
-Divide each by what it is predicting:
+Linear regression minimises **squared error**, which means it fits a line through the
+middle of the cloud. On a right-skewed target it cannot pass through both the bulk and the
+tail, so it lands near the mean and misses both ends. This is called **regression toward
+the mean** and it is a property of the method, not a mistake in your code.
+
+You asked: *"if we could identify Q5 earlier, we'd have very good predictive power."*
+
+That instinct has a name. The technique is **quantile regression**, and instead of
+predicting the average outcome it predicts a chosen percentile.
+
+**Ordinary regression** answers: *what is the expected range today?*
+**Quantile regression** answers: *what range will not be exceeded on 90% of days like today?*
+
+For stop placement, the second question is the useful one.
+
+**Worked example:**
 
 ```python
-4.06 / 11.06 * 100 = 36.7%
-14.89 / 40.32 * 100 = 36.9%
+from sklearn.linear_model import QuantileRegressor
+
+# alpha=0 disables the regularisation; quantile=0.9 asks for the 90th percentile
+q90 = QuantileRegressor(quantile=0.9, alpha=0)
+q90.fit(X_train, y_train)
+pred_q90 = q90.predict(X_test)
+
+# how often did reality stay below the prediction?
+coverage = (y_test <= pred_q90).mean()
+print(f"{coverage:.1%} - should land near 90%")
 ```
 
-Same accuracy. The MAE jump was scale, not failure.
-
-**Rule:** whenever you compare error across sets with different scales, convert to percent
-first. That is all WAPE is.
+`coverage` is the metric that matters here, not MAE. A q90 model that covers 89% of days is
+working correctly even if its MAE looks worse than the ordinary model's.
 
 ---
 
-## Task 1 - Build the new target (15 min)
+## Task 1 - Three quantiles (25 min)
 
-Predict `eu_range` using only data available **before today's morning session opens**.
+Use the **`us_range` setup from Day 3** - predicting the afternoon from the morning.
 
-Features - all lagged by one day:
-- `prev_eu_range`, `prev_us_range`
-- `eu_atr14`, `us_atr14`  (you already have these, they are already shift-based)
-- `prev_eu_close_loc`, `prev_eu_return_pct`
+- 1a. Fit three `QuantileRegressor` models: quantile 0.5, 0.8, 0.9. Same X, same split.
+- 1b. For each, compute coverage on the test set: `(y_test <= pred).mean()`.
+- 1c. Put the three coverages in a table next to their target quantiles.
+- 1d. Also fit an ordinary `LinearRegression` and compute its coverage.
 
-Same 80/20 chronological split.
+**In comments:**
+- Are the coverages close to 0.5 / 0.8 / 0.9? If one is badly off, which and by how much?
+- What is the ordinary model's coverage, and why is it near 50% rather than 90%?
 
-**In a comment:** which of your existing features would leak here, and why? Name at least
-two and say exactly what they reveal.
+Note: `QuantileRegressor` is slow on larger data. If it takes more than a minute, reduce
+to `alpha=0` and fewer features, or say so and I will switch you to a faster approach.
 
 
 
-df['prev_eu_range'] = df['eu_range'].shift(1)
-df['prev_eu_close_loc'] = (df['eu_close'].shift(1) - df['eu_low'].shift(1)) / (df['eu_high'].shift(1) - df['eu_low'].shift(1))
-df['prev_eu_return_pct'] = (df['eu_close'].shift(1) - df['eu_open'].shift(1)) / df['eu_open'].shift(1) * 100
+
+from sklearn.linear_model import QuantileRegressor
+
+
+eu_session.head()
+eu_session.columns
+
 df.head()
-filtered_df = df.drop(columns = ['trade_date', 'us_open', 'us_high', 'us_low', 'us_close', 'us_bars', 
-                                 'us_bar_rng_mean', 'us_range', 'eu_open', 'eu_high', 
-                                 'eu_low', 'eu_close', 'eu_bar_rng_mean', 'eu_bars',
-                                 'eu_return_pct', 'eu_close_loc', 'eu_range_norm', 'us_range_norm'])
+df = df.dropna()
 
-filtered_df = filtered_df.dropna()
-filtered_df.head()
-
-X = filtered_df.drop(columns = ['eu_range'])
-y = filtered_df['eu_range']
+y = df['us_range']
+X = df.drop(columns = ['trade_date', 'us_open', 'us_high', 'us_low', 'us_close', 'us_bars',
+       'us_bar_rng_mean', 'us_range', 'us_range_norm'])
 
 X_train, X_test, y_train, y_test = train_test_split(
     X,
@@ -102,144 +144,144 @@ X_train, X_test, y_train, y_test = train_test_split(
     shuffle = False
 )
 
-X.head()
-#Currently no features leak, I've dropped all the leakages in filtered_df, it's self-explanatory
+
+q90_model = QuantileRegressor(quantile = 0.9)
+q90_model.fit(X_train, y_train)
+pred_q90 = q90_model.predict(X_test)
+
+coverage_90 = (y_test <= pred_q90).mean()
+print(f'{coverage_90} should land near 90%')
+
+
+q80_model = QuantileRegressor(quantile = 0.8)
+q80_model.fit(X_train, y_train)
+pred_q80 = q80_model.predict(X_test)
+
+coverage_80 = (y_test <= pred_q80).mean()
+print(f'{coverage_80} should land near 80%')
+
+
+
+q50_model = QuantileRegressor(quantile = 0.5)
+q50_model.fit(X_train, y_train)
+pred_q50 = q50_model.predict(X_test)
+
+coverage_50 = (y_test <= pred_q50).mean()
+print(f'{coverage_50} should land near 50%')
+
+
+0.7031802120141343 should land near 90%
+0.607773851590106 should land near 80%
+0.3745583038869258 should land near 50%
+
+#Not entirely sure how to interpret it, but it looks like the coverage is highest for the 90%, as it's 70% if I'm interpreting it properly. 
+
+#But in this context, your suggestion doesn't make sense :)), as it's quite the opposite in this case.
+
+
+
+
 
 
 ---
 
-## Task 2 - Baselines, then the model (20 min)
+## Task 2 - Does it fix Q5? (20 min)
 
-- 2a. Four baselines on the test set: `train_mean`, `train_median`, `prev_eu_range`, `eu_atr14`.
-     One table, MAE + R2, sorted by MAE.
-- 2b. Fit `LinearRegression`. Add it to the table.
-- 2c. WAPE for train and test.
-
-**In comments:**
-- Which baseline won this time? Same as yesterday or different?
-- Does your model beat it? By how much, in percent?
-- Compare the train/test WAPE gap here against yesterday's 36.7 / 36.9. Wider or narrower,
-  and what would explain it?
-
-
-
-rows = []
-for name, prediction in [
-     ('train_mean', np.full(len(y_test), y_train.mean())),
-     ('train_median', np.full(len(y_test), y_train.median())),
-     ('prev_eu_range', X_test['prev_eu_range']),
-     ('eu_atr14', X_test['eu_atr14'])
-]:
-     rows.append(
-          {
-          'name': name,
-          'MAE': mean_absolute_error(y_test, prediction),
-          'R2': r2_score(y_test, prediction),
-          }
-     )
-
-rows = pd.DataFrame(rows)
-rows.head()
-
-#It's similar, it seems like eu_atr14 is a pretty solid metric as a baseline, it self adjusts itself to the current market dynamics
-
-
-model = LinearRegression()
-model.fit(X_train, y_train)
-
-y_pred = model.predict(X_test)
-model_mae = mean_absolute_error(y_test, y_pred)
-model_r2 = r2_score(y_test, y_pred)
-
-rows.loc[len(rows)] = ({
-     'name': 'model_predictions',
-     'MAE': model_mae,
-     'R2': model_r2
-})
-
-rows.head()
-
-'''	name	MAE	R2
-0	train_mean	39.893995	-0.691469
-1	train_median	42.069544	-0.780908
-2	prev_eu_range	27.668226	-0.080938
-3	eu_atr14	23.976252	0.159418
-4	model_predictions	21.242674	0.309893'''
-
-#It seems like we're getting very close to the eu_ATR14 IN TERMS of MAE, but still perform about 2pp better + 0.15pp better in terms of predictions in the current state.
-#Not bad I think.
-
-
-
-train_wape = 39.89 / y_train.mean() * 100
-test_wape = 21.24 / y_test.mean() * 100 #I manually took the MAE values here for convenience, since I didn't create variables for them - IMO it's not a big deal
-print(train_wape, test_wape)
-
-#190.92927338459194 35.25731791180053
-
-Wider, train_wape is very high, which is a bit weird TBH.
-Test_wape looks more legitimate.
-
----
-
-## Task 3 - Buckets and bias (20 min)
-
-- 3a. Bucket the test set by actual `eu_range` into 5 quantiles.
-- 3b. Per bucket: `mean_actual`, `mean_pred`, `mae`, `bias`, `n` - using the per-row method above.
-- 3c. Plot `bias` per bucket as a bar chart, with a horizontal line at zero.
+- 2a. Build the bucket table again, this time with four prediction columns:
+     ordinary, q50, q80, q90 - showing `mean_actual` and each model's mean prediction.
+- 2b. For the Q5 bucket specifically: what does each model predict, against a mean actual
+     of roughly 95?
+- 2c. Compute MAE for each of the four, on the whole test set.
 
 **In comments:**
-- Yesterday the bias went from +6.6 in Q1 to -36.3 in Q5. Does the same pattern appear here?
-- Why does a linear model do this? Answer in one sentence.
-- If you were sizing a position off this model, which bucket is dangerous and why?
+- q90 will have the worst MAE. Explain why that is expected and not a failure.
+- For someone placing a stop, which of the four numbers do they want, and why?
+- Yesterday you said "it would be nice if we could mitigate Q5". Did this mitigate it?
 
 
 
-quantiles_df = pd.DataFrame({'actual': y_test, 'pred': y_pred})
-quantiles_df['bucket'] = pd.qcut(quantiles_df['actual'], 5, ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'])
 
-quantiles_df['abs_error'] = abs(quantiles_df['actual'] - quantiles_df['pred'])
-quantiles_df['error'] = quantiles_df['actual'] - quantiles_df['pred']
+quantiles_df = pd.DataFrame({'ordinary': y_test, 'q50': pred_q50, 'q80': pred_q80, 'q90': pred_q90})
+qs = ['q50', 'q80', 'q90']
+for q in qs:
+    q_name_mae = f'{q}_mae'
+    q_name_bias = f'{q}_bias'
+    quantiles_df[q_name_mae] = abs(quantiles_df['ordinary'] - quantiles_df[q])
+    quantiles_df[q_name_bias] = quantiles_df['ordinary'] - quantiles_df[q]
+
+quantiles_df['bucket'] = pd.qcut(quantiles_df['ordinary'], 5, ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'])
 quantiles_df.head()
 
-quantiles_diff = quantiles_df.groupby('bucket').agg(
-    mean_actual = ('actual', 'mean'),
-    mean_pred = ('pred', 'mean'),
-    mae = ('abs_error', 'mean'),
-    bias = ('error', 'mean')
+bucket_means = quantiles_df.groupby('bucket').agg(
+    mean_actual = ('ordinary', 'mean'),
+    q50_mean = ('q50', 'mean'),
+    q50_mae = ('q50_mae', 'mean'),
+    q50_bias = ('q50_bias', 'mean'),
+    q80_mean = ('q80', 'mean'),
+    q80_mae = ('q80_mae', 'mean'),
+    q80_bias = ('q80_bias', 'mean'),
+    q90_mean = ('q90', 'mean'),
+    q90_mae = ('q90_mae', 'mean'),
+    q90_bias = ('q90_bias', 'mean')
 ).reset_index()
 
-quantiles_diff.head()
+bucket_means.head()
+
+#As for the questions, I'll simply paste the results here
 
 
-plt.figure(figsize = (16, 9))
-error_chart = sns.barplot(
-    quantiles_diff,
-    x = 'bucket',
-    y = 'mae'
-)
-error_chart.set_title('MAE by EU range buckets for the model test results')
-error_chart.axhline(color = 'r')
-plt.show()
+'''bucket	mean_actual	q50_mean	q50_mae	q50_bias	q80_mean	q80_mae	q80_bias	q90_mean	q90_mae	q90_bias
+0	Q1	26.590864	18.601414	7.989450	7.989450	27.597410	2.194519	-1.006546	33.297246	6.706382	-6.706382
+1	Q2	38.697974	22.848840	15.849134	15.849134	33.020842	5.758531	5.677132	39.210786	3.036578	-0.512812
+2	Q3	51.301863	25.983851	25.318012	25.318012	36.932946	14.368916	14.368916	43.476422	7.899598	7.825441
+3	Q4	61.933715	26.877338	35.056377	35.056377	37.494363	24.439352	24.439352	44.088573	17.845142	17.845142
+4	Q5	98.404797	31.776297	66.628499	66.628499	41.824093	56.580703	56.580703	48.809575	49.595222	49.595222'''
+
+#Q90 seems to work the best - it is some indicator, but I'm not sure wheteher I'm interpreting this correctly.
 
 
-
-#For you convenience, the results from the table as well:
-'''
-	bucket	mean_actual	mean_pred	mae	bias
-0	Q1	22.949193	34.458395	11.961866	-11.509202
-1	Q2	38.296304	42.357092	11.151325	-4.060789
-2	Q3	48.676439	55.593989	14.356647	-6.917550
-3	Q4	65.064625	62.780759	16.480208	2.283866
-4	Q5	125.927070	81.818032	52.002728	44.109038'''
-
-#Yes, seems like the same pattern appears here, the bias goes up highly in the Q5
-#It makes sense to happen in a highly skewed dataset to the right - the outliers, which all naturally #occupy Q5 lift up the MAE BY A LOT - these can be highly impactful news days, or simply very high #volatility days, which naturally occured from time to time during those 5-6 years of analyzed data
-
-#Q5 is dangerous obviously - it would be nice if we could somehow mitigate its effects
 
 ---
 
-**Total: 3 tasks.**
+## Task 3 - The practical output (10 min)
 
-If any of this feels like busywork rather than practice, say so and I will cut it.
+Print a small table for the last 10 test days:
+
+```
+date        actual   q50    q80    q90    within_q80?
+```
+
+**In a comment:** if you traded off `q80`, how many of those 10 days would have had the
+range exceed your estimate? Is that roughly what you would expect?
+
+
+small_df = df[['trade_date', 'us_range']].tail(10)
+small_df['q50'] = pred_q50.mean()
+small_df['q80'] = pred_q80.mean()
+small_df['q90'] = pred_q90.mean()
+small_df['within_q80'] = small_df['us_range'] <= small_df['q80']
+small_df['within_q90'] = small_df['us_range'] <= small_df['q90']
+
+exceeded_q80 = small_df['within_q80'].mean()
+print(exceeded_q80)
+exceeded_q90 = small_df['within_q90'].mean()
+print(exceeded_q90)
+
+#60% are within q80, 70% within q90
+
+
+small_df.head(10)
+
+
+#Yeah, probably that's around what I expected.
+#It would maybe make sense to incrase this a bit, maybe q95 makes more sense.
+
+
+#Finish 14:53, but quite frankly, I stopped a few times - 90 minutes is a realistic benchmark for today.
+
+---
+
+**Total: warm-up + 3 tasks.**
+
+Say so if `QuantileRegressor` is too slow or the API fights you - there is a faster route
+via `GradientBoostingRegressor(loss='quantile')` and I will switch if needed.

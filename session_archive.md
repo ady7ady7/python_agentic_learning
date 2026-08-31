@@ -4,6 +4,15 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-22 | ML Phase - Week 1 Weekend Quiz | Score: 62% | 30 min
+**Format:** No notes, no code execution. Part A concepts, Part B leakage, Part C code from memory, Part D judgement.
+**Breakdown:** A 68% | B 92% | C 25% | D 55%
+**Strong:** Leakage is genuinely solid - 92%, all five B1 cases correct with reasoning, B2 and B3 perfect. A4 (train/test gap causes) 95%.
+**Gaps found:** (1) R2 defined as "covers 69% of possible results" rather than variance explained vs predicting the mean - negative R2 not precisely understood. (2) bias described as "MAE with direction" - missed that opposite errors cancel, and chose the systematically-biased model for position sizing, which is the more dangerous option. (3) regression to the mean mechanism intuited but not named. (4) Part C code recall 25% - could not write the bucket/bias table from memory despite writing it twice during the week. (5) D2 (normalised target failure) answered "no idea".
+**Diagnosis:** Concepts understood, fluency absent. Matches his own feedback from D4 - "I get the ideas, I just don't do everything intuitively without checking".
+**Plan for W2:** No re-teaching. 5-minute code-from-memory drill at the start of each session. Main new topic: quantile regression, answering the Q5 problem he has raised independently three times.
+
+---
 ## 2026-08-20 | ML Phase - Week 1 Day 4 | Score: 78% | Difficulty: 5-6/10 | 60-75 min
 **Covered:** Reinforcement, no new concepts. Same four ideas (baselines, buckets, bias vs MAE, WAPE) applied to a new target: eu_range predicted from yesterday's data only.
 **Result:** Model MAE 21.24 / R2 0.310 vs best baseline eu_atr14 MAE 23.98 / R2 0.159 - beats it by 11%. Harder problem than D3 (nothing from today available) and still wins.
