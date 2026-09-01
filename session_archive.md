@@ -4,6 +4,16 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-25 | ML Phase - Week 2 Day 2 | Score: 88% | 56 min
+**Covered:** Quantile regression rerun on a clean feature set (no raw price levels). Coverage as the evaluation metric. Four-model comparison with actual values included. Practical per-day output.
+**Result:** Coverage landed correctly - q50 50.9%, q80 77.4%, q90 88.3%, ordinary 54.1%. Yesterday's failure was raw eu_open/high/low/close in the features, which drift with the gold price from ~2000 to ~4000 and make the model extrapolate badly.
+**Breakthrough:** Warm-up bucket table written from memory correctly on the fourth attempt - per-row MAE and bias, five aggregates, no notes. This was the 25% item on the weekend quiz.
+**Errors found:** Linear regression coverage compared against quantile predictions instead of y_test.
+**Questions he raised:** why alpha=0 matters (default alpha=1.0 over-regularises to near-constant predictions), whether coverage 1.0 was a bug (no - wrong comparison), whether the model classifies days into quantiles (no - it produces a per-day boundary).
+**His feedback:** Formulas must be broken into steps, not given as bare code. Third time raising this - it is the single most repeated correction.
+**Reinforce next:** Quantile regression as a finished usable output. Walk-forward validation - does coverage hold over time or only on this split.
+
+---
 ## 2026-08-22 | ML Phase - Week 1 Weekend Quiz | Score: 62% | 30 min
 **Format:** No notes, no code execution. Part A concepts, Part B leakage, Part C code from memory, Part D judgement.
 **Breakdown:** A 68% | B 92% | C 25% | D 55%

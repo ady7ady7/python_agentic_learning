@@ -1,60 +1,59 @@
 # Feedback - Current Session
 
-<!-- Drafted by Claude from Adrian's spoken feedback - correct or add anything that is off. -->
+<!-- Drafted by Claude - correct, add or delete anything that does not match. -->
 
-**Date:** 2026-08-24
-**Session:** ML Phase - Week 2 Day 1 (quantile regression)
-**Score:** 62%
+**Date:** 2026-08-25
+**Session:** ML Phase - Week 2 Day 2 (quantile regression, corrected)
+**Score:** 88%
 **Difficulty:** ?
-**Time:** ~90 min (13:00 - 14:53, with breaks)
+**Time:** 56 min (12:35 - 13:31) - first session under the 60 min target
 
 ---
 
-**What went wrong in how the task was written:**
+**What went well:**
 
-- Task 1 said "use the us_range setup from Day 3". I do not remember which columns were
-  dropped a week ago. Just describe what we are predicting and from what, in plain words -
-  e.g. "predict the EU session range from previous sessions only, nothing from today".
-  If something needs normalising, say that and explain why.
-
-- "Vector" was used without explanation. I have gaps in maths and terms like this are not
-  obvious to me. This is exactly what the learning is for - I need to understand what I am
-  doing and why, not just get it working.
-
-- Be precise and give me the chance to actually understand. Be a teacher: leave room for me
-  to think and try, but do not assume I can produce something I have never been shown.
-
-- Keep the explanations coming as we go - short asides, parentheses, whatever keeps the
-  flow of understanding while I read. And keep repeating things across sessions rather
-  than assuming one pass was enough.
+- Warm-up bucket table written from memory, correctly, on the fourth attempt. Per-row
+  MAE and bias, groupby with five aggregates, no notes. This was the thing I could not
+  do in the weekend quiz.
+- Quantile coverage finally landed where it should: q50 50.9%, q80 77.4%, q90 88.3%.
+- Sliced the prediction vectors correctly this time ([-15:] instead of .mean()).
+- Extended task 3 to q50 on my own initiative.
+- Task 2 answer on stop placement - explained what each number is for rather than just
+  picking one.
 
 ---
 
-**What I got wrong myself:**
+**What I got wrong:**
 
-- Task 2: built the comparison table without y_test in it, so I was measuring the distance
-  between two predictions instead of error against reality. Fundamental mistake - I did not
-  think it through, and I still do not fully have this reflex.
-
-- Task 3: used .mean() on the predictions, which collapsed them to a single number.
+- Linear regression coverage: compared it against the quantile predictions instead of
+  against y_test, so I measured how often one model sits below another rather than how
+  often reality stayed under the prediction. Corrected after: 54.1%.
 
 ---
 
-**What worked:**
+**What was unclear in the task or the explanation:**
 
-- Quantile regression as a concept makes sense - q90 as a "range will not be exceeded"
-  estimate is clearly the useful one for stops. I suggested q95 for more safety, which
-  feels right.
-
-- I flagged that the coverage numbers contradicted what was promised rather than bending
-  the interpretation to fit. Turned out the cause was raw prices left in the features.
+- The coverage formula was given as bare code without breaking down what it does.
+  I need the reasoning, not just the line - what each step means and why. This keeps
+  coming up and it matters to me: I want to understand what I am doing and why, not
+  just get output.
 
 ---
 
-**What to do next session:**
+**Questions I raised during the session:**
 
-- Rerun quantiles with a clean feature set and see coverage land where it should
-- Keep drilling the bucket/bias table - still not automatic
+- Why alpha=0 changes the result so much (default alpha=1.0 over-regularises and the
+  model predicts almost a constant)
+- Whether coverage of 1.0 for linear regression was an error (no - wrong comparison)
+- Whether the model can tell in advance which quantile a day will fall into
+  (no - it gives a per-day boundary, not a class; that boundary is what a stop needs)
+
+---
+
+**What to reinforce next:**
+
+- Quantile regression as a finished, usable output
+- Walk-forward validation - does the coverage hold over time or only on this one split
 
 ---
 
