@@ -2,58 +2,65 @@
 
 <!-- Drafted by Claude - correct, add or delete anything that does not match. -->
 
-**Date:** 2026-08-25
-**Session:** ML Phase - Week 2 Day 2 (quantile regression, corrected)
+**Date:** 2026-08-26
+**Session:** ML Phase - Week 2 Day 3 (walk-forward validation)
 **Score:** 88%
 **Difficulty:** ?
-**Time:** 56 min (12:35 - 13:31) - first session under the 60 min target
+**Time:** 80 min (13:08 - 14:28)
 
 ---
 
 **What went well:**
 
-- Warm-up bucket table written from memory, correctly, on the fourth attempt. Per-row
-  MAE and bias, groupby with five aggregates, no notes. This was the thing I could not
-  do in the weekend quiz.
-- Quantile coverage finally landed where it should: q50 50.9%, q80 77.4%, q90 88.3%.
-- Sliced the prediction vectors correctly this time ([-15:] instead of .mean()).
-- Extended task 3 to q50 on my own initiative.
-- Task 2 answer on stop placement - explained what each number is for rather than just
-  picking one.
+- Warm-up coverage lines written from memory instantly, no hesitation.
+- Walk-forward loop understood and implemented correctly on the first attempt - the
+  slicing (train window ending at start, test window beginning at start) made sense, BUT quite honestly I had to look up the code from the concept, as it's definitely difficult at this point. I know the slicing rules for Python, but getting this done in this context and not mixing things up is difficult - definitely needs reinforcing, trying, repetitions.
+- Task 2 written as a loop over the quantile list with f-string naming, instead of three
+  copy-pasted blocks like the previous sessions. Noted it as "interesting task to practice
+  Python a bit".
+- Chose 300/300 windows over the suggested 600/125 and gave a reason: shorter training
+  window means learning from data closer to the period being predicted, which matters when
+  the market regime shifts.
+- Pushed back on the "target" column in Task 2 as redundant - the model names already carry
+  that information. Correct, the instruction was unnecessary.
+
+---
+
+**Results:**
+
+```
+model     mean     min      max
+q50      0.487    0.480    0.497
+q80      0.797    0.767    0.827
+q90      0.904    0.870    0.923
+linreg   0.634    0.620    0.660
+```
+
+All three quantile models held their targets across every fold. Yesterday's 88.3% from a
+single split turned out to be real, not luck.
 
 ---
 
 **What I got wrong:**
 
-- Linear regression coverage: compared it against the quantile predictions instead of
-  against y_test, so I measured how often one model sits below another rather than how
-  often reality stayed under the prediction. Corrected after: 54.1%.
+- `test_start` recorded `train.index.min()` instead of `test.index.min()`, so the column
+  showed where training began rather than where testing began - and the Task 3 chart had
+  its time axis shifted by 300 days. Fixed.
+- Task 3 asked me to check `us_range` per year in the data rather than guess about market
+  conditions. I answered from the chart alone and skipped the data check, as I wasn't sure how to do that check quite honestly.
 
 ---
 
-**What was unclear in the task or the explanation:**
+**Open point:**
 
-- The coverage formula was given as bare code without breaking down what it does.
-  I need the reasoning, not just the line - what each step means and why. This keeps
-  coming up and it matters to me: I want to understand what I am doing and why, not
-  just get output.
-
----
-
-**Questions I raised during the session:**
-
-- Why alpha=0 changes the result so much (default alpha=1.0 over-regularises and the
-  model predicts almost a constant)
-- Whether coverage of 1.0 for linear regression was an error (no - wrong comparison)
-- Whether the model can tell in advance which quantile a day will fall into
-  (no - it gives a per-day boundary, not a class; that boundary is what a stop needs)
+- Three folds is a small sample for judging stability. 300/125 would have given nine folds
+  from the same data - shorter test blocks mean more measurements. Worth considering next
+  time the question is "is this model reliable" rather than "how good is it".
 
 ---
 
 **What to reinforce next:**
 
-- Quantile regression as a finished, usable output
-- Walk-forward validation - does the coverage hold over time or only on this one split
 
 ---
 

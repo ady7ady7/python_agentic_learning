@@ -4,6 +4,15 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-26 | ML Phase - Week 2 Day 3 | Score: 88% | 80 min
+**Covered:** Walk-forward validation. Sliding train/test windows instead of a single split, coverage measured per fold across the full history.
+**Result:** q50 0.487, q80 0.797, q90 0.904 mean coverage, all holding target in every fold (q90 range 0.870-0.923). Yesterday's single-split 88.3% confirmed as real rather than luck. LinearRegression 0.634.
+**Strong:** Warm-up coverage from memory instantly. Walk-forward loop correct first attempt. Task 2 written as a loop over the quantile list with f-string naming instead of three copy-pasted blocks - unprompted improvement over previous sessions. Chose 300/300 windows over the suggested 600/125 with a sound justification about regime shift. Correctly pushed back on a redundant instruction (the "target" column duplicated information already in the model names).
+**Errors found:** test_start recorded train.index.min() instead of test.index.min(), shifting the chart's time axis by 300 days - fixed. Task 3's data check (us_range mean per year) skipped because he did not know how to write it - explained groupby(df.index.year) step by step afterwards.
+**Open point:** Three folds is thin for judging stability. 300/125 would yield nine folds from the same data - worth raising when the question is reliability rather than accuracy.
+**Reinforce next:** groupby on date parts. Possibly more folds for stability questions.
+
+---
 ## 2026-08-25 | ML Phase - Week 2 Day 2 | Score: 88% | 56 min
 **Covered:** Quantile regression rerun on a clean feature set (no raw price levels). Coverage as the evaluation metric. Four-model comparison with actual values included. Practical per-day output.
 **Result:** Coverage landed correctly - q50 50.9%, q80 77.4%, q90 88.3%, ordinary 54.1%. Yesterday's failure was raw eu_open/high/low/close in the features, which drift with the gold price from ~2000 to ~4000 and make the model extrapolate badly.
