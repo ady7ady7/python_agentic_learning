@@ -4,6 +4,14 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-08-27 | ML Phase - Week 2 Day 4 | Score: 82% | ~90 min
+**Covered:** Packaging quantile regression into a usable output. Refit on the full dataset (no split), a forecast_range() function returning q50/q80/q90 for one day, plain-language explanation of what the model does and does not promise.
+**Result:** Correctly reasoned the train/test-then-refit logic unprompted - test the method on a split, trust it, then let the final model see all data. Tried a QuantileModel class for practice, judged it against six plain lines and kept the simpler version - good self-assessment, not just novelty for its own sake. Rebuilt the full EU/US feature pipeline from a new non-SQL CSV source without getting stuck.
+**Errors found:** today_features passed as a bare list instead of a named DataFrame - no order-checking, so a silently wrong prediction is possible if columns are ever reordered. random.randint(1,6) only sampled the first 6 rows instead of the whole dataset, explaining duplicate dates in the output; fixed to random.sample(range(len(df)), 5). Warm-up: start += train_size instead of test_size, invisible at train=test=300 but would break at Monday's 600/125 setup.
+**Task 3:** clean plain-language answer - q80 is a frequency guarantee (won't be exceeded 4 days in 5), not a point estimate; correctly named the model's limits (no direction, no exact value).
+**Reinforce next:** passing model input as a properly-shaped, named structure rather than a raw list - a bug class that does not throw an error. random module flagged as rusty from disuse.
+
+---
 ## 2026-08-26 | ML Phase - Week 2 Day 3 | Score: 88% | 80 min
 **Covered:** Walk-forward validation. Sliding train/test windows instead of a single split, coverage measured per fold across the full history.
 **Result:** q50 0.487, q80 0.797, q90 0.904 mean coverage, all holding target in every fold (q90 range 0.870-0.923). Yesterday's single-split 88.3% confirmed as real rather than luck. LinearRegression 0.634.

@@ -2,65 +2,49 @@
 
 <!-- Drafted by Claude - correct, add or delete anything that does not match. -->
 
-**Date:** 2026-08-26
-**Session:** ML Phase - Week 2 Day 3 (walk-forward validation)
-**Score:** 88%
+**Date:** 2026-08-27
+**Session:** ML Phase - Week 2 Day 4 (packaging quantile regression into a usable function)
+**Score:** 82%
 **Difficulty:** ?
-**Time:** 80 min (13:08 - 14:28)
+**Time:** ~90 min
 
 ---
 
 **What went well:**
 
-- Warm-up coverage lines written from memory instantly, no hesitation.
-- Walk-forward loop understood and implemented correctly on the first attempt - the
-  slicing (train window ending at start, test window beginning at start) made sense, BUT quite honestly I had to look up the code from the concept, as it's definitely difficult at this point. I know the slicing rules for Python, but getting this done in this context and not mixing things up is difficult - definitely needs reinforcing, trying, repetitions.
-- Task 2 written as a loop over the quantile list with f-string naming, instead of three
-  copy-pasted blocks like the previous sessions. Noted it as "interesting task to practice
-  Python a bit".
-- Chose 300/300 windows over the suggested 600/125 and gave a reason: shorter training
-  window means learning from data closer to the period being predicted, which matters when
-  the market regime shifts.
-- Pushed back on the "target" column in Task 2 as redundant - the model names already carry
-  that information. Correct, the instruction was unnecessary.
-
----
-
-**Results:**
-
-```
-model     mean     min      max
-q50      0.487    0.480    0.497
-q80      0.797    0.767    0.827
-q90      0.904    0.870    0.923
-linreg   0.634    0.620    0.660
-```
-
-All three quantile models held their targets across every fold. Yesterday's 88.3% from a
-single split turned out to be real, not luck.
+- Warm-up walk-forward skeleton written from memory, correct shape (small syntax slips
+  only: missing colon, DataFrame capitalisation).
+- Task 1: correctly reasoned through why you test on a split first and then refit on the
+  full dataset - test the method, trust the method, then let the final model see
+  everything. Good self-assessment that a QuantileModel class was overkill here versus six
+  plain lines - tried it deliberately to practice OOP, then judged it against the simpler
+  version instead of just keeping it because it was written.
+- Reimported and rebuilt the full feature pipeline from a new non-SQL CSV source without
+  getting stuck - EU/US session split, atr14, eu_range_norm, all rebuilt correctly.
+- Task 3: precise plain-language explanation of what q80 promises (a frequency guarantee,
+  not a point estimate) and its limits (no direction, no exact value).
 
 ---
 
 **What I got wrong:**
 
-- `test_start` recorded `train.index.min()` instead of `test.index.min()`, so the column
-  showed where training began rather than where testing began - and the Task 3 chart had
-  its time axis shifted by 300 days. Fixed.
-- Task 3 asked me to check `us_range` per year in the data rather than guess about market
-  conditions. I answered from the chart alone and skipped the data check, as I wasn't sure how to do that check quite honestly.
-
----
-
-**Open point:**
-
-- Three folds is a small sample for judging stability. 300/125 would have given nine folds
-  from the same data - shorter test blocks mean more measurements. Worth considering next
-  time the question is "is this model reliable" rather than "how good is it".
+- `today_features` was passed to the model as a bare list of numbers instead of a DataFrame
+  with named columns. The model has no way to check that the order matches training - a
+  silently wrong prediction is possible if the order is ever off. The later code
+  (`filtered_df[features].iloc[[i]]`) did this correctly.
+- `random.randint(1, 6)` for 5 "random" days only ever draws from the first 6 rows of the
+  dataframe, not the full dataset - explains the duplicate dates in the output table.
+  Fixed to `random.sample(range(len(df)), 5)`.
+- Warm-up: `start += train_size` instead of `test_size`. No visible effect at train=test=300,
+  but would break the moment the two differ (e.g. Monday's 600/125 setup).
 
 ---
 
 **What to reinforce next:**
 
+- Passing model input as a properly-shaped, named structure rather than a raw list -
+  this is the kind of silent bug that does not throw an error
+- random module basics - flagged as rusty from disuse
 
 ---
 
