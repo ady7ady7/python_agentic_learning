@@ -2,49 +2,48 @@
 
 <!-- Drafted by Claude - correct, add or delete anything that does not match. -->
 
-**Date:** 2026-08-27
-**Session:** ML Phase - Week 2 Day 4 (packaging quantile regression into a usable function)
-**Score:** 82%
-**Difficulty:** ?
-**Time:** ~90 min
+**Date:** 2026-09-04
+**Session:** ML Phase - Week 2 Day 5 (walk-forward + naive baseline, two-session forecast function)
+**Score:** pending (Task 1 diagnosis carries to Monday)
+**Difficulty:** 5/10
+**Time:** ~75 min
 
 ---
 
 **What went well:**
 
-- Warm-up walk-forward skeleton written from memory, correct shape (small syntax slips
-  only: missing colon, DataFrame capitalisation).
-- Task 1: correctly reasoned through why you test on a split first and then refit on the
-  full dataset - test the method, trust the method, then let the final model see
-  everything. Good self-assessment that a QuantileModel class was overkill here versus six
-  plain lines - tried it deliberately to practice OOP, then judged it against the simpler
-  version instead of just keeping it because it was written.
-- Reimported and rebuilt the full feature pipeline from a new non-SQL CSV source without
-  getting stuck - EU/US session split, atr14, eu_range_norm, all rebuilt correctly.
-- Task 3: precise plain-language explanation of what q80 promises (a frequency guarantee,
-  not a point estimate) and its limits (no direction, no exact value).
+- Task 2: correctly diagnosed and fixed the row-shape bug from scratch - `df.iloc[-1]`
+  returns a Series, models need 2D input, so `df.iloc[[-1]]` (double brackets at the row-slice
+  step) was the fix, then plain single-bracket column selection on the resulting DataFrame
+  row (`row[features_us]`). Understood *why*, not just applied the fix.
+- Task 2 output (`eu_q50/q80/q90`, `us_q50/q80/q90`) reasoned through clearly: picked
+  `eu_q80` as the number that matters for pre-EU-session sizing, explained why q50 is too
+  aggressive and q90 likely overkill for the extra safety margin it buys.
+- Task 3: sanity-checked predictions against `us_atr14`, judged q80 vs q90 in terms of
+  "safety bought per point of range given up" rather than just eyeballing the numbers.
+  Correct first move stated for an implausible result: check for a data leak, then the
+  features.
 
 ---
 
-**What I got wrong:**
+**Open problem - carries to Monday:**
 
-- `today_features` was passed to the model as a bare list of numbers instead of a DataFrame
-  with named columns. The model has no way to check that the order matches training - a
-  silently wrong prediction is possible if the order is ever off. The later code
-  (`filtered_df[features].iloc[[i]]`) did this correctly.
-- `random.randint(1, 6)` for 5 "random" days only ever draws from the first 6 rows of the
-  dataframe, not the full dataset - explains the duplicate dates in the output table.
-  Fixed to `random.sample(range(len(df)), 5)`.
-- Warm-up: `start += train_size` instead of `test_size`. No visible effect at train=test=300,
-  but would break the moment the two differ (e.g. Monday's 600/125 setup).
+- Task 1 walk-forward loop: mechanically correct (`test['us_range']` as the reference,
+  `start += test_size`), but `model_coverage` and `naive_coverage` both came out far below
+  target (~17-23% instead of ~80% for a quantile=0.8 model). Model coverage was *lower*
+  than the naive baseline in every fold, which is the actual anomaly worth chasing, not just
+  the miss from 80%. Suspected cause: train/test regime mismatch (same class of issue as
+  the raw-price-drift bug from D2), not yet confirmed - agreed to check
+  `train['us_range'].describe()` vs `test['us_range'].describe()` per fold on Monday.
 
 ---
 
 **What to reinforce next:**
 
-- Passing model input as a properly-shaped, named structure rather than a raw list -
-  this is the kind of silent bug that does not throw an error
-- random module basics - flagged as rusty from disuse
+- Task 1 diagnosis (Monday)
+- Otherwise: this session's real content was integrating two things built separately this
+  week (walk-forward loop, forecast function) - worth continuing to combine older material
+  rather than only introducing new topics
 
 ---
 

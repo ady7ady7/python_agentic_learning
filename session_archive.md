@@ -4,6 +4,13 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-04 | ML Phase - Week 2 Day 5 | Score: pending (Task 1 diagnosis Mon) | Difficulty: 5/10 | ~75 min
+**Covered:** Integrating two things built separately this week - walk-forward loop (D3) and forecast_range() (D4). Task 1: walk-forward coverage, model vs a naive baseline (prev_us_range * 1.3), fold by fold. Task 2: extended forecast_range() to forecast_both(), predicting both eu_range and us_range in one call, six quantile outputs. Task 3: sanity-checked predictions against atr14.
+**Strong:** Task 2 - diagnosed and fixed the row-shape bug independently: df.iloc[-1] is a Series, models need 2D input, so df.iloc[[-1]] at the row-slice step is the fix, plain single brackets for column selection after. Reasoned clearly through which of six output numbers matters for pre-session sizing (eu_q80) and why (q50 too aggressive, q90 overkill for the safety it buys). Task 3: correct first move on an implausible result (check for leak, then features).
+**Open problem:** Task 1's walk-forward loop is mechanically correct (test['us_range'] as reference, start += test_size) but model_coverage and naive_coverage both came out far below target (~17-23% instead of ~80%), and model_coverage was lower than the naive baseline in every fold - the real anomaly. Suspected train/test regime mismatch, same class of bug as D2's raw-price drift, unconfirmed. Diagnosis plan agreed: compare train['us_range'].describe() vs test['us_range'].describe() per fold.
+**Reinforce next:** Task 1 diagnosis first thing Monday, before new material.
+
+---
 ## 2026-08-27 | ML Phase - Week 2 Day 4 | Score: 82% | ~90 min
 **Covered:** Packaging quantile regression into a usable output. Refit on the full dataset (no split), a forecast_range() function returning q50/q80/q90 for one day, plain-language explanation of what the model does and does not promise.
 **Result:** Correctly reasoned the train/test-then-refit logic unprompted - test the method on a split, trust it, then let the final model see all data. Tried a QuantileModel class for practice, judged it against six plain lines and kept the simpler version - good self-assessment, not just novelty for its own sake. Rebuilt the full EU/US feature pipeline from a new non-SQL CSV source without getting stuck.
