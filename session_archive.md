@@ -4,6 +4,16 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-05 | ML Phase - Week 2 Weekend Quiz | Score: 85% | 32 min
+**Format:** No notes, no code execution. Part A concepts, Part B walk-forward, Part C code from memory, Part D judgement.
+**Breakdown:** A 92% | B 85% | C 75% | D 88%
+**Big improvement:** code-from-memory jumped from 25% (week 1 quiz) to 75% - direct result of the daily warm-up drills this week. C1/C2 (QuantileRegressor fit+coverage, correct row-shape for single-row prediction) both perfect.
+**Strong:** A5 added an unprompted R:R argument for choosing q80 over q90. B1 gave a concrete real-world example (ES futures 300->7500 pts) for regime drift. D1 and D3 both showed the right practical instinct - silent wrong predictions from column-order mismatches, and wanting the full fold distribution before trusting a model.
+**Gaps found:** (1) A2's coverage description was inverted in words ("prediction lower than actual") even though the formula written was correct - definition drifted from the code. (2) A3 explained alpha's effect imprecisely (said it flattens toward "lowest values" rather than shrinking coefficients toward a near-constant prediction). (3) C3 - random.sample() called with broken list-comprehension syntax (`[i for range(len(df)), 5]`); this is the second week in a row he has fumbled random module usage (D4 had randint(1,6) sampling only the first 6 rows) - a real, repeated gap, not a one-off. (4) B4 and D2 both circle around "one split vs many" without naming the actual mechanism (point estimate vs a distribution of outcomes) - understands the practical implication, hasn't fully articulated the underlying reason.
+**Carries to next session:** Friday's Task 1 walk-forward coverage anomaly (model and naive baseline both far below target, model coverage below naive in every fold) - diagnosis was deferred, agreed to compare train vs test us_range distributions per fold.
+**Reinforce next:** random module (sample vs randint, second occurrence). Precise definition of coverage in words, not just in code. Naming walk-forward's core benefit explicitly: a distribution of outcomes vs a single point estimate.
+
+---
 ## 2026-09-04 | ML Phase - Week 2 Day 5 | Score: pending (Task 1 diagnosis Mon) | Difficulty: 5/10 | ~75 min
 **Covered:** Integrating two things built separately this week - walk-forward loop (D3) and forecast_range() (D4). Task 1: walk-forward coverage, model vs a naive baseline (prev_us_range * 1.3), fold by fold. Task 2: extended forecast_range() to forecast_both(), predicting both eu_range and us_range in one call, six quantile outputs. Task 3: sanity-checked predictions against atr14.
 **Strong:** Task 2 - diagnosed and fixed the row-shape bug independently: df.iloc[-1] is a Series, models need 2D input, so df.iloc[[-1]] at the row-slice step is the fix, plain single brackets for column selection after. Reasoned clearly through which of six output numbers matters for pre-session sizing (eu_q80) and why (q50 too aggressive, q90 overkill for the safety it buys). Task 3: correct first move on an implausible result (check for leak, then features).
