@@ -4,6 +4,14 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-07 | ML Phase - Week 3 Day 1 | Score: n/a (design session) | ~2.5h
+**Covered:** New project (project4_trend_regime) - trend regime labeling on XAUUSD via EMA144/EMA33 (high/low) on M15+H1, as groundwork for a pullback-depth quantile regression target. Extensive back-and-forth on regime definition before any modelling.
+**Built:** Resample M5->M15/H1, EMA144/33 on high and low separately, 5-category regime label (strong_bull/retracement_bull/strong_bear/retracement_bear/range_recross), bars_since_recross, mtf_aligned_bull/bear flag (H1 vs M15 agreement, kept separate from the regime label per Adrian's request), up_down_range_ratio feature.
+**Bugs found and fixed (both via direct numeric inspection of specific candles, not guessing):** (1) close physically inside the EMA144 channel matched none of the four original rules -> silently landed in "undefined" (was 15% of H1 bars). (2) A narrow gap between the strong-trend boundary and the original midpoint-based retracement threshold left another undefined strip. Both fixed by simplifying to two zones (strong vs "everything else on that side, direction resolved by sign(ema33_mid - ema144_mid)") - undefined dropped to 0%.
+**Open problem for tomorrow:** sign(ema33_mid - ema144_mid) can flip mid-trend on a trivial pullback because EMA33/144 on (high+low)/2 is a different signal than close - caught concretely at 2026-07-02 01:00 where close dipped 0.76 points below EMA144_high inside an obvious uptrend and the label jumped straight to retracement_bear. Three fix options discussed (separate close-based EMA for direction / carry-forward previous regime on ambiguity / smooth the sign signal) - none implemented yet, decision deferred to next session.
+**Process note:** this was almost entirely definition/validation work, not coding - repeatedly checked exact numbers on specific candles rather than trusting aggregate stats, which is how both bugs were caught. Also did a research pass (web search) on which non-directional market patterns have real published support before committing to the pullback-depth direction - landed on it as the most reusable extension of the existing quantile-regression pipeline.
+
+---
 ## 2026-09-05 | ML Phase - Week 2 Weekend Quiz | Score: 85% | 32 min
 **Format:** No notes, no code execution. Part A concepts, Part B walk-forward, Part C code from memory, Part D judgement.
 **Breakdown:** A 92% | B 85% | C 75% | D 88%

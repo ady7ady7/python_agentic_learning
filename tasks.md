@@ -1,226 +1,89 @@
-# Tasks - ML Phase Week 2 Day 5
+# Tasks - ML Phase Week 3 Day 1 (quick, easy - late session)
 
-**Time:** target 60-75 min.
+**Time:** target 20-30 min. This is deliberately short - the regime labeling work we did
+today was the real content of the session.
 
-Quiz is separate and waits for the weekend. This is extra practice: you have a walk-forward
-loop (D3) and a `forecast_range()` function (D4), but you have never run them together. A
-model isn't "done" until you know it beats a naive baseline *consistently*, not just on
-average - today you check that properly, for real.
+**Where we are:** `project4_trend_regime/h1_with_regime.csv` and `m15_with_regime.csv` exist,
+with a `regime` column (5 categories, no gaps) and `bars_since_recross`. `h1_with_regime.csv`
+also has `mtf_aligned_bull` / `mtf_aligned_bear`.
 
-
-
-
-
----
-
-## Warm-up - baseline vs model, from memory (5 min)
-
-Write one line: given `y_test` and `pred` (a model's predictions) and a naive baseline
-`naive_pred` (e.g. yesterday's value repeated), how do you compare their MAE to see if the
-model is actually earning its keep? Not scored.
-
-Start 19:52
-
-comparison_df = pd.DataFrame({'actual': y_test, 'pred': pred, 'baseline': naive_pred})
-comparison_df['absolute_diff'] = abs(comparison_df['actual'] - comparison_df['pred'])
-comparison_df['naive_diff'] = abs(comparison_df['actual'] - comparison_df['naive_pred'])
-
-comparison_df = comparison_df.groupby('absolute_diff').agg(
-    mae = ('absolute_diff', 'mean'),
-    naive_mae = ('naive_diff', 'mean'),
-).reset_index()
-
-
-
+Today: one small, easy feature - the up/down candle asymmetry idea from earlier, computed
+and eyeballed on a chart. No target, no model tonight.
 
 ---
 
-## Task 1 - Walk-forward coverage for q80, model vs naive (25 min)
+## Task 1 - Up/down range asymmetry (15 min)
 
-**What we are predicting:** `us_range` at 10:00 ET, using this morning's EU session and
-previous days only - same as all week.
+For the H1 dataframe, add a rolling feature comparing the size of recent up-candles vs
+down-candles:
 
 ```python
-features = ['eu_range', 'eu_bar_rng_mean', 'us_atr14',
-            'eu_atr14', 'prev_us_range', 'eu_range_norm']
+h1["candle_range"] = h1["high"] - h1["low"]
+h1["is_up"] = h1["close"] > h1["open"]
+
+up_range_20 = h1["candle_range"].where(h1["is_up"]).rolling(20, min_periods=5).mean()
+down_range_20 = h1["candle_range"].where(~h1["is_up"]).rolling(20, min_periods=5).mean()
+
+h1["up_down_range_ratio"] = up_range_20 / down_range_20
 ```
 
-**The naive baseline for this task:** `prev_us_range` (yesterday's range) treated as an
-80th-percentile guess. It's a real thing someone might actually do without a model - "today
-will probably be like yesterday, plus some room."
+`.where(condition)` keeps values where the condition is True and puts NaN elsewhere - so
+`up_range_20` is "average range of up-candles among the last 20 bars, ignoring down-candles
+in that window". A ratio above 1 means recent up-moves have been bigger than recent
+down-moves.
 
-- 1a. Run the walk-forward loop (`train_size=300`, `test_size=300` or whatever you prefer -
-     your call, justify it in a comment like you did on D3) fitting `QuantileRegressor(
-     quantile=0.8, alpha=0, solver='highs')` on each training window.
-- 1b. In the same loop, for each fold also compute coverage using `prev_us_range` directly
-     as the "prediction" (no model - just that column, scaled up by 1.3x to give it a fair
-     shot at 80%: `naive_pred = test['prev_us_range'] * 1.3`).
-- 1c. Build a table: one row per fold, two coverage columns (`model_coverage`,
-     `naive_coverage`).
+- 1a. Add the column.
+- 1b. Print `.describe()` on it - what's the typical range, is it centered near 1.0?
+- 1c. Check the value at a handful of the `strong_bull` timestamps we looked at today
+     (e.g. 2026-07-02, when price was clearly trending up) vs a `strong_bear` stretch
+     (e.g. 2026-06-24). Does the ratio move in the direction you'd expect?
 
-**In a comment:** does the model beat the naive baseline in every fold, most folds, or is it
-close? What would it mean if the naive baseline won even one fold?
-
----
-
-
-from sklearn.linear_model import QuantileRegressor
-
-features = ['eu_range', 'eu_bar_rng_mean', 'us_atr14',
-            'eu_atr14', 'prev_us_range', 'eu_range_norm']
-filtered_df = df[features]
-
-train_size = 300
-test_size = 300
-
-
-start = train_size
-results = []
-
-while start + test_size <= len(df):
-    train = df.iloc[start - train_size : start]
-    test = df.iloc[start : start + test_size]
-    
-    model = QuantileRegressor(quantile = 0.8, alpha = 0, solver = 'highs')
-    model.fit(train[features], train['us_range'])
-    pred = model.predict(test[features])
-    
-    results.append(
-        {
-            'window_start': train.index.min(),
-            'model_prediction': (pred <= test['us_range']).mean(),
-            'naive_coverage': ((test['prev_us_range'] * 1.3) <= test['us_range']).mean()
-        }
-    )
-    
-    start += test_size
-    
-
-folds = pd.DataFrame(results)
-folds.head()
-
-    
-Weird, but the coverages suck here
-
-	window_start	model_prediction	naive_coverage
-0	15	0.233333	0.320000
-1	315	0.203333	0.313333
-2	615	0.173333	0.310000
+**In a comment:** does this look like it's adding information beyond what `regime` already
+tells you, or does it mostly just restate "we're in an uptrend/downtrend"?
 
 
 
+As for describe:
 
 
-## Task 2 - Extend forecast_range() to both sessions (20 min)
-
-Wednesday's function only predicted `us_range`. Today, predict `eu_range` for tomorrow
-morning too - using only what's known at the US close (16:00 ET) today: today's full EU+US
-data and history, nothing from tomorrow.
-
-```python
-features_eu = ['prev_eu_range', 'prev_us_range', 'eu_atr14', 'us_atr14']
-```
-
-(`prev_eu_range` and `prev_us_range` here mean *today's* completed sessions - they become
-"previous" once tomorrow starts. You already built lagged versions like this in Week 1.)
-
-- 2a. Fit q50/q80/q90 `QuantileRegressor` models for `eu_range` on the full dataset (no
-     split - like Task 1 on D4).
-- 2b. Write a function `forecast_both(row, us_models, eu_models)` that returns a dict with
-     six keys: `us_q50`, `us_q80`, `us_q90`, `eu_q50`, `eu_q80`, `eu_q90`.
-- 2c. Run it on the last available row and print the result next to what actually happened
-     the next morning (if you have that data) or just print the six numbers with a note on
-     what each represents.
-
-**In a comment:** which of the six numbers would matter most to you if you were deciding
-position size before the EU session opens, and why?
-
-from sklearn.linear_model import QuantileRegressor
-
-features_eu = ['prev_eu_range', 'prev_us_range', 'eu_atr14', 'us_atr14']
-features_us = ['eu_range', 'eu_bar_rng_mean', 'us_atr14', 'eu_atr14', 'prev_us_range', 'eu_range_norm']
+open	high	low	close	ema144_high	ema144_low	ema33_high	ema33_low	atr14	bars_since_recross	mtf_aligned_bull	mtf_aligned_bear	candle_range	up_down_range_ratio
+count	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30228.000000
+mean	2508.065391	2512.049579	2503.928781	2508.132699	2507.081788	2498.989815	2510.955912	2502.841424	8.229954	140.584942	0.410635	0.303103	8.120798	1.020905
+std	953.754843	956.739762	950.480572	953.771031	953.061151	946.780226	955.921797	949.640099	8.554838	143.747297	0.491957	0.459607	10.440936	0.291570
+min	1616.572000	1620.288000	1614.710000	1616.572000	1645.326396	1640.796936	1630.527385	1625.672482	1.556492	0.000000	0.000000	0.000000	0.467000	0.307052
+25%	1825.048000	1827.008000	1823.048000	1825.055000	1830.680695	1826.318553	1826.778520	1822.658720	4.002557	37.000000	0.000000	0.000000	3.040000	0.817423
+50%	1990.166000	1992.618000	1987.385000	1990.235000	1989.539215	1985.129003	1993.573386	1988.264527	5.436620	95.000000	0.000000	0.000000	4.990000	0.976131
+75%	2916.969000	2920.595000	2913.348000	2916.985000	2910.572836	2902.577795	2916.514127	2908.525554	8.507071	197.000000	1.000000	1.000000	9.228000	1.177007
+max	5562.475000	5596.805000	5554.515000	5562.295000	5221.270360	5193.797910	5439.879718	5388.822951	165.416391	899.000000	1.000000	1.000000	397.290000	3.256447
 
 
-eu_q50_model = QuantileRegressor(quantile = 0.5, alpha = 0, solver = 'highs')
-eu_q50_model.fit(df[features_eu], df['eu_range'])
-
-eu_q80_model = QuantileRegressor(quantile = 0.8, alpha = 0, solver = 'highs')
-eu_q80_model.fit(df[features_eu], df['eu_range'])
-
-eu_q90_model = QuantileRegressor(quantile = 0.9, alpha = 0, solver = 'highs')
-eu_q90_model.fit(df[features_eu], df['eu_range'])
-
-
-from typing import Dict
-
-
-def forecast_both(row,
-                  us_models,
-                  eu_models):
-    
-    features_us = ['eu_range', 'eu_bar_rng_mean', 'us_atr14',
-            'eu_atr14', 'prev_us_range', 'eu_range_norm']
-    features_eu = ['prev_eu_range', 'prev_us_range', 'eu_atr14', 'us_atr14']
-    
-    row_us = row[features_us]
-    row_eu = row[features_eu]
-    
-    return {
-        'us_q50': us_models[0].predict(row_us),
-        'us_q80': us_models[1].predict(row_us),
-        'us_q90': us_models[2].predict(row_us),
-        'eu_q50': eu_models[0].predict(row_eu),
-        'eu_q80': eu_models[1].predict(row_eu),
-        'eu_q90': eu_models[2].predict(row_eu),
-    }
-    
-    
-xd = pd.DataFrame(forecast_both(row = df.iloc[[-1]],
-                   us_models = [q50_model, q80_model, q90_model],
-                   eu_models = [eu_q50_model, eu_q80_model, eu_q90_model]))
-xd.head()
-
-
-	us_q50	us_q80	us_q90	eu_q50	eu_q80	eu_q90
-0	31.919022	45.169257	58.449321	55.244878	75.330539	91.297397
+That's how it looks like.
+What's weird is that it classifies regime as retracement_bear even though it's in clearly bullish setting, hmm.... Wondering what's the reason for that
 
 
 
-Obviously I would look at eu_q80 most likely, as it should hold in 4 out of 5 days. eu_q50 is a bit too dangerous, and q90 might be an overkill. US qs are irrelevant at that time yet.
-
-
-
+	et_time	open	high	low	close	ema144_high	ema144_low	ema33_high	ema33_low	atr14	bars_since_recross	regime	m15_regime_at_close	mtf_aligned_bull	mtf_aligned_bear	candle_range	is_up	up_down_range_ratio	trade_date
+30273	2026-07-02 00:00:00	4065.865	4079.605	4065.745	4073.005	4064.971026	4045.180112	4048.828716	4029.914434	17.772220	201	strong_bull	strong_bull	1	0	13.86	True	1.763112	2026-07-02
+30274	2026-07-02 01:00:00	4073.025	4075.405	4060.465	4064.355	4065.114943	4045.390938	4050.392027	4031.711527	17.394591	202	retracement_bear	strong_bull	0	0	14.94	False	1.851612	2026-07-02
+30275	2026-07-02 02:00:00	4064.025	4079.695	4061.105	4075.835	4065.316047	4045.607683	4052.115731	4033.440554	17.553979	203	strong_bull	strong_bull	1	0	18.59	True	1.718450	2026-07-02
+30276	2026-07-02 03:00:00	4075.875	4076.755	4063.725	4065.115	4065.473825	4045.857577	4053.565100	4035.221992	16.950782	204	retracement_bear	strong_bull	0	0	13.03	False	1.729861	2026-07-02
+30277	2026-07-02 04:00:00	4065.225	4068.545	4061.355	4066.255	4065.516186	4046.071335	4054.446270	4036.759228	15.649344	205	strong_bull	strong_bull	1	0	7.19	True	1.115252	2026-07-02
+30278	2026-07-02 05:00:00	4066.235	4072.045	4057.225	4064.935	4065.606239	4046.225179	4055.481490	4037.963097	15.538765	206	retracement_bear	strong_bull	0	0	14.82	False	1.002084	2026-07-02
+30279	2026-07-02 06:00:00	4064.985	4140.185	4061.015	4117.285	4066.634912	4046.429176	4060.464049	4039.319091	24.022930	207	strong_bull	strong_bull	1	0	79.17	True	1.463963	2026-07-02
+30280	2026-07-02 07:00:00	4117.265	4143.715	4109.215	4136.485	4067.698085	4047.295188	4065.361164	4043.430615	25.419872	208	strong_bull	strong_bull	1	0	34.50	True	1.561375	2026-07-02
+30281	2026-07-02 08:00:00	4136.485	4137.805	4113.805	4128.275	4068.665077	4048.212564	4069.622566	4047.570285	25.230556	0	range_recross	strong_bull	0	0	24.00	False	1.402685	2026-07-02
+30282	2026-07-02 09:00:00	4128.245	4131.425	4114.395	4128.255	4069.530731	4049.125425	4073.258003	4051.501151	24.137148	1	range_recross	strong_bull	0	0	17.03	True	1.328326	2026-07-02
+30283	2026-07-02 10:00:00	4128.285	4130.085	4100.005	4117.915	4070.365963	4049.827213	4076.600768	4054.354318	24.929529	2	range_recross	strong_bull	0	0	30.08	False	1.360165	2026-07-02
+30284	2026-07-02 11:00:00	4117.635	4119.655	4105.385	4106.495	4071.045811	4050.593527	4079.133370	4057.356123	23.508258	3	range_recross	strong_bull	0	0	14.27	False	1.333965	2026-07-02
+30285	2026-07-02 12:00:00	4106.435	4126.715	4105.585	4122.445	4071.813662	4051.352030	4081.932289	4060.193116	23.191157	4	range_recross	strong_bull	0	0	21.13	True	1.380675	2026-07-02
+30286	2026-07-02 13:00:00	4122.445	4124.155	4107.895	4121.095	4072.535612	4052.131933	4084.415978	4062.999109	22.267003	5	strong_bull	strong_bull	1	0	16.26	False	1.335815	2026-07-02
+30287	2026-07-02 14:00:00	4121.015	4124.775	4116.135	4122.425	4073.256155	4053.014734	4086.790038	4066.124750	20.450069	6	strong_bull	strong_bull	1	0	8.64	True	1.269305	2026-07-02
+30288	2026-07-02 16:00:00	4124.065	4127.825	4122.255	4123.685	4074.008829	4053.969772	4089.203859	4069.426529	18.466060	7	strong_bull	strong_bull	1	0	5.57	False	1.424977	2026-07-02
+30289	2026-07-02 17:00:00	4123.755	4131.905	4120.785	4125.955	4074.807397	4054.891362	4091.715691	4072.447616	17.486585	8	strong_bull	strong_bull	1	0	11.12	True	1.376663	2026-07-02
+30290	2026-07-02 18:00:00	4125.775	4150.665	4122.625	4146.725	4075.853708	4055.825619	4095.183298	4075.399226	18.893707	9	strong_bull	strong_bull	1	0	28.04	True	1.429087	2026-07-02
+30291	2026-07-02 19:00:00	4146.815	4195.365	4146.185	4182.165	4077.502140	4057.071955	4101.076339	4079.563095	22.931880	10	strong_bull	strong_bull	1	0	49.18	True	1.518989	2026-07-02
+30292	2026-07-02 20:00:00	4182.105	4186.565	4176.245	4183.195	4079.006455	4058.715721	4106.105084	4085.250266	21.250296	11	strong_bull	strong_bull	1	0	10.32	True	1.497932	2026-07-02
 
 ---
 
-## Task 3 - Reality check (10 min)
-
-- 3a. Pick any 3 of the six predictions from Task 2 and sanity-check them against the
-     historical `atr14` for that session (e.g. is `us_q90` in a plausible range compared to
-     `us_atr14`, or wildly off?).
-
-**In a comment:** if one of the three looked implausible, what would you check first -
-feature order, a data leak, or something else? You don't need it to actually be wrong, just
-say what your first move would be.
-
-
-historical_atr14 = df.iloc[-1]['us_atr14']
-print(historical_atr14)
-#35.10521428571422
-'''
-	us_q50	us_q80	us_q90	eu_q50	eu_q80	eu_q90
-0	31.919022	45.169257	58.449321	55.244878	75.330539	91.297397
-'''
-
-'''
-By looking at the us_qXX I can clearly see the percentages look very plausible - 
-q50 would indeed be a dangerous stop to set and could get taken out
-q80 seems a lot safer as it's about 30% above the atr14
-q90 protects us even more, but it could be an overkill, as it only adds +10pp safety for 13 points more, not a deal I'd take here
-'''
-
-If data looked implausible - I'd first check data leak, then the features.
-
----
-
-**Total: warm-up + 3 tasks.** Take the quiz separately whenever suits you this weekend.
+**Total: 1 task.** Short one - next session picks up the target (pullback depth) properly.
