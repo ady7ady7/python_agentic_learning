@@ -4,6 +4,15 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-08 | ML Phase - Week 3 Day 2 | Score: n/a (hands-on validation) | ~1h20
+**Covered:** Fixed the regime-flicker bug from yesterday properly - direction now decided by whether EMA33/EMA144 channels geometrically overlap at all (bull_separated/bear_separated/overlapping), not a point-value sign() on close-based EMAs. Verified the fix eliminates the July 2nd flicker entirely. Then handed the resulting h1_with_regime.csv/m15_with_regime.csv to Adrian to explore independently.
+**Adrian's work:** Task 1 - loaded and oriented (30,500 rows, no nulls, 2021-01-04 to 2026-07-17). Task 2 - built contiguous-block lengths via cumsum(), found strong_bull/bear blocks (mean 47/37 bars) meaningfully longer than range_recross (mean 30.5) - numeric confirmation of the visual "trends persist" impression. Task 3 - plotted close price separately per regime, correctly noted bearish price action resembles range_recross more than bullish does, and made a sound methodological call not to over-analyze individual trends as unrepresentative.
+**Bug found:** .count() on a filtered DataFrame slice returns a Series (one count per column), not a scalar - worked here only because both columns happened to have equal length after filtering. Correct form is .shape[0].
+**Adrian's request:** wants statistics running in parallel with pandas/ML work going forward, not as an afterthought - flagged as equally important as data cleaning/selection for avoiding false conclusions.
+**Housekeeping:** removed project4_trend_regime/ from git tracking entirely (script + generated charts) at Adrian's request - stays local only, matches how other generated data/scripts are excluded from this repo.
+**Reinforce next:** .shape[0] vs .count() on filtered frames. Tomorrow: pullback-depth target definition, baselines, and start weaving in statistics (normality tests, comparing regime groups) alongside the ML pipeline.
+
+---
 ## 2026-09-07 | ML Phase - Week 3 Day 1 | Score: n/a (design session) | ~2.5h
 **Covered:** New project (project4_trend_regime) - trend regime labeling on XAUUSD via EMA144/EMA33 (high/low) on M15+H1, as groundwork for a pullback-depth quantile regression target. Extensive back-and-forth on regime definition before any modelling.
 **Built:** Resample M5->M15/H1, EMA144/33 on high and low separately, 5-category regime label (strong_bull/retracement_bull/strong_bear/retracement_bear/range_recross), bars_since_recross, mtf_aligned_bull/bear flag (H1 vs M15 agreement, kept separate from the regime label per Adrian's request), up_down_range_ratio feature.

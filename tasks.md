@@ -1,89 +1,189 @@
-# Tasks - ML Phase Week 3 Day 1 (quick, easy - late session)
+# Tasks - ML Phase Week 3 Day 2
 
-**Time:** target 20-30 min. This is deliberately short - the regime labeling work we did
-today was the real content of the session.
+**Time:** target 60-75 min.
 
 **Where we are:** `project4_trend_regime/h1_with_regime.csv` and `m15_with_regime.csv` exist,
-with a `regime` column (5 categories, no gaps) and `bars_since_recross`. `h1_with_regime.csv`
-also has `mtf_aligned_bull` / `mtf_aligned_bear`.
+built by `01_regime_labeling.py`. H1 regime label looks solid on visual inspection over
+1500 bars - dominant strong_bear/strong_bull blocks in real trends, range_recross in
+consolidation. Columns: `open/high/low/close`, `ema144_high/low`, `ema33_high/low`,
+`atr14`, `bars_since_recross`, `regime` (5 categories), plus on H1 only:
+`m15_regime_at_close`, `mtf_aligned_bull`, `mtf_aligned_bear`.
 
-Today: one small, easy feature - the up/down candle asymmetry idea from earlier, computed
-and eyeballed on a chart. No target, no model tonight.
+Today: get hands-on with this dataframe yourself - load it, look at it, verify a few things
+independently rather than taking my regime logic on faith. No target, no model yet.
 
 ---
 
-## Task 1 - Up/down range asymmetry (15 min)
+## Task 1 - Load and orient yourself (10 min)
 
-For the H1 dataframe, add a rolling feature comparing the size of recent up-candles vs
-down-candles:
+- 1a. Load `h1_with_regime.csv` with `et_time` as a datetime index.
+- 1b. Print `.info()` and `.describe()` - anything look off (nulls, weird ranges)?
+- 1c. Print `regime.value_counts(normalize=True)` yourself and compare against what the
+     script printed yesterday. Do the numbers match your own read of the chart?
 
+**In a comment:** how many total rows, and what date range does this cover?
+
+h1_df.info()
+
+start, end = h1_df['et_time'].min(), h1_df['et_time'].max()
+print(start, end)
+
+#30500 rows, no nulls
+#it covers 5+ years of data, from 2021-01-04 00:00:00 to 2026-07-17 14:00:00
+
+
+print(h1_df['regime'].value_counts())
+'''
+regime
+strong_bull         12609
+strong_bear          8607
+range_recross        7442
+retracement_bull      974
+retracement_bear      889
+Name: count, dtype: int64
+'''
+
+#This looks quite optimistic, as it seems like trends occupy the most time, but there are also range_recross periods
+#that surely could wipe out any account if not taken seriously
+
+
+
+
+---
+
+## Task 2 - Regime duration (20 min)
+
+You said "the important thing is red dominates in a downtrend" - let's check that with
+numbers, not just eyeballing.
+
+For each *contiguous block* of the same regime (e.g. 40 consecutive `strong_bear` bars in a
+row counts as one block, not 40), compute how many bars it lasted.
+
+Hint for finding contiguous blocks without a loop:
 ```python
-h1["candle_range"] = h1["high"] - h1["low"]
-h1["is_up"] = h1["close"] > h1["open"]
-
-up_range_20 = h1["candle_range"].where(h1["is_up"]).rolling(20, min_periods=5).mean()
-down_range_20 = h1["candle_range"].where(~h1["is_up"]).rolling(20, min_periods=5).mean()
-
-h1["up_down_range_ratio"] = up_range_20 / down_range_20
+block_id = (h1["regime"] != h1["regime"].shift(1)).cumsum()
+block_lengths = h1.groupby(block_id)["regime"].agg(["first", "size"])
 ```
+`block_id` increases by 1 every time the regime changes, so rows with the same `block_id`
+are one uninterrupted run of the same label. `.groupby(block_id)` then collapses each run
+into one row: `first` is the regime name, `size` is how many bars it lasted.
 
-`.where(condition)` keeps values where the condition is True and puts NaN elsewhere - so
-`up_range_20` is "average range of up-candles among the last 20 bars, ignoring down-candles
-in that window". A ratio above 1 means recent up-moves have been bigger than recent
-down-moves.
+- 2a. Build `block_lengths` as above.
+- 2b. Group by regime name (`first`) and get mean/median/max block length for each of the
+     5 categories.
+- 2c. What fraction of `strong_bear` blocks last more than 10 bars? More than 50?
 
-- 1a. Add the column.
-- 1b. Print `.describe()` on it - what's the typical range, is it centered near 1.0?
-- 1c. Check the value at a handful of the `strong_bull` timestamps we looked at today
-     (e.g. 2026-07-02, when price was clearly trending up) vs a `strong_bear` stretch
-     (e.g. 2026-06-24). Does the ratio move in the direction you'd expect?
-
-**In a comment:** does this look like it's adding information beyond what `regime` already
-tells you, or does it mostly just restate "we're in an uptrend/downtrend"?
+**In a comment:** does this match the visual impression - are strong trend blocks
+meaningfully longer-lived than range_recross blocks, or surprisingly similar?
 
 
+h1_df['block_id'] = (h1_df['regime'] != h1_df['regime'].shift(1)).cumsum()
+block_lengths = h1_df.groupby(['block_id'])['regime'].agg(['first', 'size'])
+print(block_lengths.head(50))
+mean_block_lengths = block_lengths.groupby('first').agg(
+    avg_block_length = ('size', 'mean'),
+    median_block_length = ('size', 'median'),
+    min_block_length = ('size', 'min'),
+    max_block_length = ('size', 'max'),
+)
 
-As for describe:
+longer_than_10 = block_lengths[(block_lengths['first'] == 'strong_bear') & (block_lengths['size'] >= 10)].count() / block_lengths[block_lengths['first'] == 'strong_bear'].count() * 100
+print(longer_than_10) #55% of the strong bear trends out of all bears are longer than 10 hours long
+
+longer_than_10 = block_lengths[(block_lengths['first'] == 'strong_bull') & (block_lengths['size'] >= 10)].count() / block_lengths[block_lengths['first'] == 'strong_bull'].count() * 100
+print(longer_than_10) #60% of the strong bull trends out of all bulls are longer than 10 hours long
+
+longer_than_10 = block_lengths[(block_lengths['first'] == 'range_recross') & (block_lengths['size'] >= 10)].count() / block_lengths[block_lengths['first'] == 'range_recross'].count() * 100
+print(longer_than_10) #84% of the range_RECROSS regime occurences out of all range recrosses are longer than 10 hours long
 
 
-open	high	low	close	ema144_high	ema144_low	ema33_high	ema33_low	atr14	bars_since_recross	mtf_aligned_bull	mtf_aligned_bear	candle_range	up_down_range_ratio
-count	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30521.000000	30228.000000
-mean	2508.065391	2512.049579	2503.928781	2508.132699	2507.081788	2498.989815	2510.955912	2502.841424	8.229954	140.584942	0.410635	0.303103	8.120798	1.020905
-std	953.754843	956.739762	950.480572	953.771031	953.061151	946.780226	955.921797	949.640099	8.554838	143.747297	0.491957	0.459607	10.440936	0.291570
-min	1616.572000	1620.288000	1614.710000	1616.572000	1645.326396	1640.796936	1630.527385	1625.672482	1.556492	0.000000	0.000000	0.000000	0.467000	0.307052
-25%	1825.048000	1827.008000	1823.048000	1825.055000	1830.680695	1826.318553	1826.778520	1822.658720	4.002557	37.000000	0.000000	0.000000	3.040000	0.817423
-50%	1990.166000	1992.618000	1987.385000	1990.235000	1989.539215	1985.129003	1993.573386	1988.264527	5.436620	95.000000	0.000000	0.000000	4.990000	0.976131
-75%	2916.969000	2920.595000	2913.348000	2916.985000	2910.572836	2902.577795	2916.514127	2908.525554	8.507071	197.000000	1.000000	1.000000	9.228000	1.177007
-max	5562.475000	5596.805000	5554.515000	5562.295000	5221.270360	5193.797910	5439.879718	5388.822951	165.416391	899.000000	1.000000	1.000000	397.290000	3.256447
+'''                  avg_block_length  median_block_length  min_block_length  \
+first                                                                       
+range_recross            30.500000                 23.0                 1   
+retracement_bear          4.233333                  3.0                 1   
+retracement_bull          3.959350                  3.0                 1   
+strong_bear              36.625532                 14.0                 1   
+strong_bull              47.224719                 18.0                 1   
+
+                  max_block_length  
+first                               
+range_recross                  153  
+retracement_bear                18  
+retracement_bull                20  
+strong_bear                    320  
+strong_bull                    375  
+'''
+#Not sure what to think here, but there are some trends that definitely last, and the tendency is towards the bullish dominance (47 vs 36 bull vs bear mean).
+#Range_recross periods are also long, the mean is lower than the  strong_bear and bull.
+
+#However, we can also see that most of the trend are not that long with 14-18 median block lengths
+#The mean is elevated by the extreme outliers that can last 200+, and the median for range_recross is 23 hours.
+
+#This suggests that these periods definitively need patience to hold trades
+#I'd also like to check how these numbers look after we filter out the night/Asian time range.
 
 
-That's how it looks like.
-What's weird is that it classifies regime as retracement_bear even though it's in clearly bullish setting, hmm.... Wondering what's the reason for that
 
 
-
-	et_time	open	high	low	close	ema144_high	ema144_low	ema33_high	ema33_low	atr14	bars_since_recross	regime	m15_regime_at_close	mtf_aligned_bull	mtf_aligned_bear	candle_range	is_up	up_down_range_ratio	trade_date
-30273	2026-07-02 00:00:00	4065.865	4079.605	4065.745	4073.005	4064.971026	4045.180112	4048.828716	4029.914434	17.772220	201	strong_bull	strong_bull	1	0	13.86	True	1.763112	2026-07-02
-30274	2026-07-02 01:00:00	4073.025	4075.405	4060.465	4064.355	4065.114943	4045.390938	4050.392027	4031.711527	17.394591	202	retracement_bear	strong_bull	0	0	14.94	False	1.851612	2026-07-02
-30275	2026-07-02 02:00:00	4064.025	4079.695	4061.105	4075.835	4065.316047	4045.607683	4052.115731	4033.440554	17.553979	203	strong_bull	strong_bull	1	0	18.59	True	1.718450	2026-07-02
-30276	2026-07-02 03:00:00	4075.875	4076.755	4063.725	4065.115	4065.473825	4045.857577	4053.565100	4035.221992	16.950782	204	retracement_bear	strong_bull	0	0	13.03	False	1.729861	2026-07-02
-30277	2026-07-02 04:00:00	4065.225	4068.545	4061.355	4066.255	4065.516186	4046.071335	4054.446270	4036.759228	15.649344	205	strong_bull	strong_bull	1	0	7.19	True	1.115252	2026-07-02
-30278	2026-07-02 05:00:00	4066.235	4072.045	4057.225	4064.935	4065.606239	4046.225179	4055.481490	4037.963097	15.538765	206	retracement_bear	strong_bull	0	0	14.82	False	1.002084	2026-07-02
-30279	2026-07-02 06:00:00	4064.985	4140.185	4061.015	4117.285	4066.634912	4046.429176	4060.464049	4039.319091	24.022930	207	strong_bull	strong_bull	1	0	79.17	True	1.463963	2026-07-02
-30280	2026-07-02 07:00:00	4117.265	4143.715	4109.215	4136.485	4067.698085	4047.295188	4065.361164	4043.430615	25.419872	208	strong_bull	strong_bull	1	0	34.50	True	1.561375	2026-07-02
-30281	2026-07-02 08:00:00	4136.485	4137.805	4113.805	4128.275	4068.665077	4048.212564	4069.622566	4047.570285	25.230556	0	range_recross	strong_bull	0	0	24.00	False	1.402685	2026-07-02
-30282	2026-07-02 09:00:00	4128.245	4131.425	4114.395	4128.255	4069.530731	4049.125425	4073.258003	4051.501151	24.137148	1	range_recross	strong_bull	0	0	17.03	True	1.328326	2026-07-02
-30283	2026-07-02 10:00:00	4128.285	4130.085	4100.005	4117.915	4070.365963	4049.827213	4076.600768	4054.354318	24.929529	2	range_recross	strong_bull	0	0	30.08	False	1.360165	2026-07-02
-30284	2026-07-02 11:00:00	4117.635	4119.655	4105.385	4106.495	4071.045811	4050.593527	4079.133370	4057.356123	23.508258	3	range_recross	strong_bull	0	0	14.27	False	1.333965	2026-07-02
-30285	2026-07-02 12:00:00	4106.435	4126.715	4105.585	4122.445	4071.813662	4051.352030	4081.932289	4060.193116	23.191157	4	range_recross	strong_bull	0	0	21.13	True	1.380675	2026-07-02
-30286	2026-07-02 13:00:00	4122.445	4124.155	4107.895	4121.095	4072.535612	4052.131933	4084.415978	4062.999109	22.267003	5	strong_bull	strong_bull	1	0	16.26	False	1.335815	2026-07-02
-30287	2026-07-02 14:00:00	4121.015	4124.775	4116.135	4122.425	4073.256155	4053.014734	4086.790038	4066.124750	20.450069	6	strong_bull	strong_bull	1	0	8.64	True	1.269305	2026-07-02
-30288	2026-07-02 16:00:00	4124.065	4127.825	4122.255	4123.685	4074.008829	4053.969772	4089.203859	4069.426529	18.466060	7	strong_bull	strong_bull	1	0	5.57	False	1.424977	2026-07-02
-30289	2026-07-02 17:00:00	4123.755	4131.905	4120.785	4125.955	4074.807397	4054.891362	4091.715691	4072.447616	17.486585	8	strong_bull	strong_bull	1	0	11.12	True	1.376663	2026-07-02
-30290	2026-07-02 18:00:00	4125.775	4150.665	4122.625	4146.725	4075.853708	4055.825619	4095.183298	4075.399226	18.893707	9	strong_bull	strong_bull	1	0	28.04	True	1.429087	2026-07-02
-30291	2026-07-02 19:00:00	4146.815	4195.365	4146.185	4182.165	4077.502140	4057.071955	4101.076339	4079.563095	22.931880	10	strong_bull	strong_bull	1	0	49.18	True	1.518989	2026-07-02
-30292	2026-07-02 20:00:00	4182.105	4186.565	4176.245	4183.195	4079.006455	4058.715721	4106.105084	4085.250266	21.250296	11	strong_bull	strong_bull	1	0	10.32	True	1.497932	2026-07-02
 
 ---
 
-**Total: 1 task.** Short one - next session picks up the target (pullback depth) properly.
+## Task 3 - Look at the data yourself (20 min)
+
+Pick any 2-3 stretches of the chart that interest you (open the PNG, note some dates) and
+pull the actual rows for those dates - the same way we diagnosed the July 2nd flicker
+yesterday.
+
+- 3a. For one stretch you'd call a "clean strong trend", print the regime column for that
+     window - is it mostly one label, or mixed?
+- 3b. For one stretch that looks like consolidation/chop on the chart, do the same - is it
+     mostly `range_recross`, or does the model disagree with your eye?
+- 3c. If you find a spot where you disagree with the label, write down exactly which
+     candle and why - don't fix the code, just flag it as a note.
+
+**In a comment:** based on this, do you trust this regime label enough to build a target on
+top of it next session, or is there something that still bothers you?
+
+
+I've decided to portray all 3 regimes on different charts to see if there are any visible differences:
+
+check_df = h1_df[(h1_df['regime'] == 'strong_bear')].copy()
+linep = sns.lineplot(
+    check_df,
+    x = 'et_time',
+    y = 'close'
+    )
+plt.show()
+
+
+check_df = h1_df[(h1_df['regime'] == 'strong_bull')].copy()
+linep = sns.lineplot(
+    check_df,
+    x = 'et_time',
+    y = 'close'
+    )
+plt.show()
+
+
+check_df = h1_df[(h1_df['regime'] == 'range_recross')].copy()
+linep = sns.lineplot(
+    check_df,
+    x = 'et_time',
+    y = 'close'
+    )
+plt.show()
+
+
+#There are subtle nuances between the three charts and you can clearly see the price movement is different and definitely bearish/bullish/range, which looks like we have filtered out at least a fraction of unvaforable trading conditions with this simple differentiation. And I must add that bullish is a way more upwards than the bearish is downwards - in other wards, the bearish chart overall looks a bit similar to the range_recross regime chart, which is interesting.
+
+Overall I'd say we're unable to create perfect distinction, but it's probably as good as we can get with minimum effort for getting favorable trading conditions, and I'd stick with that without looking for more nuanced differentation for convenience. And most definitely there are more and less trending periods, but overall it looks promising from this point of view. And it could maybe give some actually useful edge in the logn term.
+
+
+
+I don't see a reason to go deeply into specific trends, as every trend willl look a bit different, depending on the context. Building observations on the basis of single trends doesn't make sense IMHO.
+
+
+---
+
+**Total: 3 tasks.** No coding of new logic today - this is about you owning the data before
+we build the pullback target on top of it.
