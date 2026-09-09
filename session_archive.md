@@ -366,3 +366,33 @@
 **Problems / gaps:** Too much copy-paste from Claude — not enough active coding by Adrian. Scaffolding approach not applied yet.
 **Reinforce next:** Scaffolded learning from Day 2: explain pattern → Adrian writes code → correct. Use English throughout.
 
+
+## 2026-09-09 — ML Phase Week 3 Day 3 (Score: 78%, Difficulty: 5/10, 1h30)
+
+**Focus:** Statistics on the pullback target — normaltest, Mann-Whitney U (EU vs RTH),
+baselines, visualization. First real statistics session on the new pullback dataset
+(m15_pullback_events.csv, 5278 `resumed` events).
+
+**What went well:**
+- Correctly read distribution shape (mean >> median, fat right tail) before testing normality
+- Stated H0/H1 in plain terms before running tests, predicted the p=0.30 interpretation correctly
+- EU (hour 3-4) / RTH (hour 10-11) window logic was actually correct — I initially flagged it
+  as off-by-one and was wrong; verified on paper and retracted
+- Found and independently fixed a real bug in Task 3: EU/RTH train/test baselines were sliced
+  from the wrong (unfiltered) dataframe using the filtered dataframe's length, silently
+  producing near-identical EU/RTH baselines despite genuinely different medians
+- Good instinct in Task 4 questioning whether the "active hours" pattern was ET or local time
+
+**What was wrong, found via a live experiment:**
+- Used `.sample(200)` before normaltest/Mann-Whitney, reasoning that large samples always
+  reject normality and that full data would show an even stronger (less trustworthy) gap.
+  Verified together: full-data Mann-Whitney gives p≈2.56e-08 (rock solid); the same test
+  across 5 random `.sample(200)` draws gave p ranging 0.0001–0.0090 — a 90x spread from
+  which 200 points happened to get drawn. The predicted *direction* was right, but sample
+  size should never be tuned toward an expected test outcome, and there was no
+  computational reason to subsample (Mann-Whitney on 5,278 rows is instant). Fixed by
+  rerunning on full groups — confirmed matching U statistic (81286.5).
+
+**Reinforce next:** when subsampling is actually justified (compute cost, deliberate power
+simulation) vs never justified (small dataset, no cost, "I expect a stronger result").
+Consistent filtering through a full analysis chain (Task 3's bug pattern).
