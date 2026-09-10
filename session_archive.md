@@ -396,3 +396,45 @@ baselines, visualization. First real statistics session on the new pullback data
 **Reinforce next:** when subsampling is actually justified (compute cost, deliberate power
 simulation) vs never justified (small dataset, no cost, "I expect a stronger result").
 Consistent filtering through a full analysis chain (Task 3's bug pattern).
+
+## 2026-09-10 — ML Phase Week 3 Day 4 (Score: pending, 60 min)
+
+**Focus:** Kruskal-Wallis check on the hour-6-7/16-19 pattern from Day 3, first feature
+table for the pullback-depth model, baseline re-check.
+
+**What went well:**
+- Kruskal-Wallis run and interpreted correctly (p=4.34e-28, reject H0) — the felt
+  uncertainty was really about "what next" (post-hoc), a legitimate stopping point since
+  no post-hoc test was assigned
+- Reasoned soundly, independent of any bug, that after-hours/pre-market ATR spikes might
+  reflect thin order books rather than real volume — trader-level skepticism, not just stats
+- Reached a real methodological conclusion before seeing any model result: predicting exact
+  depth_atr looks harder than direction prediction (already weak in past weeks), proposed
+  modeling P(resumed) vs P(recrossed) at a given depth instead — mirrors the approach
+  already shown to carry signal in regimatic-ml's insights_korekty.md (§4 stop tables).
+  This is the new plan for tomorrow.
+- Resolved the baseline confusion together: MAE≈1.0 ATR only means something next to Day 3's
+  EU/RTH baselines (also ≈1.0) — a same-magnitude sanity check, not evidence of anything new
+
+**Bug found:** `.agg(median_atr=('mean'))` — column named for median, function was actually
+mean. The "hour 16 stands out" read was based on means pulled around by the known fat right
+tail (max depth_atr≈22.9), not medians. Re-verified with the real median: the effect is
+much less dramatic once outliers stop dominating.
+
+**Acknowledged shortcut:** `prior_pullback_depth` used a plain `shift(1)` across the whole
+table (no `block_id` existed yet) rather than tracking block boundaries — a deliberate,
+stated tradeoff, not an oversight. Checked the actual damage: 4.3% of resumed rows would
+get a prior-pullback value from an unrelated earlier trend; the two methods never disagreed
+when both had a value (0%), so the cost was bounded to those specific rows, not systemic.
+
+**Housekeeping (Claude, not scored):** added `block_id` to `03_pullback_target_m15.py`
+(increments per directional block, not per reference point) and recomputed
+`prior_pullback_depth` as `groupby('block_id').shift(1)` — closes the gap by construction.
+`m15_pullback_events.csv` regenerated.
+
+**Plan change:** next session moves from regression (exact depth_atr) to conditional
+classification — P(resumed) vs P(recrossed) given depth reached, following regimatic-ml's
+validated stop-survival table pattern.
+
+**Reinforce next:** double-checking `.agg(name=('function'))` naming actually matches the
+function used.

@@ -1,72 +1,70 @@
 # Feedback - Current Session
 
-<!-- Drafted by Claude - correct, add or delete anything that does not match. -->
+<!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-09-09
-**Session:** ML Phase - Week 3 Day 3 (pullback statistics: normaltest, Mann-Whitney, baselines)
-**Score:** 78%
-**Difficulty:** 5/10 (Adrian's rating)
-**Time:** 1h 30min
-
----
-
-**What went well:**
-
-- Task 1: correctly identified from the shape (mean >> median, huge max vs 75th percentile)
-  that the distribution is bounded-at-zero and right-skewed - good instinct going into the
-  normality test rather than assuming.
-- Task 2: correctly restated H0/H1 in plain terms before running anything, and correctly
-  reasoned through what a p=0.30 result would have meant ("wouldn't trust the gap") -
-  answered before seeing the actual result, as asked.
-- Task 2 windows (hour 3-4 for EU, hour 10-11 for RTH) are CORRECT - they cover 3:00-5:00
-  and 10:00-12:00 ET exactly as intended (the last M15 candle in each range closes at the
-  5:00/12:00 boundary). I initially flagged these as off-by-one and was wrong - confirmed
-  and retracted after checking the boundary logic on paper.
-- Task 3: found and fixed a real bug independently once flagged - EU/RTH train/test slices
-  were being cut from the wrong (unfiltered) dataframe using the filtered dataframe's
-  length, which silently produced near-identical EU/RTH baselines despite the two groups
-  having genuinely different medians (confirmed by the Task 2 test itself).
-- Task 4: good instinct questioning the boxplot's active-hour pattern against local vs ET
-  timezone rather than assuming the result was correct.
+**Date:** 2026-09-10
+**Session:** ML Phase - Week 3 Day 4 (Kruskal-Wallis hour check, feature table, baseline)
+**Score:** pending (see notes below - one real bug, rest solid)
+**Difficulty:** 5/10
+**Time:** 60 min
 
 ---
 
-**What was wrong, and resolved during the session:**
-
-- Task 1/2: used `.sample(200)` before both `normaltest` and `mannwhitneyu`, reasoning that
-  large samples always reject normality and that the full dataset would show an even
-  stronger (harder to trust) EU/RTH gap. Checked this empirically together:
-  - Full-data Mann-Whitney: p ≈ 0.000000 (far below any threshold)
-  - Same test on 5 different `.sample(200, random_state=seed)` draws: p ranged from
-    0.0001 to 0.0090 - a 90x spread depending purely on which 200 points got drawn
-  - Adrian's predicted *direction* (full data would show a stronger effect) was correct.
-    But the point of the exercise: sample size should never be chosen to produce a
-    preferred test outcome, and here there was no computational reason to subsample at
-    all (Mann-Whitney on 5,278 rows runs instantly) - so subsampling only added risk
-    (a weaker true effect could have landed on either side of 0.05 depending on the
-    random seed) without any benefit. Fixed by rerunning on the full filtered groups.
+**Adrian's own summary:** felt shaky overall - unsure about Kruskal-Wallis interpretation
+without a post-hoc test, found the groupby/aggregation part fiddly, and wasn't confident
+the baseline calculation was methodologically correct or told him anything concrete beyond
+"a number".
 
 ---
 
-**What to reinforce next:**
+**What actually happened, task by task:**
 
-- When to subsample (data too large to process, or deliberately simulating a smaller
-  study) vs when there's no reason to (small enough dataset, no compute cost) - test
-  results should never be shaped by tuning sample size toward an expected outcome
-- Consistent filtering when building train/test slices from a subset (Task 3's bug: cutting
-  the full dataframe by a filtered dataframe's length)
+- **Task 1 (Kruskal-Wallis):** correctly ran `kruskal(*groups)`, correctly read p=4.34e-28
+  as "reject H0, at least one hour differs" - this interpretation was right, the uncertainty
+  was really about "what next" (post-hoc), which is a legitimate stopping point since no
+  post-hoc test was assigned today. One real bug: the per-hour ranking table was built with
+  `.agg(median_atr=('mean'))` - the column was named `median_atr` but the aggregation
+  function was actually `'mean'`, so the "hour 16 stands out" observation was based on
+  means, not medians, and means are pulled around by the same fat right tail we already
+  knew about (max depth_atr ≈ 22.9). Re-verified with the real median: hour 16 does not
+  stand out as sharply once outliers stop dominating. Adrian's separate instinct - that
+  after-hours/pre-market ATR spikes may reflect thin order books rather than real volume -
+  was sound reasoning independent of the bug.
+
+- **Task 2 (feature table):** direction encoding, hour, ref_atr, same_candle_pullback all
+  reasonable. `prior_pullback_depth` used a plain `shift(1)` across the whole table rather
+  than tracking block boundaries (there was no `block_id` column available at the time) -
+  a deliberate, acknowledged shortcut rather than an oversight. Checked the actual damage
+  together: 4.3% of resumed rows would have been given a prior-pullback value copied in
+  from an unrelated, earlier trend block; where both methods produced a value they always
+  agreed (0% disagreement) - so the shortcut's cost was bounded and specific (false
+  positives on block boundaries), not silent corruption throughout.
+  Also independently concluded, before seeing any model result, that predicting an exact
+  depth_atr value looks harder than even direction prediction (which has already proven
+  weak in past weeks) - and proposed instead modeling P(resumed) vs P(recrossed) as a
+  function of depth/context, which mirrors the approach already validated with real signal
+  in regimatic-ml's insights_korekty.md (§4, stop-survival tables). This became today's
+  plan change for tomorrow.
+
+- **Task 3 (baseline):** MAE calculation was mechanically correct (predict train median/mean,
+  score against test via mean_absolute_error). The uncertainty ("does this actually tell me
+  something") was resolved together: MAE≈1.0 ATR isn't inherently good or bad - it's only
+  meaningful next to the day-3 EU/RTH baselines (also ≈1.0), which makes it a same-magnitude
+  sanity check rather than a new result, and sets the bar any future model has to clear.
 
 ---
 
-**Anything else:**
-
+**Housekeeping done after the session (Claude's work, not scored):** added `block_id` to
+`03_pullback_target_m15.py` (increments per directional block, not per reference point) and
+recomputed `prior_pullback_depth` as `groupby('block_id')['depth_atr'].shift(1)` instead of
+a plain shift - closes the gap Adrian flagged, confirmed empirically (4.3% of rows affected,
+now fixed by construction). `m15_pullback_events.csv` regenerated with both new columns.
 
 ---
 
-**Update after resubmission:**
+**Plan change for next session:** move from regression (predict exact depth_atr) to
+conditional classification (P(resumed) vs P(recrossed) given depth reached / hour /
+direction), following the stop-survival table pattern from regimatic-ml.
 
-Sampling removed from both `normaltest` and `mannwhitneyu` as discussed. Verified the
-corrected code independently: same Mann-Whitney U statistic (81286.5) as when I ran it,
-p ≈ 2.56e-08 - confirms the fix is correct. Only remaining nitpick: the printed comment
-next to the code still shows the old sampled result (p=0.0056) rather than the new one -
-cosmetic, not a logic error, worth updating for a clean record.
+**Reinforce next:** double-checking that an aggregation's column name matches its actual
+function (`.agg(name=('function'))` naming vs reality) - the Task 1 bug pattern.
