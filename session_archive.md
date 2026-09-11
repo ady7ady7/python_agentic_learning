@@ -438,3 +438,57 @@ validated stop-survival table pattern.
 
 **Reinforce next:** double-checking `.agg(name=('function'))` naming actually matches the
 function used.
+
+## 2026-09-11 — ML Phase Week 3 Day 5 (Score: solid, Difficulty: 4/10, 45 min)
+
+**Focus:** Stop-survival table on XAUUSD M15 pullback data (mirroring regimatic-ml's §4
+stop table), EU vs RTH stop sizing comparison. Short Friday wrap-up session.
+
+**Results:**
+- EU needs a 2.0 ATR stop for 80% survival; RTH needs only 1.5 ATR — directly confirms
+  Wednesday's Mann-Whitney result (EU pullbacks run deeper) as a concrete, usable number
+- Shape of the survival curve is broadly consistent with regimatic-ml's NDX numbers,
+  though absolute magnitudes differ (expected — different instrument, established Monday)
+
+**Good instinct, resolved together:** Adrian questioned whether excluding `recrossed`
+events from the survival table "made sense" project-wide, since a stop that never sees the
+trend resume is a real loss. Checked against `insights_korekty.md` directly: that table
+also excludes `recrossed`, with an explicit caveat ("does not say how often you'd actually
+profit"). Conclusion: two valid but different questions exist — "does the stop survive
+*given* the trend resumes" (what both tables compute) vs "does the stop survive at all,
+counting recrossed as an automatic loss" (a different, uncomputed question). Not a
+contradiction — a matter of being precise about which one a number answers.
+
+**Housekeeping:** Task 1's actual code/answer didn't make it into the saved file the first
+time (pasted afterward) — verified numerically that the *unsaved* work matched the
+resumed-only filter as specified, not a leakier unfiltered version.
+
+**Adrian's feedback:** wants comprehensions/groupby/dict-building practiced more
+regularly and from a scaffolded angle — flagged as a recurring friction point. Also noted
+today's session skipped the warm-up drill, which he wants kept as a standing habit even on
+short Friday sessions.
+
+**Reinforce next:** dict/DataFrame-building comprehensions as a recurring warm-up topic.
+Bring back the daily warm-up unconditionally, including short sessions.
+
+---
+
+## Week 3 summary
+
+| Day | Focus | Outcome |
+|---|---|---|
+| Mon | Regime definition (EMA144/33 channel overlap) | Fixed 2 real flicker bugs found via candle-level inspection |
+| Tue | Adrian's independent hands-on validation | Confirmed regime blocks behave sensibly at scale |
+| Wed | Pullback-depth target + stats (normaltest, Mann-Whitney) | EU pullbacks statistically deeper than RTH (p=2.56e-08); baseline MAE≈1.0 ATR |
+| Thu | Kruskal-Wallis on hour pattern, feature table, block_id fix | Hour effect confirmed but overstated by a mean/median mixup bug; pivoted plan from regression to conditional classification |
+| Fri | Stop-survival table (EU vs RTH) | EU needs 2.0 ATR stop, RTH 1.5 ATR for 80% survival — first directly actionable number of the project |
+
+**What changed mid-week:** originally aimed at predicting exact `depth_atr` via regression;
+Adrian correctly judged this too hard (matching the project's own experience with direction
+prediction in earlier weeks) and proposed conditional classification instead — P(resumed)
+vs P(recrossed) given depth reached — which Friday's stop table now supports empirically.
+
+**Recurring theme:** every "surprising" result this week was checked on actual candle-level
+numbers before being trusted (Monday's flicker, Wednesday's sampling risk, Thursday's
+mean/median bug) — this habit caught three real bugs that would otherwise have shipped
+silently correct-looking output.

@@ -1,183 +1,198 @@
-# Tasks - ML Phase Week 3 Day 4
+# Tasks - ML Phase Week 3 Day 5
 
-**Time:** target 75-90 min.
+**Time:** target 45-60 min - short session, Friday wrap-up.
 
-**Where we are:** `project4_trend_regime/m15_pullback_events.csv` - 5,522 pullback events.
-Yesterday we confirmed (Mann-Whitney, full data, p=2.56e-08) that EU pullbacks (hour 3-4 ET)
-are statistically deeper than RTH ones (hour 10-11 ET). You also noticed something in the
-boxplot: hours 6-7 and 16-19 ET looked unusually active.
+**Where we are:** `project4_trend_regime/m15_pullback_events.csv` now has `block_id` and a
+correctly-computed `prior_pullback_depth`. Yesterday you proposed switching from "predict
+exact depth_atr" to "predict P(resumed) vs P(recrossed) given how deep the pullback has
+already gone" - this mirrors the stop-survival table from regimatic-ml's
+insights_korekty.md (§4), which found real signal there on a different instrument (NDX).
 
-Today: (1) a short, rigorous check on that hour pattern - is it real or did you eyeball
-noise? (2) start of feature building for a model, now that we trust the target.
-
----
-
-## Task 1 - Is the 6-7 / 16-19 pattern real? (25 min)
-
-Yesterday's test compared exactly two groups (EU vs RTH). Today you're comparing across
-all 24 hours at once, which changes what test is appropriate.
-
-### Why not just run Mann-Whitney 24 times
-
-You could compare hour 6 vs "everything else", then hour 7 vs "everything else", etc. But
-running many tests on the same data inflates your false-positive rate: at a 5% significance
-threshold, testing 24 independent hours means you'd expect ~1 to look "significant" by pure
-chance even if none of them mean anything. This is the multiple comparisons problem.
-
-### Kruskal-Wallis: the >2-group version of Mann-Whitney
-
-`scipy.stats.kruskal` asks one combined question first: **"do these 24 groups all come from
-the same distribution, or does at least one differ?"** It's the non-parametric equivalent of
-a one-way ANOVA (which compares means across >2 groups and assumes normality - not
-appropriate here, same reasoning as Mann-Whitney vs t-test).
-
-- **H0:** all 24 hourly groups of `depth_atr` come from the same distribution (hour has no
-  effect on pullback depth).
-- **H1:** at least one hour's distribution differs from the others.
-
-It does NOT tell you *which* hour differs, or by how much - only whether hour matters at
-all, as a single yes/no gate before you go hunting for specific hours.
-
-- 1a. Filter to `status == 'resumed'` (as before). Group `depth_atr` by hour (0-23).
-- 1b. Run `scipy.stats.kruskal(*groups)` - unpack each hour's `depth_atr` values as a
-     separate argument. Report the p-value.
-- 1c. If (and only if) H0 is rejected, compute the median `depth_atr` for every hour and
-     rank them - do hours 6, 7, 16, 17, 18, 19 actually stand out as a cluster, or was that
-     an artifact of how the boxplot happened to look?
-
-**In a comment:** based on the Kruskal-Wallis result and the per-hour medians, do you still
-believe there's a real 6-7/16-19 effect, or does it look more like noise now that you're
-looking at ranked medians instead of a visual impression?
-
-
-from scipy.stats import kruskal
-'''
-- **H0:** all 24 hourly groups of `depth_atr` come from the same distribution (hour has no
-  effect on pullback depth).
-- **H1:** at least one hour's distribution differs from the others.
-'''
-pullback_df.head()
-
-grouped_by_hour = pullback_df.groupby('hour')['depth_atr'].agg(
-     mean_atr = ('mean')
-).reset_index()
-grouped_by_hour.head(15)
-
-groups = []
-for i in (pullback_df['hour'].unique()):
-     groups.append(pullback_df['depth_atr'][pullback_df['hour'] == i])
-     
-results = kruskal(*groups)
-print(results) #p_value = 4.337509543465713e-28, very close to 0
-
-
-grouped_by_hour_median = pullback_df.groupby('hour')['depth_atr'].agg(
-     median_atr = ('mean')
-).reset_index().sort_values(by = 'median_atr', ascending = False)
-grouped_by_hour_median.head(15)
-
-'''
-hour	median_atr
-16	16	2.223377
-23	23	2.114033
-18	18	2.071305
-6	6	2.024532
-17	17	1.897854
-19	19	1.789194
-7	7	1.745000
-20	20	1.742685
-2	2	1.731529
-4	4	1.710913
-0	0	1.708876
-22	22	1.625740
-5	5	1.620733
-1	1	1.606385
-12	12	1.580137'''
-
-
-#16-20 + 6-7 are relatively high, with 16 being visibly high above the rest
-#There could be a real effect, but I'm unsure whether I'd be interested in trading during these hours anyway.
-
-#16-20 are aftermarket hours, which could be volatile due to a hollow orderbook
-#6-7 is the same case, but the opposite, it's early pre-market, during EU session, yet before the US opens.
-
-#The ATR can be higher, but it's always relative to the recent price action and it doesn't necessarily mean there's volume behind
-#In other words, I'm not particularly interested in those periods, but maybe it's worth to check it... Idk.
-
+Today: build the same kind of table on our XAUUSD data, and see if the pattern shows up
+here too. This is the last task of the week - short and concrete.
 
 ---
 
-## Task 2 - First feature table for the depth model (30 min)
+## Task 1 - The stop-survival table (35 min)
 
-Time to build the X you'll eventually feed a model. Every feature here must be something
-you'd actually know **at `ref_time`** - the moment the peak/trough was just established -
-since that's when you'd want a depth prediction.
+The question: **"if you set a stop at X ATR beyond the reference point, what fraction of
+pullbacks stay within it (i.e. the trend resumes before price goes that deep)?"**
 
-Build a new dataframe, one row per event (reuse the `resumed`-filtered set), with:
+A pullback "surviving" a stop of X ATR means: its `depth_atr` never exceeded X before the
+trend resumed. For `status == 'recrossed'` events, the trend never resumed at all - so by
+definition, a stop couldn't have "survived" them in the same sense (there's a separate
+question buried here, see the comment prompt below).
 
-- `direction` (already have it) - encode as 0/1 (bear=0, bull=1) or keep as category, your
-     choice, but note which you picked and why it matters for the model type you'd use later.
-- `hour` (already have it, from `ref_time`).
-- `ref_atr` (already have it) - this is the volatility level at the moment of reference.
-- `is_same_candle_pullback` (already have it) - though think about whether this belongs as
-     a *feature* (known before the fact) or is actually closer to a description of the
-     outcome. Write down your reasoning either way.
-- A new one: `prior_pullback_depth` - for events happening within the same underlying trend
-     block, what was the depth of the *previous* pullback? (If you're not sure how to find
-     "the previous one in the same trend", that's fine - describe the problem in a comment
-     instead of guessing at code, and we'll solve it together next session.)
+- 1a. Filter to `status == 'resumed'` only for now (recrossed handled separately below).
+- 1b. For a range of stop levels - try `[0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0]` (in ATR
+     units, matching `depth_atr`) - compute what fraction of resumed events had
+     `depth_atr <= X`. This is "the stop would have survived."
+- 1c. Put this in a table: one row per stop level, one column for the survival fraction.
+     Compare it to regimatic-ml's numbers for reference (not to match exactly - different
+     instrument - but to see if the *shape* is similar): their 1.0 ATR stop survived 19%,
+     2.0 ATR survived 53%, 5.0 ATR survived 82%.
 
-**In a comment:** which of these features do you expect to actually predict depth, and
-which do you expect to be close to useless? You don't need to be right - the point is
-committing to a guess before any model tells you the answer.
+**In a comment before building this:** `recrossed` events are excluded from the survival
+fractions here, same as regimatic-ml did. Why does dropping them make the "survival" number
+optimistic rather than neutral? (Hint: think about what a recrossed event actually
+represents for someone who set a stop at, say, 3 ATR and the trend never came back.)
 
 
-from sklearn.preprocessing import OrdinalEncoder
+#W3 D5 T11
+#start 11:33
 
-encoder = OrdinalEncoder()
-pullback_df['direction_int'] = encoder.fit_transform(pullback_df[['direction']]).astype(int)
-pullback_df['prior_pullback_depth'] = pullback_df['depth_atr'].shift(1)
+#I've reloaded the file to go back from getting the filtered pullbacks only
+pullback_df = pd.read_csv('project4_trend_regime/m15_pullback_events.csv')
 
-#I frankly think predicting depth of a pullback will be veery difficult.
-#IMO it should be easier to predict the chances a given pullback will result in a resume or recross on certain ATR levels
+#converting ref time to datetime + filtering to resumed pullbacks only, also turning it into America/Ny Time to make sure it's ET time
+pullback_df['ref_time'] = pd.to_datetime(pullback_df['ref_time']).dt.tz_localize('America/New_York')
+pullback_df['hour'] = pullback_df['ref_time'].dt.hour
+pullback_df['minute'] = pullback_df['ref_time'].dt.minute
+
+pullback_df['status'].value_counts()
+#5278 resumed
+#243 recrossed (only about 5%)
+
+
+pullback_df = pullback_df[pullback_df['status'] == 'resumed']
+
+#how many % of the time the pullback depth is less than or equal toa  given ATR level
+atr_range = [0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0]
+survival_rates = {
+     'atr': atr_range, 
+     'survival_rate': [
+          (pullback_df['depth_atr'] <= i).sum() / len(pullback_df) for i in atr_range
+          ]
+     }
+
+survival_df = pd.DataFrame(survival_rates)
+survival_df.head(15)
+
+
+'''	
+     atr	survival_rate
+0	0.5	0.213338
+1	1.0	0.520652
+2	1.5	0.692497
+3	2.0	0.791967
+4	3.0	0.878742
+5	4.0	0.919667
+6	5.0	0.941266
+7	8.0	0.975748
+
+'''
+
+#Below there are values from regimatic-ml for reference from NQ - remember in this repo I work with gold
+#How many of pullbacks WILL not reach a given ATR level and the trend will resume if we set a stop at that level?
+'''
+
+| Level | All | Bull | Bear |
+|---|---|---|---|
+| 1.0 ATR | 19 % | 21 % | 15 % |
+| 1.5 ATR | 40 % | 41 % | 36 % |
+| **2.0 ATR** | **53 %** | 54 % | 51 % |
+| 2.5 ATR | 62 % | 63 % | 60 % |
+| 3.0 ATR | 69 % | 70 % | 68 % |
+| 4.0 ATR | 77 % | 77 % | 76 % |
+| **5.0 ATR** | **82 %** | 82 % | 82 % |
+| 6.0 ATR | 86 % | 86 % | 86 % |
+| 8.0 ATR | 90 % | 90 % | 91 % |
+| 10.0 ATR | 93 % | 92 % | 94 % |
+
+'''
+
+
+
+
+
+
+---
+
+## Task 2 - Does EU vs RTH change the safe stop level? (15 min)
+
+You already proved statistically (Day 3) that EU pullbacks run deeper than RTH ones. That
+should show up directly in this table.
+
+- 2a. Rebuild the same survival table from Task 1, split into EU-hour (3-4) and RTH-hour
+     (10-11) subsets.
+- 2b. For a fixed target survival rate (pick 80%), what stop level (in ATR) does each
+     session need to hit it?
+
+**In a comment:** does this match what you'd expect given Wednesday's statistical result,
+and would this change how you'd size a stop differently for a EU-session vs RTH-session
+trade?
+
+
+
 
 
 pullback_df.head()
-#all features for your refernece
-'''direction	ref_time	ref_price	ref_atr	depth_price	depth_atr	duration_minutes	status	same_candle_pullback	hour	minute	direction_int	prior_pullback_depth
-0	bull	2021-01-04 14:00:00-05:00	1942.610	2.983302	1.790	0.600006	30.0	resumed	False	14	0	1	NaN
-1	bull	2021-01-04 14:30:00-05:00	1942.740	2.605102	0.662	0.254117	15.0	resumed	True	14	30	1	0.600006
-2	bull	2021-01-04 14:45:00-05:00	1944.135	2.532022	3.117	1.231032	150.0	resumed	False	14	45	1	0.254117
+eu_pullbacks = pullback_df[(pullback_df['hour'] >= 3) & (pullback_df['hour'] <= 4)] #3:00 et - 5:00 et (10:00 EU - 12:00 EU)
+rth_pullbacks = pullback_df[(pullback_df['hour'] >= 10) & (pullback_df['hour'] <= 11)] #10:00 ET - 12:00 ET (16:00 EU - 18:00 EU)
+
+atr_range = [0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0]
+survival_rates_eu = {
+     'atr_range': atr_range,
+     'survival_rate': [
+          (eu_pullbacks['depth_atr'] <= i).sum() / len(eu_pullbacks) for i in atr_range
+          ]
+}
+
+survival_df_eu = pd.DataFrame(survival_rates_eu)
+
+
+survival_rates_rth = {
+     'atr_range': atr_range,
+     'survival_rate': [
+          (rth_pullbacks['depth_atr'] <= i).sum() / len(rth_pullbacks) for i in atr_range
+          ]
+}
+
+survival_df_rth = pd.DataFrame(survival_rates_rth)
+
+display(survival_df_eu.head(15))
+display(survival_df_rth.head(15))
+
+'''
+EU SURVIVAL RATES: 
+
+atr_range	survival_rate
+0	0.5	0.184579
+1	1.0	0.535047
+2	1.5	0.693925
+3	2.0	0.801402
+4	3.0	0.890187
+5	4.0	0.925234
+6	5.0	0.946262
+7	8.0	0.974299
 '''
 
 
+'''
+RTH SURVIVAL RATES
+
+atr_range	survival_rate
+0	0.5	0.314700
+1	1.0	0.670807
+2	1.5	0.809524
+3	2.0	0.881988
+4	3.0	0.939959
+5	4.0	0.958592
+6	5.0	0.973085
+7	8.0	0.995859
+'''
+
+
+#To survive 80% of the time, EU needs a stop of 2.0 ATR, and RTH 1.5, so EU is more volatile (IN TERMS OF ATR!) and needs a bigger stop in terms of ATR.
+#The findings match my expectations from Wednesday
+
+#So sure, it could affect the sizing, but in the end, the RTH stop could still be bigger in points,
+#as it will be certainly more volatile in terms of points, but it's interesting to see that in terms of ATR, the EU session is more volatile
+
+
+
+
 ---
 
-## Task 3 - Baseline once more, on the real feature set (15 min)
-
-- 3a. Chronological 80/20 split on this new feature table.
-- 3b. Report train-set median/mean `depth_atr` and the resulting MAE on test - same
-     calculation as Day 3, just now living alongside the actual features you'll model with.
-
-**In a comment:** has anything changed from yesterday's baseline numbers, and should it
-have?
-
-
-train = pullback_df[:math.floor(0.8 * len(pullback_df))]
-test = pullback_df[math.floor(0.8 * len(pullback_df)):]
-
-train_median = train['depth_atr'].median()
-train_mean = train['depth_atr'].mean()
-
-baseline_mae = mean_absolute_error(np.full(len(test), train_mean), test['depth_atr'])
-baseline_mae_median = mean_absolute_error(np.full(len(test), train_median), test['depth_atr'])
-print(baseline_mae, baseline_mae_median)
-
-#1.2215080988640952 1.004526664451128
-
-#I'm not exactly what does this data suggest, 1 ATR baseline doesn't look a very big error TBH
-#The baseline is perhaps already very informative, or it trims dow and flattens bigger retracements into very small baseline
----
-
-**Total: 3 tasks.** Task 2's `prior_pullback_depth` may not fully solve today - that's fine,
-flag where you get stuck rather than forcing something fragile.
+**Total: 2 tasks.** Short Friday session - this closes out the week with one concrete,
+checkable result. Weekend quiz comes separately once this is done.
