@@ -492,3 +492,34 @@ vs P(recrossed) given depth reached — which Friday's stop table now supports e
 numbers before being trusted (Monday's flicker, Wednesday's sampling risk, Thursday's
 mean/median bug) — this habit caught three real bugs that would otherwise have shipped
 silently correct-looking output.
+
+## 2026-09-13 — Week 3 Weekend Quiz (Score: ~80%, 17 min)
+
+**Format:** 5 parts - regime definition, pullback target, statistics, baselines/stop table,
+judgement. No notes.
+
+**Strong:** B2, B3, B4, C1, C2, C3, C4, D1, D2, D3, E1 all correct and precise - real
+mechanism understanding, not just definitions repeated back. B4 in particular captured
+that even a micro-pullback (same-candle resolution) skews the median if it's not
+realistically tradeable given costs.
+
+**Weak:**
+- A2: admitted guessing rather than recalling the actual July 2nd flicker bug and its
+  channel-overlap fix
+- A3: too terse/imprecise on why price *inside* the EMA144 channel needed a fix (the "gap
+  between rules" framing, not just "one EMA vs two")
+- E2: misread the question - answered about the resumed-only methodology choice (a
+  deliberate, documented decision, re-litigated Friday) rather than a genuinely silent bug
+  (e.g. Monday's flicker or Thursday's mean/median .agg naming mismatch)
+- C5 answered correctly (False) but explicitly asked for the reasoning to be restated -
+  provided: sample size should never be tuned toward an expected test outcome; empirically,
+  5 different .sample(200) draws gave p ranging 0.0001-0.0090 vs a stable p=2.56e-08 on the
+  full 5278 rows
+
+**Adrian's feedback on quiz format:** found the "what happened this week" recall-style
+questions (A2, A3, B1, E1) frustrating - felt like trivia rather than testing useful
+understanding. Discussed: the intent was testing whether a real bug/decision could be
+reconstructed from memory (transfer to future situations), not the fact itself - but this
+didn't land well as a format. **Plan for next quiz: fewer "what happened" questions, more
+"would this work in a new/hypothetical situation" questions** - tests transfer without the
+recall-trivia feel.
