@@ -4,6 +4,30 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-14 | ML Phase - Week 4 Day 1 | Score: solid on main tasks, warm-up not completed | Difficulty: 4/10 | ~75 min
+**Covered:** First step of the resume/recross classification pivot agreed last Friday. Task 1
+- built `target_resumed` (drop `unfinished`, 1 if resumed else 0), correctly identified
+95.6%/4.4% class imbalance and that a "predict resumed always" baseline would hit ~96%
+accuracy - unprompted named precision/recall/F1 as better metrics for this imbalance. Task 2
+- feature table (direction via OrdinalEncoder, hour, ref_atr, same_candle_pullback,
+prior_pullback_depth), sorted by ref_time, split 80/20 with no shuffling (time-aware, not
+random), confirmed non-overlapping train/test date ranges (train ends 2025-08-07, test
+starts 2025-08-14).
+**New concept:** why a random `train_test_split` would leak future information into training
+on time-series data - test set must stay strictly later in time than train.
+**Warm-up - real problem found:** dict comprehension attempt failed hard
+(`{'atr': [...].values()}` - confused building two parallel lists with a true
+key:value-per-iteration comprehension, called `.values()` on a numpy array). Confirmed as a
+repeated pattern (same class as Friday's `survival_rates` bug, W2 quiz C3). Agreed: mandatory
+5-min comprehension/groupby warm-up every session going forward, difficulty ramping gently
+(saved to memory).
+**Open items for tomorrow:** `prior_pullback_depth` NaNs (first event per block) not yet
+dropped/filled in `feature_df`; comment on why mean-fill would be worse still open. Both to
+close before fitting the first classifier.
+**Reinforce next:** dict comprehension fundamentals via the new daily warm-up - start with a
+full worked example of today's exact stuck point (per-direction mean via comprehension).
+
+---
 ## 2026-09-08 | ML Phase - Week 3 Day 2 | Score: n/a (hands-on validation) | ~1h20
 **Covered:** Fixed the regime-flicker bug from yesterday properly - direction now decided by whether EMA33/EMA144 channels geometrically overlap at all (bull_separated/bear_separated/overlapping), not a point-value sign() on close-based EMAs. Verified the fix eliminates the July 2nd flicker entirely. Then handed the resulting h1_with_regime.csv/m15_with_regime.csv to Adrian to explore independently.
 **Adrian's work:** Task 1 - loaded and oriented (30,500 rows, no nulls, 2021-01-04 to 2026-07-17). Task 2 - built contiguous-block lengths via cumsum(), found strong_bull/bear blocks (mean 47/37 bars) meaningfully longer than range_recross (mean 30.5) - numeric confirmation of the visual "trends persist" impression. Task 3 - plotted close price separately per regime, correctly noted bearish price action resembles range_recross more than bullish does, and made a sound methodological call not to over-analyze individual trends as unrepresentative.
