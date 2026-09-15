@@ -4,6 +4,33 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-15 | ML Phase - Week 4 Day 2 | Score: solid, one guided correction | Difficulty: 3-4/10 | ~1h10
+**Covered:** Warm-up scaffold worked well - full worked example of yesterday's exact stuck
+dict comprehension, then Adrian reproduced the pattern cleanly on a new column (median
+duration_minutes per status) unaided. Task 1 - dropped NaN `prior_pullback_depth` rows
+(structural "no prior pullback yet" for first event per block) with correct reasoning
+against mean-fill. Task 2 - fit first `LogisticRegression` on the resume/recross target.
+**Real finding:** First metric attempt (comparing mean predicted probability to actual class
+mean) was an invalid comparison, corrected together. Guided to precision/recall via
+`.predict()`; first pass used default `pos_label=1` (majority "resumed", 97% of data) and
+got misleadingly good numbers (precision 0.975, recall 0.986) - Adrian correctly sensed
+these "didn't make furore" unprompted. Recomputed for `pos_label=0` (minority "recrossed")
+after predicting the direction of change first: precision 0.26, recall 0.16 - correctly
+interpreted as the model mostly guessing "resumed" and missing 84% of real recrossed cases,
+a direct and correctly-reasoned consequence of training on a ~4.4%-minority class with
+default settings.
+**Adrian's request:** wants to go deeper on imbalanced-classification techniques
+(class_weight, decision threshold tuning, resampling/SMOTE), recognizing this as a broadly
+important real-world ML problem (fraud, churn, rare-disease detection). Also asked, going
+forward, for gradually more tasks/depth per session as topics land well, and for statistics
+reasoning to stay woven continuously alongside ML work, not as a separate track (saved to
+memory: ml-learning-phase.md).
+**Reinforce next:** default `pos_label` in precision/recall and why it misleads under class
+imbalance - one clean example is not yet automatic.
+**Plan for next session(s):** class_weight='balanced' first, then decision-threshold tuning,
+then resampling (SMOTE) if time allows - all measured against today's baseline model.
+
+---
 ## 2026-09-14 | ML Phase - Week 4 Day 1 | Score: solid on main tasks, warm-up not completed | Difficulty: 4/10 | ~75 min
 **Covered:** First step of the resume/recross classification pivot agreed last Friday. Task 1
 - built `target_resumed` (drop `unfinished`, 1 if resumed else 0), correctly identified
