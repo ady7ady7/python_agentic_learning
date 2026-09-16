@@ -4,6 +4,28 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-16 | ML Phase - Week 4 Day 3 | Score: solid, one terminology correction | Difficulty: 5/10 | ~1h20
+**Covered:** Two concrete fixes for yesterday's weak minority-class (recrossed) performance.
+Task 1 - `class_weight='balanced'` gave an extreme swing (precision 0.068, recall 1.0 on
+recrossed) - correctly self-flagged as suspicious before being told anything. Task 2 -
+manual threshold tuning (0.7/0.8/0.9 on P(resumed)) gave a controllable, milder tradeoff.
+Task 3 - synthesis table across baseline/class_weight/threshold=0.7; correctly picked
+threshold=0.7 as the better practical tradeoff (+2.4pp precision, -33pp recall vs baseline)
+and correctly distinguished the two fixes as acting at different levels (what the model
+learns vs. how you read its output).
+**Correction:** explained class_weight's extreme result as "overfitting" - corrected to
+decision-boundary shift from loss reweighting (in-training cost change, not a train/test
+performance gap, which is what overfitting actually diagnoses). Restated correctly:
+mechanism (higher cost per recrossed mistake -> lower bar to guess recrossed) vs. effect (at
+a 1:22 class imbalance, that shift becomes extreme).
+**Adrian's request (repeated, unprompted):** wants more comprehension/zip/dict microlearning
+drills going forward, independent of any specific day's warm-up content.
+**Reinforce next:** overfitting vs. decision-boundary/threshold shift - both "make a model
+behave oddly" but have different diagnostics.
+**Plan for next session:** SMOTE only if clearly needed - otherwise explore threshold tuning
+on a better base model rather than reaching for heavier resampling by default.
+
+---
 ## 2026-09-15 | ML Phase - Week 4 Day 2 | Score: solid, one guided correction | Difficulty: 3-4/10 | ~1h10
 **Covered:** Warm-up scaffold worked well - full worked example of yesterday's exact stuck
 dict comprehension, then Adrian reproduced the pattern cleanly on a new column (median
