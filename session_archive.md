@@ -4,6 +4,27 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-17 | ML Phase - Week 4 Day 4 | Score: ~87% | Difficulty: 4-5/10 | ~1h
+**Covered:** Checked whether the model has real separating power at all, independent of any
+one threshold. Task 1 - first ROC AUC attempt fed already-binarized 0/1 predictions
+(`>= 0.5` applied before scoring) into `roc_auc_score`, collapsing the threshold-independent
+metric down to one cutoff - got 0.571 (near coin-flip), wrongly concluded weak signal.
+Caught and fixed together: raw `predict_proba` output (no thresholding) gave 0.877 - a real,
+fairly strong ranking signal. Task 2 - `model.coef_` showed `same_candle_pullback` (4.04) and
+`direction_int` (0.38) dominating, `ref_atr`/`prior_pullback_depth` near-negligible;
+independently cross-checked via raw group medians (resumed vs recrossed), found little
+separation there either - solid two-angle verification, done unprompted. Task 3 - correctly
+reasoned feature engineering over model-swapping given weak features, and correctly rejected
+premature "just accept a low ceiling" - though built on Task 1's pre-fix (wrong) AUC number,
+so worth a quick revisit.
+**Open question for tomorrow:** how can AUC be strong (0.877, good overall ranking) while
+precision/recall at the default 0.5 threshold on the minority `recrossed` class stay poor
+(0.26/0.16, from Day 2)? To be worked through with a concrete numeric example, tying together
+AUC, threshold choice, class imbalance, and `same_candle_pullback`'s outsized coefficient.
+**Reinforce next:** `roc_auc_score` needs raw continuous scores/probabilities, never
+already-thresholded 0/1 - and the AUC-vs-single-threshold-performance question above.
+
+---
 ## 2026-09-16 | ML Phase - Week 4 Day 3 | Score: solid, one terminology correction | Difficulty: 5/10 | ~1h20
 **Covered:** Two concrete fixes for yesterday's weak minority-class (recrossed) performance.
 Task 1 - `class_weight='balanced'` gave an extreme swing (precision 0.068, recall 1.0 on
