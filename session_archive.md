@@ -4,6 +4,53 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## Week 4 summary (2026-09-14 to 2026-09-18)
+| Day | Focus | Score | Difficulty |
+|---|---|---|---|
+| Mon | resume/recross target, time-aware split | solid, warm-up stalled | 4/10 |
+| Tue | NaN handling, first LogisticRegression | solid, 1 guided correction | 3-4/10 |
+| Wed | class_weight vs threshold tuning | solid, 1 terminology fix | 5/10 |
+| Thu | ROC AUC, feature signal check | ~87%, 1 real bug fixed | 4-5/10 |
+| Fri | AUC-vs-threshold resolved, leakage found | ~90% | 4-5/10 |
+
+**Arc:** Week 3's stop-survival table became Week 4's actual classifier. Baseline logistic
+regression showed the minority `recrossed` class (4.4%) was barely learned; class_weight
+over-corrected, threshold tuning gave a real but modest improvement, and ROC AUC (once
+computed correctly, see Thu's bug) revealed reasonable overall ranking power - but Friday
+traced that ranking power to a leaking feature (`same_candle_pullback`, structurally
+impossible for recrossed events), not genuine predictive signal on the hard cases. Real
+project takeaway, not just a metric exercise: this feature set's apparent performance is
+partly illusory and needs rework before being trusted.
+**Comprehension warm-up drill** (started this week per Adrian's request) landed well -
+dict/list comprehensions, zip, nested dict-of-lists all handled increasingly cleanly across
+the week, with only minor stumbles (composing two operations in one expression).
+**Requested for Week 5:** one extra task per day (pace felt slightly slow this week).
+
+---
+## 2026-09-18 | ML Phase - Week 4 Day 5 | Score: ~90% | Difficulty: 4-5/10 | ~45 min
+**Covered:** Resolved the AUC-vs-threshold puzzle from Day 4. Split test-set predicted
+P(resumed) by ACTUAL outcome: median 0.991 for true resumed vs. 0.760 for true recrossed -
+a real, measurable gap (explains the 0.877 AUC), but both medians sit above the 0.5 cutoff
+(explains why precision/recall at that threshold stayed poor) - resolves the puzzle cleanly.
+**Real finding (independent):** checked `same_candle_pullback` for recrossed rows - 0% occur
+there, ever. Correctly self-identified this as data leakage, refined together: not
+future-leakage, a structural leak from the feature's own definition (a recross requires a
+non-beating candle, so same-candle-resumption and recrossed are mutually exclusive by
+construction). Means the model's apparent skill concentrates entirely on the ~52% of
+"trivially easy" resumed events, not the genuinely hard cases. One imprecision: attributed
+high AUC partly to class imbalance itself - AUC is balance-insensitive by construction; the
+real driver was the leaking feature.
+**Week 4 summary:** most valuable concepts named as threshold tuning, class_weight, ROC AUC,
+baseline comparisons together; warm-ups praised for locking in syntax over repeated exposure.
+All of this week's ML content still called "shaky without support" - expected at this stage.
+Pace felt a bit slow - requested one extra task per day starting next week.
+**Carries forward:** `same_candle_pullback` must be dropped or modeled separately next time
+a classifier is built on this feature set, since it lets the model shortcut on the easy
+majority and never engage with the hard cases.
+**Reinforce next:** composing two pandas ops in one expression (boolean condition then
+aggregate) - today's warm-up stumble. AUC's actual relationship to class imbalance.
+
+---
 ## 2026-09-17 | ML Phase - Week 4 Day 4 | Score: ~87% | Difficulty: 4-5/10 | ~1h
 **Covered:** Checked whether the model has real separating power at all, independent of any
 one threshold. Task 1 - first ROC AUC attempt fed already-binarized 0/1 predictions
