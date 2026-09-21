@@ -4,6 +4,58 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-21 | ML Phase - Week 5 Day 1 | Score: ~85% | Difficulty: 5/10 | ~1h20
+**Covered:** Closed two quiz loose ends. Task 1 - identified `hour` as second-strongest
+coefficient, verified visually via barplot rather than trusting the number alone. Task 2 -
+real bug: computed `roc_auc_score` on binarized `.predict()` output instead of
+`.predict_proba()`, via variable-name shadowing (correct version computed, then overwritten
+a few lines later) - SAME mistake as Week 4 Day 4. Got 0.526 (coinflip), wrongly concluded
+"leak was the only signal." Corrected: AUC = 0.720 after dropping `same_candle_pullback` - a
+real, moderate drop from 0.877 (leaked), not a collapse to noise. Saved as a tracked
+recurring pattern (roc_auc_needs_probabilities.md), since this is now a 2x occurrence.
+**Task 3 (new leakage pattern):** correctly reproduced and explained "statistics over the
+full dataset before splitting" leakage, then went further than asked - proposed
+`.shift(1).expanding()` to compute the statistic incrementally per-row from prior data only,
+a stronger solution than what was requested, unprompted. Correctly pushed back on a closing
+comment prompt that demanded recalling a specific past project location (violates this
+track's own self-contained-tasks rule) - resolved by confirming he understands the actual
+mechanism distinction (shuffling vs. pre-split full-dataset statistics) well enough to spot
+either in new code.
+**Task 4:** initially left "basically useless / no predictive power" verdict unrevised after
+Task 2's AUC got corrected upward - fixed together: 0.72 AUC is a real, moderate, usable
+ranking signal, distinct from (already understood) poor precision/recall at the 0.5
+threshold for the recrossed class.
+**Reinforce next:** roc_auc_score input type (2nd occurrence, now proactively flagged going
+forward). Re-checking downstream conclusions when an upstream number changes mid-session.
+**Process note:** avoid recall-a-past-location prompts even in closing reflection questions
+- test the underlying distinction directly instead (memory: teaching-style.md updated).
+
+---
+## 2026-09-20 | ML Phase - Week 4 Weekend Quiz | Score: ~85% | 13 min
+**Format:** New transfer-question format (per Adrian's request from Week 3) - hypothetical
+scenarios instead of "what happened this week" recall. 7 questions across imbalanced
+classes, time-aware evaluation, reading model output, and judgement.
+**Strong:** A1 correctly transferred the class_weight-extremity lesson to an even more
+imbalanced scenario (0.3% fraud). A3 gave a precise, well-argued case against accuracy with
+correct precision/recall framing. B1 correctly named autocorrelation as the reason to avoid
+shuffled splits on time series. C2 produced a strong, correctly-reasoned real-world example
+(cancer detection / costly machine failure) for when high-precision/low-recall is the WRONG
+tradeoff. D1/D2 both showed sound practical judgement.
+**Gaps:** A2 stayed at a general "check if features matter" level rather than naming the
+specific piece from Friday - checking whether the top feature is structurally/definitionally
+impossible for one class (the same_candle_pullback pattern), not just generically weak. B2
+correctly flagged uncertainty rather than guessing - the intended answer was leakage via
+statistics computed over the FULL dataset before splitting (e.g. normalizing with a mean/std
+that included future/test rows), a distinct leakage type from anything covered this week.
+C1 - honest "I'm not sure" on distinguishing what a coefficient's magnitude does and does not
+tell you (direction/strength of effect, but never whether that effect is genuine signal or a
+structural leak - only checking the raw data, as done Friday with same_candle_pullback, can
+tell the difference). Adrian chose to fold C1 into Monday's tasks rather than resolve it now.
+**Carries to Week 5 Day 1:** revisit C1 (coefficient magnitude vs. leaking feature) as part
+of the day's tasks, plus B2's "full-dataset statistics before split" leakage pattern if there
+is room, alongside the one-extra-task-per-day pace increase requested Friday.
+
+---
 ## Week 4 summary (2026-09-14 to 2026-09-18)
 | Day | Focus | Score | Difficulty |
 |---|---|---|---|
