@@ -4,6 +4,34 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-22 | ML Phase - Week 5 Day 2 | Score: ~75% | Difficulty: 5-6/10 | ~1h45
+**Mid-session plan change:** original Task 3 (invent a novel trading feature from scratch)
+was correctly pushed back on - demands domain expertise Adrian doesn't have and would
+realistically be sourced via research, not guessed. Reworked live into 3 mechanical features
+from existing columns (`atr_trend`, `pullback_count_in_block`, `block_duration_so_far`), two
+sourced from a quick research framing given directly rather than asked of him.
+**Covered:** Task 1 - built all three features; first attempt had a real bug shown
+transparently (`lambda x: 'positive' if 'ref_atr' > 'prev_atr' else 'negative'` compared
+STRING LITERALS/column names instead of column values, same root error in the target
+column) - self-corrected to `np.where(df['ref_atr'] > df['prev_atr'], ...)`. Task 2 - first
+Mann-Whitney setup compared a feature directly against the target label
+(`mannwhitneyu(feature, target)`) instead of splitting the feature into two groups by target
+value - same conceptual error as Week 3's EU-vs-RTH setup, not yet automatic in a new
+framing. Corrected version: atr_trend p=2.76e-07, pullback_count_in_block p=0.0005 (both
+"significant"), block_duration_so_far p=0.849 (not). Task 3 - AUC barely moved (0.735 vs
+0.720, +1.2pp); initially read the significant p-values as "these features matter," then
+self-corrected cleanly once asked to separate significance from effect size: "statistical
+importance does not correspond with the strength of the effect" - a sharp, well-earned
+synthesis tying together p-values, coefficients, and near-flat AUC.
+**Reinforce next:** quoting a column name vs. referencing its value in lambda/apply; which
+two things belong in a 2-sample test (group-vs-group on one variable, never feature-vs-label)
+plus significance vs. effect size - both flagged for repeated practice in NEW contexts per
+Adrian's own request, not just correction-in-place (saved to memory).
+**Raised, not yet discussed:** wants to start a new, CV-portfolio-quality project soon with a
+coherent end-to-end flow - deferred to a dedicated conversation, not folded into tomorrow's
+tasks without discussion first.
+
+---
 ## 2026-09-21 | ML Phase - Week 5 Day 1 | Score: ~85% | Difficulty: 5/10 | ~1h20
 **Covered:** Closed two quiz loose ends. Task 1 - identified `hour` as second-strongest
 coefficient, verified visually via barplot rather than trusting the number alone. Task 2 -
