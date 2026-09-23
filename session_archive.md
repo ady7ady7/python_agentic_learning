@@ -4,6 +4,25 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-23 | ML Phase - Week 5 Day 3 | Score: ~95% | Difficulty: 5/10 | ~1h10
+**Covered:** Warm-up - clean, correct Mann-Whitney group-vs-group setup with no worked
+example needed (bull vs bear ref_atr), including explicitly stating which two groups were
+being compared before running the test. Task 1 - Cohen's d as the actual standard effect-size
+tool (vs yesterday's informal substitute); had a parenthesization slip
+(`sqrt(a+b)/2` vs `sqrt((a+b)/2)`), self-flagged the result as inconsistent with yesterday's
+conclusion before being told, corrected to d=-0.36 (small-to-medium effect, consistent with
+"significant but weak"). Task 2 - fit `RandomForestClassifier`, got a genuinely interesting
+result: default RF scored WORSE (AUC 0.633) than yesterday's logistic regression (0.735)
+despite more "balanced" feature importances - correctly reasoned through this rather than
+assuming a bug. Task 3 - confirmed train AUC = 1.0 vs test 0.633, a textbook overfitting
+signature; raised a mature methodological question about manual hyperparameter tuning vs.
+search methods (RandomizedSearchCV/GridSearchCV).
+**Reinforce next:** none new - this session's one slip was a one-off arithmetic error, caught
+by Adrian's own number sense.
+**Carries forward:** RandomForest currently underperforms logistic regression due to
+overfitting - natural next step is hyperparameter tuning via a proper search method.
+
+---
 ## 2026-09-22 | ML Phase - Week 5 Day 2 | Score: ~75% | Difficulty: 5-6/10 | ~1h45
 **Mid-session plan change:** original Task 3 (invent a novel trading feature from scratch)
 was correctly pushed back on - demands domain expertise Adrian doesn't have and would
