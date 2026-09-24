@@ -4,6 +4,32 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-24 | ML Phase - Week 5 Day 4 | Score: ~85% | Difficulty: 5/10 | ~1h
+**Covered:** Task 1 - correctly explained why tuning against the test set is leakage even
+without future data; built/inspected `TimeSeriesSplit` correctly. Task 2 - real, multi-step
+bug in `RandomizedSearchCV`'s scorer: `make_scorer(roc_auc_score)` defaults to scoring on
+`.predict()` (binary) rather than probabilities - same class of mistake as Week 4 Day 4/Week
+5 Day 1, this time hidden inside a search wrapper. Self-diagnosed via suspiciously bad
+results (nan best_score_), researched sklearn docs independently, tried the deprecated
+`needs_proba=True`, then resolved via `error_score='raise'` revealing the real issue and
+switching to current API `make_scorer(roc_auc_score, response_method='predict_proba')`.
+Final tuned RF: max_depth=3, min_samples_leaf=10, n_estimators=200, test AUC=0.730 (vs
+yesterday's overfit default 0.633, essentially tied with logistic regression's 0.735). Task 3
+- briefly compared a pre-fix train AUC (0.9999) against a post-fix test AUC before catching
+the mismatch; once corrected, same-model comparison showed train=0.736 vs test=0.730 - gap
+collapsed from 0.367 to ~0.006, a clean before/after demonstration of max_depth controlling
+overfitting.
+**Real takeaway (Adrian's own words):** wants to genuinely master overfitting control in
+tree models (RF, XGBoost) - today gave a concrete, single-lever before/after data point.
+**Reinforce next:** `make_scorer` needs `response_method='predict_proba'` (not deprecated
+`needs_proba`) for probability-based metrics - third occurrence of predict vs predict_proba
+confusion, now one layer inside a scoring wrapper. Also: track which model object is live
+under a reused variable name after refitting.
+**Open for tomorrow:** RF (0.730) vs logistic regression (0.735) now essentially tied -
+revisit whether this confirms Week 5 Day 1's "feature set has a low ceiling" finding.
+CV-portfolio-project discussion paused this week, no domain/dataset landed on yet.
+
+---
 ## 2026-09-23 | ML Phase - Week 5 Day 3 | Score: ~95% | Difficulty: 5/10 | ~1h10
 **Covered:** Warm-up - clean, correct Mann-Whitney group-vs-group setup with no worked
 example needed (bull vs bear ref_atr), including explicitly stating which two groups were

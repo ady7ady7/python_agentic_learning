@@ -2,50 +2,61 @@
 
 <!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-09-23
-**Session:** ML Phase - Week 5 Day 3 (Cohen's d, RandomForestClassifier, overfitting check)
-**Score:** ~95% - one small formula slip, immediately self-flagged as suspicious
-**Difficulty:** 5/10 (Adrian's own rating - "nic szczególnie trudnego, fajne i przydatne")
-**Time:** ~1h10
+**Date:** 2026-09-24
+**Session:** ML Phase - Week 5 Day 4 (RandomizedSearchCV, TimeSeriesSplit, fixing overfitting)
+**Score:** ~85% - real multi-step scorer bug, self-diagnosed and resolved with guidance
+**Difficulty:** 5/10 (Adrian's own rating)
+**Time:** ~1h
 
 ---
 
 **What actually happened, task by task:**
 
-- **Warm-up (group-vs-group Mann-Whitney, no worked example):** clean, correct setup on the
-  first try (`direction` bull vs bear on `ref_atr`), including writing out which two things
-  were being compared before running the test - exactly the forcing-function habit intended.
-  Adrian noted this pattern (and the general "which two groups" setup) is worth periodically
-  repeating with other test variants to keep it locked in - a good self-directed instinct.
+- **Warm-up:** correct on the first try, no issues.
 
-- **Task 1 (Cohen's d) - small bug, self-flagged:** first formula had a parenthesization slip
-  - `np.sqrt(a**2 + b**2) / 2` instead of `np.sqrt((a**2 + b**2) / 2)` (dividing by 2 outside
-  vs. inside the square root - mathematically different operations). Got d = -0.51, then
-  correctly sensed the number didn't sit right against yesterday's "weak effect" conclusion
-  and asked about it rather than accepting it. After correcting to the proper pooled-std
-  formula, got d = -0.36 (small-to-medium effect) - consistent with yesterday's finding.
-  Also explicitly said he won't memorize the formula by heart but knows Cohen's d exists and
-  where to look it up - a reasonable, honest scope for this tool at his current stage.
+- **Task 1 (why CV before tuning):** correctly explained why tuning against the test set
+  directly is a form of leakage even without future data being involved. Built and inspected
+  `TimeSeriesSplit` output correctly to see its shape before using it for real.
 
-- **Task 2 (RandomForestClassifier):** correct implementation. Got a genuinely interesting,
-  correctly-interpreted result: default RF scored WORSE on AUC (0.633) than yesterday's
-  logistic regression (0.735), despite feature importances looking more "balanced" across
-  features than the logistic coefficients - correctly reasoned through this apparent
-  contradiction rather than assuming a coding error, flagging it as an open, real finding.
+- **Task 2 (RandomizedSearchCV) - real bug, multi-step, self-diagnosed:** first attempt used
+  `make_scorer(roc_auc_score)` with no probability handling - defaults to scoring on
+  `.predict()` output (binary), the SAME class of mistake flagged twice before this month
+  (Week 4 Day 4, Week 5 Day 1), this time hidden inside a search tool rather than a direct
+  call. Got `best_score_` = nan and suspiciously poor params - correctly went to sklearn docs
+  independently rather than accepting the bad result, found and tried `make_scorer(...,
+  needs_proba=True)`. That parameter is deprecated in the installed sklearn version and
+  raised once `error_score='raise'` was added to reveal what a silent nan was hiding -
+  resolved by switching to the current API, `make_scorer(roc_auc_score,
+  response_method='predict_proba')`. End state: tuned RF found `max_depth=3,
+  min_samples_leaf=10, n_estimators=200`, test AUC = 0.730 (vs yesterday's overfit default RF
+  at 0.633, and logistic regression's 0.735 - now essentially tied).
 
-- **Task 3 (overfitting check):** correctly computed train AUC = 1.0 vs test AUC = 0.633 -
-  a textbook overfitting signature, correctly diagnosed. Asked a mature methodological
-  question about whether hyperparameter tuning should be done manually (building intuition)
-  or via search (RandomizedSearchCV/GridSearchCV) - flagged as a good topic for a future
-  session rather than resolved today.
+- **Task 3 (overfitting gap, post-tuning):** initially compared a train-AUC number (0.9999)
+  computed BEFORE the scorer fix against test AUC computed after - a within-session
+  apples-to-oranges mixup, clarified once asked which model was actually being evaluated;
+  Adrian correctly explained the timeline himself once prompted. Once both numbers came from
+  the same (correctly-tuned) model: train AUC 0.736 vs test AUC 0.730 - gap collapsed from
+  0.367 (yesterday's overfit default) to ~0.006. Directly demonstrates the mechanism Adrian
+  asked about yesterday: an unconstrained tree memorizes training noise, a shallow
+  (max_depth=3) one generalizes.
 
 ---
 
-**Reinforce next:** none newly flagged - this session's slip (parenthesization in a formula)
-is a one-off arithmetic error, not a conceptual gap, and was caught by Adrian's own number
-sense before correction was needed.
+**Real takeaway, stated explicitly by Adrian:** wants to genuinely master handling
+overfitting in tree-based models (RF, XGBoost) rather than just knowing the term - today
+gave him a concrete before/after (gap 0.367 -> ~0.006) tied to one specific lever
+(max_depth), which is a solid first real data point toward that goal.
 
-**Carries to next session:** RandomForest is currently underperforming logistic regression
-due to overfitting (train AUC 1.0) - natural next step is hyperparameter tuning
-(`max_depth`, `min_samples_leaf`, etc.), ideally via a proper search method per Adrian's own
-question today, rather than manual guessing.
+**Reinforce next:** `make_scorer` needs explicit probability handling
+(`response_method='predict_proba'`, not the deprecated `needs_proba`) whenever the
+underlying metric (like ROC AUC) needs probabilities - this is now the third occurrence of
+the general predict-vs-predict_proba confusion, this time one layer deeper inside a
+search/scoring wrapper rather than a direct metric call. Also: double-check which model
+object a metric is being computed against mid-session, especially after refitting with new
+parameters under the same variable name.
+
+**Open question carried to tomorrow:** now that tuned RandomForest (0.730) and logistic
+regression (0.735) are essentially tied on this dataset, is RandomForest still worth pursuing
+here, or does this confirm the Week 5 Day 1 finding that the FEATURE SET has a low ceiling
+regardless of algorithm choice? Also: revisit the new CV-portfolio-project discussion
+(paused this week, no domain/dataset landed yet).
