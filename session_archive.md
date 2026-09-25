@@ -4,6 +4,68 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## Week 5 summary (2026-09-21 to 2026-09-25)
+| Day | Focus | Score | Difficulty |
+|---|---|---|---|
+| Mon | coefficient interpretation, honest re-baseline, new leakage pattern | ~85% | 5/10 |
+| Tue | 3 new features, verify-before-model with Mann-Whitney | ~75% | 5-6/10 |
+| Wed | Cohen's d, RandomForestClassifier, overfitting check | ~95% | 5/10 |
+| Thu | RandomizedSearchCV, TimeSeriesSplit, fix scorer bug | ~85% | 5/10 |
+| Fri | 10-feature set, RF regularization toolbox, week wrap-up | ~90% | 4-5/10 |
+
+**Arc:** Week opened by closing two Week 4 weekend-quiz gaps (coefficient interpretation,
+pre-split-statistics leakage) and re-baselining honestly after finding `same_candle_pullback`
+was a structural leak. Spent the rest of the week on feature engineering discipline
+(verify-before-model with Mann-Whitney + effect size, not just p-values) and a full arc on
+RandomForest: default RF badly overfit, RandomizedSearchCV + TimeSeriesSplit fixed it once a
+`make_scorer` probability bug was caught (3rd occurrence of the predict-vs-predict_proba
+pattern, this time inside a search wrapper), and Friday closed with independently-verified
+proof that a deliberately-bounded parameter grid beats a wide one at roughly the same test
+score but far less overfitting. `atr_zscore_in_block` emerged as the standout feature.
+**Growing pattern, named explicitly to Adrian:** increasing self-directed verification -
+catching suspicious results and re-testing hypotheses unprompted, not just completing tasks.
+**Project-level view (Adrian's own framing):** this resumed/recrossed target is treated as a
+skills-building vehicle (model handling, regularization, leakage discipline), not a search
+for real trading edge - he wants to think separately, over the weekend, about a
+higher-conviction research direction for actual trading use (longer horizon, hardware-
+realistic, grounded in published findings) - a distinct conversation from this project.
+**New CV-portfolio-project discussion:** explored several directions (powerlifting/training
+logs - no viable public dataset for training methodology; several alternative domains
+offered) but nothing landed - paused, to revisit only when a concrete angle actually excites
+him, not forced.
+
+---
+## 2026-09-25 | ML Phase - Week 5 Day 5 | Score: ~90% | Difficulty: 4-5/10 | ~1h30
+**Pre-session pushback (valid, incorporated):** Adrian rejected treating RF-vs-LR near-tie
+as a close-the-topic decision - wants genuine RF mastery, not a one-shot comparison. Also
+wanted a noticeably bigger feature set (10, not 3) and was candid this target
+(resumed/recrossed) is likely low-ceiling overall, valuing the project as a model-handling
+skills vehicle rather than an alpha search - separately wants to think over the weekend about
+a more promising, longer-horizon, hardware-realistic trading research direction (own topic,
+not this project).
+**Covered:** Task 1 - built 10 mechanical features, including `atr_zscore_in_block`
+(per-block mean/std via `.groupby().transform()`), which became the standout feature all
+session. Task 2 - proactively wired up `RandomizedSearchCV` unprompted; got train AUC=0.988
+despite proper search+CV and asked "why/how" rather than shrugging - resolved: search only
+guards against tuning-on-test, not against picking an overly complex model when the grid
+allows one (wide max_depth/max_leaf_nodes let it pick a config that scored well on CV while
+still overfitting). Task 3 - unprompted follow-through: manually tightened the grid
+(max_depth=5, max_leaf_nodes=5), got test AUC 0.750 (barely below 0.760) but train AUC
+collapsed to 0.738 (gap 0.228 -> ~0.012) - a clean, self-generated demonstration that similar
+test performance can come from a far more trustworthy model. Noticed atr_zscore_in_block's
+importance rose 0.271->0.407 under the tighter model, correctly linking it to his own earlier
+dilution hypothesis. Correctly distinguished max_features (between-tree diversity) from
+max_depth/min_samples_split/max_leaf_nodes (single-tree size).
+**Reinforce next:** a RandomizedSearchCV parameter grid must be deliberately bounded to
+exclude known-overfitting configurations - it is not a safety net by itself.
+**Named directly:** growing pattern of self-directed verification (re-running with tighter
+params unprompted, questioning suspicious numbers before being told) - a real shift, not
+just task completion.
+**Carries forward:** weekend quiz keeps the transfer-question format. Separately: Adrian
+wants to discuss a higher-conviction trading research direction over the weekend - a
+different conversation from this project's daily tasks.
+
+---
 ## 2026-09-24 | ML Phase - Week 5 Day 4 | Score: ~85% | Difficulty: 5/10 | ~1h
 **Covered:** Task 1 - correctly explained why tuning against the test set is leakage even
 without future data; built/inspected `TimeSeriesSplit` correctly. Task 2 - real, multi-step
