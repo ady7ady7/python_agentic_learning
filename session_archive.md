@@ -4,6 +4,30 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-28 | ML Phase - Week 6 Day 1 | Score: ~85% | Difficulty: 5/10 | ~1h30
+**Covered:** Task 1 - consolidated Friday's bounded RF pipeline (test AUC 0.758, train 0.733,
+test slightly above train - no overfitting, atr_zscore_in_block still dominant at 0.365
+importance). Task 2 - first XGBoost attempt, untuned/default-ish params, underperformed RF
+on both AUC (0.70-0.71 vs 0.758) and train/test gap (0.20-0.24 vs near-zero).
+**Fair pushback (valid):** closing question asked to explain why lower learning_rate + more
+trees increased overfitting without ever teaching the underlying mechanism (total fitting
+capacity ~ n_estimators * learning_rate) - violated this track's own "new technique = worked
+example first" rule; Adrian correctly called it out rather than guessing blindly. Explained
+directly afterward.
+**Strong independent synthesis (unprompted):** correctly connected RF's parallel-independent-
+trees vs XGBoost's sequential-error-correction architecture to why XGBoost's feature
+importances were far more spread out (atr_zscore_in_block's dominance gets "used up" early,
+later trees hunt elsewhere). Proposed RF-favors-one-standout-feature /
+XGBoost-favors-several-strong-features as a hypothesis - refined together: true for today's
+small, untuned setup specifically, not a safe general claim (XGBoost often beats RF on
+single-dominant-feature problems once properly tuned).
+**Still shaky:** B2 quiz gap (why large samples produce tiny p-values) not yet fixed after
+one more pass - still framed as "more room to differ" rather than shrinking standard error
+via 1/sqrt(n). Quick recheck needed next occurrence, not a full task.
+**Carries forward:** XGBoost never got a fair tuned shot (RandomizedSearchCV + early_stopping)
+- don't draw RF-vs-XGBoost conclusions until it does.
+
+---
 ## Week 5 summary (2026-09-21 to 2026-09-25)
 | Day | Focus | Score | Difficulty |
 |---|---|---|---|
