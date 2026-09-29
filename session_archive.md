@@ -4,6 +4,30 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-29 | ML Phase - Week 6 Day 2 | Score: ~80% | Difficulty: 3-4/10 | ~1h
+**Covered:** Task 1 - gave XGBoost a fair, bounded-grid `RandomizedSearchCV` tuning pass
+(TimeSeriesSplit, correct predict_proba scorer, evaluated on real test set). Result: test
+AUC 0.754 (essentially tied with RF's 0.758), train AUC 0.889 (gap ~0.135 vs RF's near-zero)
+- overfitting tendency persists even after fair tuning. Task 2 - `atr_zscore_in_block` still
+diluted in tuned XGBoost (0.143, not top feature) vs dominant in RF (0.365) - confirms
+yesterday's hypothesis with a FAIR comparison instead of an unfair one (tuned RF vs untuned
+XGBoost), upgrading it from guess to tested conclusion.
+**Task 0 (B2, second pass):** closer than before but still leaned on "more room to pick
+evidence" rather than measurement precision. Worked through a coin-flip analogy (10 flips
+can show 70% heads on a fair coin by noise; 10,000 flips reliably lands near true 50% - the
+coin never changes, only measurement precision does). Adrian's own restatement afterward was
+noticeably closer. Deliberately not over-drilled today - will resurface in a different stats
+context per the "repeat across contexts" rule, not the same one repeatedly.
+**Process note:** Adrian framed the session as "not a massive success" - reframed together: a
+fair experiment confirming yesterday's hypothesis IS a real result, not a null outcome, even
+when the headline number barely moved.
+**Carries forward:** RF confirmed as the better-suited model for this feature set (one
+dominant feature, several weak) via a fair comparison. No open model-comparison threads
+remain unless new features change the picture. Next direction (Adrian's choice): pivot to
+researching mean-reversion - a short research pass on how it's typically studied, then
+deciding what features/target/model make sense, before writing any code.
+
+---
 ## 2026-09-28 | ML Phase - Week 6 Day 1 | Score: ~85% | Difficulty: 5/10 | ~1h30
 **Covered:** Task 1 - consolidated Friday's bounded RF pipeline (test AUC 0.758, train 0.733,
 test slightly above train - no overfitting, atr_zscore_in_block still dominant at 0.365
