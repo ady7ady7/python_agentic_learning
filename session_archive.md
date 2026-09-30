@@ -4,6 +4,34 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-09-30 | ML Phase - Week 6 Day 3 | Score: ~85% | Difficulty: 8-9/10 (felt harder than warranted) | not tracked
+**New direction:** pivoted from the pullback classifier (RF confirmed as better model,
+closed) toward mean-reversion research. Research established the standard toolkit - ADF
+(stationarity), Hurst Exponent (needs hundreds of obs/window - ruled out per-block
+computation, requires a new rolling-window pipeline on the continuous M15 series), and
+half-life via AR(1).
+**Covered:** Task 1 (ADF) - fully correct: built `deviation = close - rolling(200).mean()`,
+ran `adfuller()`, correctly parsed its awkward tuple output, correctly read p=0.0 as
+rejecting the random-walk null - real evidence of mean-reversion at a 200-bar window. Task 2
+(Hurst) - one clear, fixable issue: ran `hurst.compute_Hc` on raw `close` (H=0.63, trending)
+instead of the `deviation` series used elsewhere - answers a different question (long-run
+price trend) than Tasks 1/3 (local mean-reversion), not a conceptual error. Task 3
+(half-life) - fully correct OLS/AR(1) implementation, half_life=93.4 bars; undersold by
+Adrian's own "I have no idea" comment - missing only the final interpretive step (93.4 bars
+exceeds the 5-60 bar tradeable range from research), done together afterward.
+**Verdict so far:** mean-reversion is real at a 200-bar window but likely too slow to trade
+- worth testing a shorter window next.
+**Process note:** this was genuinely dense, multi-layered statistical material delivered in
+one 3-task session, denser than the track's usual pacing - difficulty rating reflects a real
+overload experience, not poor output (2/3 tasks fully correct including interpretation).
+Should split content this dense across two sessions going forward.
+**Reinforce next:** always verify WHICH series (raw vs. derived/deviation) a statistical
+test actually runs on.
+**Carries forward:** Task 4 (session-aware realized volatility + two honestly-labeled
+"gamma-like" proxies - price acceleration, abnormal volume) deferred to tomorrow, unstarted.
+Also worth retrying Hurst on a shorter window once corrected to run on deviation.
+
+---
 ## 2026-09-29 | ML Phase - Week 6 Day 2 | Score: ~80% | Difficulty: 3-4/10 | ~1h
 **Covered:** Task 1 - gave XGBoost a fair, bounded-grid `RandomizedSearchCV` tuning pass
 (TimeSeriesSplit, correct predict_proba scorer, evaluated on real test set). Result: test

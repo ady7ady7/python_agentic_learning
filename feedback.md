@@ -2,61 +2,73 @@
 
 <!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-09-29
-**Session:** ML Phase - Week 6 Day 2 (fair XGBoost tuning, B2 revisited)
-**Score:** ~80% - a genuinely useful negative result, framed by Adrian as less successful than it was
-**Difficulty:** 3-4/10 (Adrian's own rating)
-**Time:** ~1h
+**Date:** 2026-09-30
+**Session:** ML Phase - Week 6 Day 3 (new direction: mean-reversion toolkit - ADF, Hurst, half-life)
+**Score:** ~85% - two tasks fully correct, one with a single, understandable input-series mixup, felt much harder than it was
+**Difficulty:** 8-9/10 (Adrian's own rating - felt "steamrolled" by the material)
+**Time:** not tracked precisely today
+
+---
+
+**Context:** pivoted from the pullback resumed/recrossed classifier (RF confirmed as the
+better model for that feature set) toward mean-reversion research, per Adrian's own
+direction. A short research pass beforehand established the standard toolkit (ADF, Hurst
+Exponent, half-life via AR(1)) and one important finding - Hurst needs hundreds of
+observations per window to be reliable, ruling out computing it per pullback-block and
+requiring a new, separate rolling-window pipeline on the continuous M15 series. A second
+thread (gamma-exposure proxies) was researched and explicitly deferred to tomorrow at
+Adrian's request - today's material alone was already dense.
 
 ---
 
 **What actually happened, task by task:**
 
-- **Warm-up:** correct, both methods (list comprehension + boolean-mask `.sum()`) agreed
-  (1831). Found the double-check step "kinda weird" - flagged as worth keeping anyway: this
-  cross-check is exactly what PROVES a filter condition is right rather than just believed
-  to be right, not a redundant step even when it feels obvious in hindsight.
+- **Task 1 (ADF test) - fully correct:** built `deviation = close - close.rolling(200).mean()`,
+  ran `adfuller()`, correctly extracted the p-value from its awkward multi-value return tuple
+  (a real source of the task's felt difficulty - the function's raw output is genuinely
+  unfriendly to read), and correctly interpreted p=0.0 as rejecting the random-walk null
+  hypothesis - real evidence of mean-reversion around the 200-bar rolling mean.
 
-- **Task 0 (B2, second pass):** closer than the first attempt but still leaned on "more room
-  to pick evidence" phrasing rather than "measurement precision." Worked through a coin-flip
-  analogy (10 flips can easily show 70% heads on a fair coin by pure noise; 10,000 flips
-  reliably lands near the true 50% - the coin's fairness never changes, only how precisely
-  the MEASUREMENT reflects it). Adrian's own restatement afterward was noticeably closer
-  ("at large numbers, reality reveals itself") - correctly self-aware that his math
-  background is a genuine gap here, not something to force-fix in one sitting. Deliberately
-  not drilled further today per the "repeat across different contexts, not in a loop" rule -
-  will resurface naturally next time a stats test comes up.
+- **Task 2 (Hurst Exponent) - one clear, fixable issue, not a conceptual error:** used a
+  found library (`hurst.compute_Hc`) rather than hand-rolling the variance-scaling method as
+  suggested - a reasonable, pragmatic choice given the material's density. The real issue:
+  ran it on raw `close` price (H=0.63, reads as trending) rather than on the `deviation`
+  series used in Tasks 1 and 3. This isn't wrong so much as answering a DIFFERENT question -
+  raw XAUUSD price trends upward over years (so H>0.5 there is expected and unsurprising),
+  while Tasks 1 and 3 both ask whether deviation FROM a local rolling mean reverts, which is
+  a separate and compatible question (a market can have both a long-run trend and
+  short-run local mean-reversion). Correctly sensed something might be off
+  ("I could've done something wrong") without being able to pinpoint it alone - a fair
+  outcome given how much new material landed in one day.
 
-- **Task 1 (fair XGBoost tuning):** properly executed - bounded parameter grid from the
-  start (no repeat of the too-wide-grid mistake), `TimeSeriesSplit`, correct
-  `response_method='predict_proba'` scorer, evaluated on real test set rather than trusting
-  `.best_score_`. Result: test AUC 0.754 (essentially tied with RF's 0.758), train AUC 0.889
-  (gap ~0.135, versus RF's near-zero gap) - a real, still-present overfitting tendency even
-  after fair tuning.
-
-- **Task 2 (feature importance comparison):** correctly found `atr_zscore_in_block` still
-  gets diluted in XGBoost (0.143, not the top feature) even under proper tuning, unlike RF
-  where it stays dominant (0.365). Read this as "today's tuning effort didn't give much" -
-  reframed together: this is actually the valuable result of the day. Yesterday's RF-vs-
-  XGBoost hypothesis was based on an UNFAIR comparison (tuned RF vs untuned XGBoost); today
-  gives a FAIR comparison and the same qualitative pattern holds (RF exploits one dominant
-  feature better, XGBoost's sequential correction dilutes it) - upgrading the conclusion from
-  "plausible guess" to "tested and confirmed," which is real progress even though the
-  practical choice of model (RF) didn't change.
+- **Task 3 (half-life via AR(1)) - fully correct, undersold by Adrian's own assessment:**
+  correctly implemented the OLS regression of the differenced deviation on its lagged level,
+  correctly extracted the half-life formula, got half_life=93.4 bars. Said "I have no idea,
+  I'm not a data scientist yet" - but the implementation and number were both right; what was
+  missing was the LAST interpretive step (comparing 93.4 bars against the 5-60 bar tradeable
+  range from the research), which we did together afterward: at 200-bar window, reversion is
+  real (per Task 1) but too slow to be practically tradeable - a genuine, useful, negative-
+  leaning finding, not a failure to understand the material.
 
 ---
 
-**Process note, communicated directly this session:** Adrian described today as "not a
-massive success" / "didn't move forward" - pushed back on gently: a well-designed experiment
-that confirms a hypothesis with a fair test is a genuine result, not a null outcome, even
-when the headline number (test AUC) barely moved. Worth remembering this framing distinction
-for future sessions where a fair re-test just confirms yesterday's guess.
+**Real takeaway to correct Adrian's own harsh self-assessment:** 2 of 3 tasks were fully
+correct including interpretation, and the third had correct mechanics with one specific,
+nameable input-series mixup - not "steamrolled by the concepts." The FEELING of being
+overwhelmed was real and valid (this was genuinely dense, multi-layered statistical material
+delivered in one sitting, worse than the track's usual 3-4 tasks/session pacing, and used an
+LLM assist which is fine but understandably didn't build the same confidence as working it
+out directly) - but the actual output quality doesn't match "tragedy," and it's worth saying
+that plainly so the difficulty rating reflects the experience of the day, not a mistaken
+belief that the work itself was bad.
 
-**Reinforce next:** B2's mechanical explanation - visibly closer today, not yet fully
-internalized in his own words. Let it resurface naturally in a different stats context
-rather than re-drilling it directly.
+**Reinforce next:** always double-check WHICH series (raw price vs. a deviation/derived
+series) a statistical test is actually being run on - today's one real slip. Also: this kind
+of dense, multi-concept statistical day should probably be split across two sessions in the
+future rather than delivered in one 3-task block, given how it landed.
 
-**Carries forward:** RF remains the better-suited model for this specific feature set
-(one dominant feature, several weak ones) - now backed by a fair, controlled comparison
-rather than an unfair one. No open model-comparison threads remain for this project unless
-new features change the picture.
+**Carries forward:** Task 4 (session-aware realized volatility + two honestly-labeled
+"gamma-like" proxies) explicitly deferred to tomorrow, unstarted. Mean-reversion verdict so
+far: real at a 200-bar window (ADF confirms), but likely too slow to trade (half-life 93 bars
+vs. 5-60 bar tradeable range) - worth testing a SHORTER rolling window next, where reversion
+might be faster and closer to tradeable, once Hurst is corrected to run on deviation.
