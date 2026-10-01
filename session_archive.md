@@ -4,6 +4,28 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-01 | ML Phase - Week 6 Day 4 | Not scored (process-correction session) | Difficulty: 3/10, Usefulness: 3/10 | not tracked
+**What happened:** before starting tasks, Adrian raised two direct, substantive corrections
+about how yesterday's "lighter day" adjustment was applied. No code was written - both
+Hurst-fix and shorter-window half-life tasks deferred to tomorrow.
+**Correction 1:** scaling back Week 6 Day 3's overload (8-9/10 difficulty) was done by
+cutting almost all hands-on pandas/aggregation work, not just new concepts - "I'd like to be
+able to practice pandas aggregations/rationale + stats/ML in some scope every single day...
+It's not how I like to work." Lighter ≠ less practice volume; it should mean fewer NEW
+concepts while keeping substantial hands-on work. Saved to memory
+(daily_pandas_ml_floor.md).
+**Correction 2:** clarified his actual gap with ADF/Hurst/half-life is the underlying
+MECHANISM (why a regression slope becomes a reversion speed, why log-log fitting measures
+persistence), not the interpretation of results (which he's fine with). When offered a
+session unpacking the mechanics with a worked example, explicitly declined - interpretation-
+level understanding is sufficient and intentional for this class of tool, consistent with his
+long-standing math-level preference. Saved to memory (stats_interpretation_not_mechanics.md)
+as an explicit, confirmed boundary.
+**Carries forward:** Task 1 (Hurst on deviation, fixed `kind='change'`) and Task 2 (half-life
++ ADF on a 50-bar window) both still pending - to be done tomorrow with real pandas/
+aggregation work included, not stripped out.
+
+---
 ## 2026-09-30 | ML Phase - Week 6 Day 3 | Score: ~85% | Difficulty: 8-9/10 (felt harder than warranted) | not tracked
 **New direction:** pivoted from the pullback classifier (RF confirmed as better model,
 closed) toward mean-reversion research. Research established the standard toolkit - ADF
