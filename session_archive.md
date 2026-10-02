@@ -4,6 +4,42 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-02 | ML Phase - Week 6 Day 5 | Score: ~88% | Difficulty: 5/10 | ~1h15
+**Covered:** Task 1 - half-life table across 7 window sizes (20-200 bars), smart batched
+dropna to avoid unnecessary row loss, correct monotonic read (8.7 bars at window=20 up to
+93.4 at window=200). Resolved what 22-33 bar half-lives mean practically: ~5.5 hours at M15,
+so a reversion strategy's holding horizon should be hours, not days or minutes. Task 2 -
+built a volatility-normalized z-score feature; unprompted ran `scipy.stats.normaltest`
+(p≈1.3e-111) to formally reject normality despite a bell-shaped-looking histogram (fat
+tails) - a genuinely sharp, self-directed verification instinct, not asked for. Explored
+percentile thresholds before picking a cutoff.
+**Task 3 - real open finding, not yet resolved:** built forward-looking `future_return_20`
+target, split by z-score group. Numbers point the OPPOSITE direction from mean-reversion:
+z<-2 (unusually low) showed mean future_return=-0.226 (continuing down), z>2 (unusually high)
+showed +1.008 (continuing up) - reads as MOMENTUM, directly in tension with Task 1's ADF/
+half-life support for reversion. Adrian's own interpretation didn't match the sign of his own
+numbers - caught together. Adrian explicitly asked how to verify this rigorously without
+eyeballing bias - correctly identified a formal test (Mann-Whitney) as the right tool,
+deferred to tomorrow rather than rushed.
+**Reinforce next:** none new - genuinely strong independent statistical instincts this
+session.
+**Carries forward (priority):** run Mann-Whitney on future_return_20 between z<-2/z>2/normal
+groups to get a real p-value and effect size. If momentum over reversion is confirmed at this
+horizon, that's a real pivot for the whole research direction - treat as a serious finding,
+not something to explain away.
+**Two sharp follow-up points raised by Adrian after the session closed (both valid, carry to
+tomorrow):** (1) the ±2 z-score threshold was arbitrary - the real edge might live further
+out in the tails (top/bottom 1-10%), worth testing more extreme cutoffs, not just ±2.
+(2) gold trended upward over most of this dataset's history, so raw `future_return_20` is
+likely contaminated by that global drift regardless of z-score group - every group would
+show a positive bias just from the trend, which could fully explain the apparent
+"momentum" result. Fix: measure future return relative to the (also-drifting) rolling mean,
+or subtract the sample's average return as a baseline, before comparing groups - this may
+resolve the Task 3 contradiction entirely, since ADF/half-life were computed on `deviation`
+(which already nets out the drift via the rolling mean) while `future_return_20` was raw
+price difference (which does not).
+
+---
 ## 2026-10-01 | ML Phase - Week 6 Day 4 | Not scored (process-correction session) | Difficulty: 3/10, Usefulness: 3/10 | not tracked
 **What happened:** before starting tasks, Adrian raised two direct, substantive corrections
 about how yesterday's "lighter day" adjustment was applied. No code was written - both
