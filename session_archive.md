@@ -138,6 +138,55 @@ via 1/sqrt(n). Quick recheck needed next occurrence, not a full task.
 - don't draw RF-vs-XGBoost conclusions until it does.
 
 ---
+## 2026-10-05 | ML Phase - Week 7 Day 1 | Score: ~95% | Difficulty: 6/10 | ~80 min
+**Covered:** resolved Friday's momentum/reversion contradiction definitively. Task 1 -
+rebuilt comparison using `future_deviation_20` (relative to rolling mean) instead of raw
+price change - sign flipped completely from Friday (z<-2 now -14.82, z>2 now +14.02),
+confirming drift was the real cause of the earlier apparent momentum. Task 2 - threshold
+sweep (1.5-3.5) showed a clean monotonic strengthening of the reversion effect at more
+extreme thresholds, confirming the "edge lives further in the tails" hypothesis from Friday.
+Task 3 - Mann-Whitney gave p=0.0 everywhere (expected at this sample size), but Adrian
+correctly recognized this says nothing about effect STRENGTH, independently fetched and
+implemented Cohen's d (mechanically correct, pooled std with ddof=1) without being asked -
+found medium-to-large effects (d=0.71-0.75 above threshold, d=-0.80 to -0.92 below),
+unusually strong for financial data, and flagged the below/above asymmetry unprompted.
+**Verdict:** real, large-effect mean-reversion signal confirmed in XAUUSD M15 at extreme
+(2.5+) z-score thresholds once drift is removed - a solid, verified foundation for the next
+build phase.
+**Scope correction (important, saved to memory):** Adrian initially asked about this from a
+trader's angle (strategy testing, stop sizing) then explicitly self-corrected - this repo is
+for learning pandas/stats/ML, not building/validating trading strategies; interesting
+trading ideas are his own business to pursue elsewhere. Reframed in ML terms instead:
+define an actual classification/regression target from the confirmed signal (mirroring the
+P(resumed)/P(recrossed) design from the pullback project), treat time-stability as a
+feature-engineering/data-quality question rather than strategy robustness, and treat the
+below/above asymmetry as a question of whether `direction` needs to be a model feature.
+**Reinforce next:** none new - "verify before modeling" and "significance vs effect size"
+habits applied proactively in a brand new context, unprompted - a real sign of automaticity.
+**Carries forward:** define the ML target/features for the mean-reversion signal next,
+following the same workflow already used for the pullback project.
+
+---
+## 2026-10-04 | ML Phase - Week 6 Weekend Quiz | Score: ~96% | 24 min
+**Format:** transfer-question format, same as recent weeks - judging whether an approach
+generalizes to a new scenario. 8 questions across fair model comparison, mean-reversion
+toolkit on a new instrument, the momentum/reversion contradiction, and judgement.
+**Strong throughout:** A1/A2 correctly reasoned fair-comparison discipline and connected
+XGBoost's spread-out feature importances to its architecture, with an honest caveat about
+limited testing. B2/B3 correctly applied the tradeable half-life benchmark and gave a
+thorough, multi-factor answer on what else determines a good trade (costs, SL/TP, signal
+frequency, lookahead bias). C1/C2 correctly named the global-drift confound and reasoned
+well about edges living in more extreme tails. D1 connected threshold-shopping to data
+mining/parameter-grid risk and proposed checking neighboring-threshold stability as a
+safeguard - a genuinely sound, professional-grade idea. D2 correctly argued weak features
+dilute rather than get rescued by a model.
+**Gap:** B1 had the right instinct (raw price Hurst answers a different question than local
+mean-reversion) but the explanation was imprecise ("standard error over time" isn't quite
+the mechanism) - worth a cleaner restatement sometime, not urgent.
+**Carries forward:** Monday's priority remains fixing the Week 6 Day 5 momentum/reversion
+puzzle (drift-adjusted future returns, more extreme z-thresholds, formal Mann-Whitney test).
+
+---
 ## Week 5 summary (2026-09-21 to 2026-09-25)
 | Day | Focus | Score | Difficulty |
 |---|---|---|---|
