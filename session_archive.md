@@ -138,6 +138,34 @@ via 1/sqrt(n). Quick recheck needed next occurrence, not a full task.
 - don't draw RF-vs-XGBoost conclusions until it does.
 
 ---
+## 2026-10-06 | ML Phase - Week 7 Day 2 | Not scored - real negative finding | ~70 min (Task 1 only)
+**Covered:** attempted to define an actual classification target from the confirmed
+mean-reversion signal. First per-ROW attempt (all `|z_score|>2.5` rows) showed deviation
+GROWING, not shrinking, over 20 bars - looked like anti-reversion, but Adrian correctly
+suspected his own interpretation before accepting it.
+**Real issue found and fixed:** `z_score > 2.5` can stay true for several consecutive bars -
+counting every bar as a separate event averages a move's START with its MIDDLE, which
+structurally can't show reversion. Fixed with proper episode detection (first bar of each
+continuous extreme run only), mirroring the pullback project's `block_id` pattern.
+**One bug along the way:** `.apply(lambda x: ...)` referencing the full column's `.shift()`
+inside the lambda (receives only a scalar per call, doesn't work as intended) plus an
+`&`/`==` operator-precedence trap (same class of bug as before) - resolved by switching to a
+fully vectorized boolean expression (`is_extreme & ~is_extreme.shift(1, fill_value=False)`).
+**After the fix - genuine negative result:** even with correct episode-based events, the
+pattern persisted - deviation at +20 bars was STILL larger in magnitude than at the event
+bar. This is a real, methodologically sound finding for the 20-bar horizon specifically, not
+an artifact of the row/episode issue (now ruled out).
+**Correctly not treated as defeat:** rather than conclude "no mean-reversion," proposed
+testing multiple forward horizons (5/10/20/50/100 bars) before any final verdict - the
+20-bar choice was always arbitrary. Tasks 2-3 (feature table, baseline) correctly deferred
+until the target itself is solid.
+**Reinforce next:** `.apply()`+lambda referencing the full column instead of the scalar
+passed in - vectorized boolean comparisons should be the default for "differs from previous
+row" logic. `&`/`==` precedence still needs explicit parentheses every time.
+**Carries forward (priority):** multi-horizon episode-based reversion table (5/10/20/50/100
+bars) before deciding whether to continue this thread or pivot direction.
+
+---
 ## 2026-10-05 | ML Phase - Week 7 Day 1 | Score: ~95% | Difficulty: 6/10 | ~80 min
 **Covered:** resolved Friday's momentum/reversion contradiction definitively. Task 1 -
 rebuilt comparison using `future_deviation_20` (relative to rolling mean) instead of raw
