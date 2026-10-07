@@ -2,64 +2,68 @@
 
 <!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-10-06
-**Session:** ML Phase - Week 7 Day 2 (defining the mean-reversion target) - real, negative-leaning finding
-**Score:** not scored in the usual sense - this session caught a genuine methodological issue and produced an important negative result
-**Difficulty:** not rated - ran long on Task 1 alone (~70 min) due to a real design flaw caught mid-stream
-**Time:** ~70 min (Task 1 only; Tasks 2-3 deferred)
+**Date:** 2026-10-07
+**Session:** ML Phase - Week 7 Day 3 (multi-horizon reversion test - genuine pivot: continuation, not reversion)
+**Score:** ~90% - one real bug caught and fixed, final conclusion well-reasoned and evidence-based
+**Difficulty:** 6/10 (Adrian's own rating - "lekkie problemy, task 2 sprawił minimalne problemy")
+**Time:** not tracked precisely
 
 ---
 
-**What actually happened:**
+**What actually happened, task by task:**
 
-Before writing any target-building code, Adrian pushed back hard on interpreting his own
-numbers rather than accepting them at face value - exactly the right instinct. First attempt
-computed `future_deviation_20` per-ROW for all `|z_score| > 2.5` rows and found the average
-deviation GREW rather than shrank (e.g. extreme-high: +14.18 at the event bar -> +15.24 at
-+20 bars) - looked like anti-reversion. Correctly suspected his own interpretation might be
-wrong before concluding anything, and asked for help auditing it rather than assuming the
-data was broken or that reversion doesn't exist.
+- **Warm-up:** correct mechanically, flagged the resulting values as "suspicious" without
+  further digging - a reasonable instinct to note and move on from without letting it
+  block the main session.
 
-**Real issue identified together:** `z_score > 2.5` can stay true for several consecutive
-bars during an extended extreme move - counting every one of those bars as a separate "event"
-averages the START of a move together with its MIDDLE, which structurally cannot show
-reversion (the middle of an ongoing move hasn't reverted by definition). Fixed by building
-proper episodes: flag only the FIRST bar of each continuous run above/below threshold
-(`is_extreme & ~is_extreme.shift(1, fill_value=False)`), mirroring the `block_id` pattern
-from the pullback project.
+- **Task 1 (rebuild episodes):** correctly reproduced yesterday's fix, got matching episode
+  counts (2198 high, 1953 low) as a sanity check. Fairly called out the task itself as
+  low-value busywork ("why would anything break? useless task") - a fair critique; the
+  sanity-check instinct is good but this particular step added little once Day 2's fix was
+  already verified.
 
-**One real bug along the way, self-corrected with guidance:** first attempt at the episode
-flag used `.apply(lambda x: ...)` with a reference to the full column's `.shift()` inside the
-lambda - a lambda applied to a single Series only receives one scalar value per call, so
-referencing the whole column inside it doesn't do what was intended, compounded by an
-operator-precedence bug (`x == 1 & (...)` binds as `x == (1 & (...))`, not `(x == 1) & (...)`
-- the same `&`/`==` precedence trap as previous sessions). Resolved by switching to a fully
-vectorized boolean expression instead of `.apply()`/lambda - the correct, idiomatic pandas
-pattern for this kind of row-vs-previous-row comparison.
+- **Task 2 (multi-horizon table) - real bug, self-caught via genuine confusion:** first
+  version of the table referenced `high_deviation_at_N`/`low_deviation_at_N` before they
+  were defined in that scope - these were actually leftover values from a prior loop
+  iteration in notebook memory, which silently made the table's "start" column duplicate
+  the N=100 column instead of showing the true episode-start value. Caught not because
+  Adrian spotted the bug directly, but because the result looked wrong enough to re-examine
+  (asked for help auditing it) - correct instinct to distrust a suspicious result rather
+  than write it up. After the fix: a clean, monotonic table across N=[5,10,20,50,100]
+  showing high-episode deviation growing steadily (+11.65 at start to +15.27 at N=100) and
+  low-episode deviation deepening then partially reversing (-13.43 -> -14.60 at N=20 ->
+  -12.75 at N=100).
 
-**After the fix - the real finding:** even with proper episode-based events (one row per
-genuine first-crossing, not per bar), the pattern PERSISTED: deviation at the 20-bar mark was
-STILL larger in magnitude than at the event bar (high: 11.65 -> 12.54, low: -13.43 -> -14.60).
-This is a genuine, methodologically sound negative result for THIS specific horizon (20
-bars) - not an artifact of the row-vs-episode counting issue, which has now been ruled out.
+- **Task 3 (synthesis) - sound, evidence-driven conclusion:** correctly read the pattern as
+  "deviation does not shrink at any tested horizon" for the high side specifically, and
+  proposed the right reframing - this looks like trend CONTINUATION after an extreme
+  deviation, not mean-reversion. Explicitly flagged his own uncertainty ("or I
+  misinterpreted the results, I'm not entirely sure") rather than overclaiming - appropriate
+  epistemic humility for a genuinely surprising result. Correctly distinguished this from a
+  strategy conclusion ("not useful for ML" was reconsidered once reframed as a continuation-
+  prediction target instead of a dead end).
 
 ---
 
-**Correctly NOT a defeat, and Adrian treated it as such:** rather than conclude "mean-
-reversion doesn't exist" from one horizon, proposed testing several forward horizons (5, 10,
-20, 50, 100 bars) before drawing a final conclusion - the 20-bar choice was always somewhat
-arbitrary, not an established fact. Agreed to defer Tasks 2-3 (feature table, baseline split)
-until the target itself is on solid ground - correctly refusing to build further structure on
-an unresolved foundation.
+**Real outcome - a genuine, well-earned pivot, not a failure:** the Week 6/Week 7 Day 1
+"confirmed reversion" conclusion and today's "looks like continuation" finding aren't
+contradictory once the methodology difference is understood - Week 6 counted every bar in a
+multi-bar extreme run as a separate event (averaging a move's start with its middle), while
+this week's episode-based approach isolates the first crossing only. Both measurements are
+valid answers to different questions; the episode-based one is the more useful framing for
+building an actual predictive target. Documented in full in
+`project4_trend_regime/mean_reversion_findings.md` (updated today with the full Week 6-7
+timeline, the bug found, and the revised verdict) so this doesn't need to be re-derived from
+scratch later.
 
-**Reinforce next:** `.apply()` + lambda referencing the full column (not just the scalar
-passed in) is a real recurring gap - vectorized boolean comparisons
-(`series & ~series.shift(1)`) should be the default reach for "is this different from the
-previous row" logic, not `.apply()`. Also: `&`/`==` operator precedence - still needs
-parentheses around each condition every time.
+**Reinforce next:** double-check that every column/value in a hand-built comparison table
+actually traces back to where it's supposed to, especially inside a loop reusing variable
+names across iterations - today's bug was subtle precisely because the code ran without
+error and produced plausible-looking (if wrong) numbers.
 
-**Carries forward (priority for tomorrow):** build the same episode-based reversion check
-across multiple forward horizons (5, 10, 20, 50, 100 bars) in one table, before deciding
-whether to pursue this mean-reversion thread further or pivot direction. This is explicitly
-NOT yet a "mean-reversion doesn't exist" conclusion - it's "doesn't show up cleanly at 20
-bars with this episode definition," which is a narrower, more honest claim.
+**Carries forward (agreed plan for tomorrow):** pivot the target definition from "predicts
+reversion" to "predicts continuation" - define a binary target mirroring the pullback
+project's resumed/recrossed design (does price extend further after the first extreme
+crossing, within N bars), treat the high/low asymmetry as a likely required feature, and
+follow the same feature-engineering + model-tuning workflow already validated on the
+pullback classifier.

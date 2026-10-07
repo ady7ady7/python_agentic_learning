@@ -138,6 +138,30 @@ via 1/sqrt(n). Quick recheck needed next occurrence, not a full task.
 - don't draw RF-vs-XGBoost conclusions until it does.
 
 ---
+## 2026-10-07 | ML Phase - Week 7 Day 3 | Score: ~90% | Difficulty: 6/10 | not tracked
+**Covered:** Task 1 - rebuilt yesterday's episode fix cleanly, matching counts (2198 high,
+1953 low episodes). Task 2 - real bug caught via healthy suspicion: a multi-horizon
+comparison table's "start" column accidentally duplicated the N=100 column (stale loop
+variables reused across iterations) - fixed, revealing a clean monotonic pattern:
+high-episode deviation grows steadily from +11.65 (start) to +15.27 (N=100); low-episode
+deviation deepens to -14.60 at N=20 then partially reverses to -12.75 by N=100. Task 3 -
+correctly reframed this as evidence of trend CONTINUATION (not reversion) on the high side,
+with a weaker/delayed/asymmetric partial pullback on the low side, with appropriate
+epistemic humility about the surprising result.
+**Real outcome (genuine pivot, not a failure):** Week 6's "confirmed reversion" and this
+week's "looks like continuation" aren't contradictory - Week 6 counted every bar of
+multi-bar extreme runs as separate events (averaging a move's start with its middle), this
+week isolates the first crossing only. Both are valid answers to different questions; the
+episode-based framing is more useful for an actual predictive target. Full timeline, the bug,
+and the revised verdict documented in `project4_trend_regime/mean_reversion_findings.md`.
+**Reinforce next:** verify every value in a hand-built table traces back correctly,
+especially inside loops reusing variable names across iterations.
+**Carries forward (agreed plan):** pivot target definition from "predicts reversion" to
+"predicts continuation" (mirrors pullback project's resumed/recrossed design), treat high/low
+asymmetry as a likely required feature, same feature-engineering + tuning workflow as the
+pullback classifier.
+
+---
 ## 2026-10-06 | ML Phase - Week 7 Day 2 | Not scored - real negative finding | ~70 min (Task 1 only)
 **Covered:** attempted to define an actual classification target from the confirmed
 mean-reversion signal. First per-ROW attempt (all `|z_score|>2.5` rows) showed deviation
