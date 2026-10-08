@@ -138,6 +138,34 @@ via 1/sqrt(n). Quick recheck needed next occurrence, not a full task.
 - don't draw RF-vs-XGBoost conclusions until it does.
 
 ---
+## 2026-10-08 | ML Phase - Week 7 Day 4 | Score: ~85% | Difficulty: 7/10 | ran late, not tracked
+**Covered:** built the continuation-vs-reversion target (Task 1), the day's main goal.
+Required heavier scaffolding than planned - writing stateful, forward-walking functions
+(`check_continuation_high`/`check_continuation_low` with early-exit conditions) was
+mechanically new, distinct from this track's usual vectorized/comprehension pandas work.
+Resolved along the way: an `.apply()` misuse needing a positional argument it can't supply
+(fixed by pulling event positions into a list, looping, collecting into list-of-dicts ->
+DataFrame), an unnecessary `ref_close`/`ffill`/`dropna` sequence that silently trimmed
+starting rows without breaking the final result, and merging two per-episode target tables
+plus feature columns back via `event_idx`.
+**Result:** working target - 2113 resolved high-episodes (~88% continuation), 1867 resolved
+low-episodes (~85% continuation) - consistent with yesterday's finding that both directions
+lean toward continuation, high side slightly more so.
+**Real, specific gap named by Adrian himself:** stateful/iterative function-writing (loop
+carrying state, early-exit conditions) is genuinely harder than vectorized pandas or
+comprehensions for him, despite a long Python history - wants dedicated, regular practice on
+this specific pattern. Saved to memory (iterative_function_practice.md) as its own practice
+category, scaffolded with worked examples first.
+**Reinforce next:** stateful for-loop functions with early-exit conditions - plan dedicated
+practice, separate from the comprehension/groupby rotation.
+**Task 2 (feature table) and Task 3 (split + baseline) - both completed:** merged high/low
+target tables with `direction`, attached `hour`/`atr14`/`abs_z_score` via `event_idx`. Overall
+continuation rate 86.6% (consistent with per-side 88%/85% from Task 1). Time-aware 80/20
+split by `et_time`; baseline class balance 83.6% continued / 13.4% reversed - correctly
+noted as less extreme than the pullback project's 95/5 resumed/recrossed imbalance.
+**Carries forward:** first classifier fit on `all_targets_df` tomorrow.
+
+---
 ## 2026-10-07 | ML Phase - Week 7 Day 3 | Score: ~90% | Difficulty: 6/10 | not tracked
 **Covered:** Task 1 - rebuilt yesterday's episode fix cleanly, matching counts (2198 high,
 1953 low episodes). Task 2 - real bug caught via healthy suspicion: a multi-horizon
