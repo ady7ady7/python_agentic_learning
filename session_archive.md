@@ -138,6 +138,68 @@ via 1/sqrt(n). Quick recheck needed next occurrence, not a full task.
 - don't draw RF-vs-XGBoost conclusions until it does.
 
 ---
+## Week 7 summary (2026-10-05 to 2026-10-09)
+| Day | Focus | Score | Difficulty |
+|---|---|---|---|
+| Mon | resolve momentum/reversion contradiction (drift removal) | ~95% | 6/10 |
+| Tue | episode-based reversion check, no effect at 20 bars | not scored - negative finding | - |
+| Wed | multi-horizon test reveals continuation, not reversion | ~90% | 6/10 |
+| Thu | continuation target built, iterative-function-heavy | ~85% | 7/10 |
+| Fri | first classifier, weak result, week wrap-up | ~90% | 4/10 |
+
+**Arc:** The week opened by resolving Week 6's momentum/reversion contradiction (gold's
+drift contaminated raw future-returns; fixing it confirmed real reversion with large Cohen's
+d). Tuesday-Wednesday then stress-tested that conclusion properly at the EPISODE level
+(first-crossing only, not every bar of a multi-bar extreme run) across multiple horizons -
+and the picture flipped: extreme-high deviations show trend CONTINUATION out to 100 bars,
+not reversion, with a weaker/delayed partial reversal on the low side. This is the week's
+real headline: two valid, carefully-executed analyses answered different questions and gave
+different answers, and the team believed the more rigorous one over the earlier, more
+exciting one. Thursday built an actual binary continuation target (mirroring the pullback
+project's resumed/recrossed design) - genuinely hard, introducing stateful iterative
+functions for the first time this track. Friday's first classifier was honestly weak
+(AUC ~0.56) even after a `class_weight='balanced'` attempt - a real negative result, not a
+bug, closing the week on the same honest, evidence-first footing it started on.
+**New skill gap identified and tracked:** stateful/iterative for-loop functions with
+early-exit conditions are genuinely harder for Adrian than vectorized pandas or
+comprehensions - flagged by him explicitly, saved to memory
+(iterative_function_practice.md) as its own recurring practice category.
+**Drift-removal/detrending** finally clicked Friday via a concrete numeric walkthrough,
+after not landing earlier in the week - confirmed as standard technique (Bollinger-Bands-
+style residual), not an ad-hoc trick.
+**Full technical writeup:** `project4_trend_regime/mean_reversion_findings.md` (updated
+throughout the week, includes the full Step 1-9 timeline, bugs found and fixed, and the
+revised verdict).
+**Adrian's explicit ask for the project going forward:** wants an actually useful/successful
+model result at some point soon, not just "learned the ML flow" - flagged honestly as
+aspirational, market data may not cooperate.
+
+---
+## 2026-10-09 | ML Phase - Week 7 Day 5 | Score: ~90% | Difficulty: 4/10 (week: 6/10) | ~45 min
+**Covered:** Task 1 - baseline `LogisticRegression` on the continuation target, test AUC
+0.561 (barely above coin-flip), honestly reported as weak rather than dressed up.
+Coefficients correctly read: `direction` dominant (0.303), `atr14` secondary (0.104),
+`hour`/`abs_z_score` negligible. Task 2 - default-threshold model got 0.0 precision/recall
+on the minority (reversed) class, correctly self-diagnosed and confirmed (83 real reversed
+instances existed in test, ruling out a split bug). Independently tried
+`class_weight='balanced'` unprompted - AUC unchanged, precision/recall improved slightly to
+0.114/0.061 but still weak.
+**Real outcome:** this specific feature set does not carry enough signal for the
+continuation target - a genuine, honestly-reached negative result, consistent with the
+broader pattern from the pullback project.
+**Drift-removal fix finally landed:** Adrian flagged not understanding it in Thursday's
+wrap-up; resolved in-session with a concrete numeric walkthrough (gold drifting $1/bar means
+raw future-return always carries +$20 over 20 bars regardless of real reversion/continuation
+behavior; measuring against the rolling mean nets the shared drift out) - confirmed as a
+standard technique (detrending / Bollinger-Bands-style residual), not an ad-hoc trick.
+**Reinforce next:** light re-touch on drift-removal/detrending in a different context later
+(per his own stated preference for repetition across contexts). Continue deliberate practice
+on iterative/stateful functions and vectorized-pandas alternatives (flagged Thursday).
+**Carries forward, explicit ask:** wants a genuinely useful/successful model result at some
+point, not just "learned the flow" - flagged as aspirational, honestly caveated that market
+data may not cooperate.
+
+---
 ## 2026-10-08 | ML Phase - Week 7 Day 4 | Score: ~85% | Difficulty: 7/10 | ran late, not tracked
 **Covered:** built the continuation-vs-reversion target (Task 1), the day's main goal.
 Required heavier scaffolding than planned - writing stateful, forward-walking functions

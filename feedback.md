@@ -2,60 +2,58 @@
 
 <!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-10-08
-**Session:** ML Phase - Week 7 Day 4 (continuation target definition - dense, iterative-function-heavy day)
-**Score:** ~85% - correct, working target built, with heavy guidance on genuinely new mechanics
-**Difficulty:** 7/10 (Adrian's own rating, explicit: "nie Twoja wina, bardziej moja... dużo rzeczy się zwaliło na raz")
-**Time:** ran late, exact duration not tracked
+**Date:** 2026-10-09
+**Session:** ML Phase - Week 7 Day 5 (first classifier on the continuation target, week wrap-up)
+**Score:** ~90% - correct, honest execution throughout, model itself turned out weak (a real result, not an error)
+**Difficulty:** 4/10 (today specifically), 6/10 for the week overall (Adrian's own ratings)
+**Time:** ~45 min
 
 ---
 
-**What actually happened:**
+**What actually happened, task by task:**
 
-Task 1 (define the continuation target) needed more scaffolding than planned - writing a
-stateful, forward-walking function (`check_continuation_high`/`check_continuation_low`) with
-early-exit conditions was new mechanically, distinct from the vectorized/comprehension
-pandas work this track has mostly covered. Several real sub-steps surfaced along the way,
-each resolved with guidance:
+- **Warm-up:** correct, mirrored Thursday's pattern on the opposite tail cleanly.
 
-- An `.apply()` call that tried to invoke a function needing a positional argument
-  (`event_idx`) the way `.apply()` can't naturally supply - resolved by explicitly pulling
-  event positions into a list first, then looping and calling the function per-position,
-  collecting results into a list-of-dicts -> DataFrame (the by-now-familiar pattern, applied
-  to a genuinely new context).
-- A `ref_close`/`ffill`/`dropna` sequence that turned out unnecessary (the final functions
-  compute `ref_close` locally per-call) and silently trimmed rows from the start of the
-  dataset - didn't break the final result (an accidental consequence of `reset_index` timing)
-  but added confusion and dead code worth removing.
-- Merging the two per-episode target tables (`high_targets_df`, `low_targets_df`) and
-  attaching feature columns (`hour`, `atr14`, `abs_z_score`) back via `event_idx` as a merge
-  key against `m15_df`'s index.
+- **Task 1 (baseline logistic regression):** correctly fit on train, correctly used
+  `predict_proba` (not `.predict()`) for ROC AUC - test AUC 0.561, essentially barely above
+  a coin flip, honestly reported as "absolutely useless" rather than dressed up. Correctly
+  reasoned about the direction of a 0.56 AUC's practical meaning relative to the 83.6/13.4
+  base rate. Coefficient table correctly built and read: `direction` clearly dominant (0.303),
+  `atr14` secondary (0.104), `hour`/`abs_z_score` negligible - consistent with the known
+  high/low asymmetry from earlier this week.
 
-**End result - a working, correct target:** 2113 resolved high-episodes (1860 continuation /
-253 reversion-first, ~88% continuation) and 1867 resolved low-episodes (1586 / 281, ~85%
-continuation) - consistent with Week 7 Day 3's finding that both directions lean heavily
-toward continuation rather than reversion, with the high side slightly more skewed.
+- **Task 2 (precision/recall on minority class) - real, correctly diagnosed finding:**
+  default-threshold model got precision=0.0, recall=0.0 on the reversed class - correctly
+  self-diagnosed as "model is unable to predict ANY reversed instance" (confirmed by checking
+  there genuinely were 83 reversed instances in test, ruling out a data/split bug).
+  Independently went further than asked and tried `class_weight='balanced')` as a next step -
+  AUC unchanged (0.561, same weak signal) but precision/recall moved to 0.114/0.061 - still
+  weak, correctly read as "a bit better, yet still worse than baseline."
+
+- **Task 3 (week wrap-up):** honest, clear-eyed self-assessment. Named the episode-vs-row
+  distinction as the most valuable concept from the week. Explicitly flagged not fully
+  grasping the drift-removal fix (addressed in-session afterward with a concrete numeric
+  walkthrough - gold drifting $1/bar means raw future-return always carries that +$20 over
+  20 bars regardless of any real reversion/continuation behavior, while measuring against
+  the rolling mean nets that shared drift out) and confirmed it landed as a real, standard
+  technique (detrending / Bollinger-Bands-style residual, not an ad-hoc trick) once explained
+  that way. Also candidly named the stateful-function work from Thursday as something that
+  needs real, repeated practice while tired, not just conceptual understanding.
 
 ---
 
-**Real, specific gap named by Adrian himself:** stateful/iterative function-writing (a
-for-loop carrying state across iterations, exiting early on a condition) is harder for him
-than vectorized pandas or comprehensions, despite a long Python learning history - "warto te
-różne metody i takie funkcje na myślenie ćwiczyć." This is a genuine, distinct skill gap
-worth tracking on its own, not just "needs more pandas practice" - saved to memory
-(iterative_function_practice.md) with a recommendation to add this as its own recurring
-warm-up/practice category, fully scaffolded with worked examples first.
+**Real outcome:** the model itself is weak (AUC ~0.56, can't usefully separate the minority
+class even with class_weight) - a genuine, honestly-reached result, not a bug. Given the
+high/low asymmetry dominates the one useful coefficient, the four mechanical features tried
+today may simply not carry enough signal for this specific target - consistent with the
+broader pattern seen in the pullback project too.
 
-**Reinforce next:** stateful for-loop functions with early-exit conditions - plan dedicated,
-scaffolded practice on this pattern specifically, separate from the comprehension/groupby
-warm-up rotation.
+**Reinforce next:** drift-removal/detrending logic - landed today with a concrete worked
+example, but given his own math-gap self-assessment, this is worth a light re-touch in a
+different context later this month (he explicitly values repetition across contexts, not a
+single explanation).
 
-**Task 2 and Task 3 were also completed** (initially missed in this writeup - corrected):
-merged high/low target tables with `direction`, attached `hour`/`atr14`/`abs_z_score` via
-`event_idx`, overall continuation rate 86.6% consistent with the per-side numbers above.
-Time-aware 80/20 split by `et_time`, baseline class balance 83.6% continued / 13.4% reversed
-- correctly identified as a milder imbalance than the pullback project's 95/5
-resumed/recrossed.
-
-**Carries forward:** first classifier fit on `all_targets_df` tomorrow - the target, feature
-table, and train/test split are all ready.
+**Carries forward, Adrian's explicit ask:** wants a genuinely useful/successful model result
+at some point, not just "learned the ML flow" - flagged as aspirational, with appropriate
+honesty that market data may or may not cooperate. Also: continue the already-flagged need
+for deliberate practice on iterative/stateful functions and vectorized-pandas alternatives.
