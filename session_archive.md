@@ -4,6 +4,30 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-12 | ML Phase - Week 8 Day 1 | Score: ~90% | Difficulty: 5/10 | ~1h10
+**New week plan agreed:** feature-set expansion for the continuation target + RF vs
+XGBoost comparison (Tue-Wed), building toward Adrian's explicit goal of more deliberately
+engineered, research-grounded features and "dojebane modele," not staying at one-feature-
+at-a-time indefinitely. Today: dedicated iterative-function practice (Thursday's
+self-identified gap), applied to a new feature - OTF (One-Time Framing, a Market
+Profile/Jim Dalton concept, verified via research - not an academically-studied signal like
+ADF/Hurst, a practitioner concept to test empirically).
+**Covered:** Task 1 - worked example (consecutive-close streak function), tested on a
+hand-worked list before real data, clean. Task 2 - real bug in the OTF streak function:
+a `=-`/`=+` typo plus, more importantly, neither branch actually referenced
+`otf_streaks[i-1]` to accumulate, collapsing every streak to a flat -1 regardless of true
+run length. Caught via a sharp, correct instinct ("czy nie powinny się sumować do -2, -3")
+rather than accepting a plausible-looking wrong output - fixed to properly accumulate.
+One remaining inconsistency flagged for later: sign convention ended up inverted relative
+to the session's own OTF-up/down definition. Task 3 - merged the feature, boxplot vs
+target_continued, honestly read as showing little difference with some outliers - no
+overclaiming on a weak first look.
+**Reinforce next:** sign-convention consistency across branches of a multi-branch stateful
+function - check against the concept's own definition, not just that magnitude accumulates.
+**Carries forward:** Tue-Wed feature-set expansion + RF/XGBoost comparison, per the agreed
+week plan.
+
+---
 ## 2026-10-02 | ML Phase - Week 6 Day 5 | Score: ~88% | Difficulty: 5/10 | ~1h15
 **Covered:** Task 1 - half-life table across 7 window sizes (20-200 bars), smart batched
 dropna to avoid unnecessary row loss, correct monotonic read (8.7 bars at window=20 up to
