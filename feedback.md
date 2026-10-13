@@ -2,60 +2,68 @@
 
 <!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-10-12
-**Session:** ML Phase - Week 8 Day 1 (iterative function practice, OTF streak feature)
-**Score:** ~90% - one real bug (double: syntax trap + missing accumulation logic) caught and properly fixed
+**Date:** 2026-10-13
+**Session:** ML Phase - Week 8 Day 2 (feature expansion, methodological detour on screening, found a real strongest feature)
+**Score:** ~95% - clean execution throughout, plus a genuinely good methodological question that led to a useful mid-session plan change
 **Difficulty:** 5/10 (Adrian's own rating)
-**Time:** ~1h10
+**Time:** ~1h30 (extended - Task 3 added mid-session)
 
 ---
 
 **What actually happened, task by task:**
 
-- **Warm-up:** mechanically correct, though the variable name/interpretation was inverted
-  relative to the task wording (computed "below" when "above" was asked) - values are
-  internally consistent, just mislabeled. Not worth revisiting, flagged for awareness only.
+- **Task 0 (OTF sign fix):** correctly swapped the branches so OTF-up/down now match the
+  stated definition. Also made an independent, well-reasoned design change: inside bars now
+  carry forward the current streak instead of resetting to 0 - a defensible judgment call
+  (an inside bar isn't really a structural break), explicitly flagged as his own decision
+  rather than slipped in silently.
 
-- **Task 1 (worked example):** executed cleanly - tested the function on a hand-worked list
-  before touching real data (exactly the intended discipline), then validated on a real M15
-  slice. No issues.
+- **Task 1 (4 new features):** all built correctly (`otf_streak_at_event`, `atr_trend`,
+  `regime_duration_so_far_mins`, `day_of_week`), mirroring the pullback project's approach.
+  Pre-registered predictions before checking (correctly skeptical that day_of_week/hour/
+  regime_duration would matter, based on their track record in the pullback project).
 
-- **Task 2 (OTF streak function) - real bug, properly diagnosed and fixed:** first attempt
-  had two compounding problems: a `=-`/`=+` typo (parsed as plain assignment of -1/+1, not
-  `-=`/`+=`), and - more importantly - neither branch actually referenced
-  `otf_streaks[i-1]` to accumulate, so every streak value collapsed to a flat -1 regardless
-  of how long the run had actually lasted. Caught via a sharp, correct instinct ("czy nie
-  powinny się sumować do -2, -3") rather than accepting a plausible-looking but wrong
-  output. Fixed to properly accumulate (`otf_streaks[i] = otf_streaks[i-1] - 1` /	`+ 1`) -
-  verified streaks now extend as expected. One remaining inconsistency (not blocking, worth
-  a look before using this feature further): the sign convention ended up inverted relative
-  to this session's own concept description (higher-low runs got negative values, OTF-down
-  logic path got positive) - should be reconciled before relying on sign direction in any
-  downstream analysis.
+- **Task 2 (verify before modeling) - good screening, with a valuable methodological
+  question raised afterward:** ran Mann-Whitney across all 4 features, found only
+  `otf_streak` significant (p=0.011, Cohen's d=0.106 - small but real, now that the Task 0
+  sign fix was applied - the UNFIXED version from yesterday had looked flat). Deliberately
+  skipped visualization in favor of the numeric screen, reasoning this avoids
+  visual-interpretation bias - a sound call.
 
-- **Task 3 (descriptive check):** correctly merged the new feature onto the target table,
-  built a boxplot, and gave an honest, non-overclaiming read ("doesn't show much difference,
-  some outliers in both groups") rather than overinterpreting a weak first look.
+- **Mid-session detour (genuinely valuable):** asked directly whether univariate
+  screen-and-drop is actually how data scientists work, or whether it risks misleading
+  conclusions - a sharp, well-placed question. Resolved together: univariate screening is
+  real practice, but dropping a feature on a flat univariate p-value risks losing
+  INTERACTION effects a model could still use (e.g. a feature that only matters combined
+  with another) - appropriate as a large-scale pre-filter with dozens/hundreds of features,
+  but not warranted at this project's current scale (4-7 features), where it's better used
+  as interpretive context after modeling, not a hard filter before it. Led to an explicit,
+  good plan adjustment: do a literature-grounded feature research pass today rather than
+  moving straight to modeling on a thin feature set.
+
+- **Task 3 (research-grounded features) - the day's best result:** researched and
+  implemented three literature-motivated features - `volatility_ratio`, `realized_power`
+  (sum of absolute short-interval returns, an alternative to ATR-style volatility),
+  `variance_ratio_10` (Lo-MacKinlay-style trend/reversion test). One clarifying exchange
+  needed to correctly implement the variance-ratio formula (initially compared variance
+  across two WINDOW SIZES of raw price rather than variance of DIFFERENTLY-AGGREGATED
+  returns - a real conceptual distinction, corrected cleanly and verified independently in
+  one line). Result: `realized_power` emerged as the STRONGEST feature found all week
+  (p=0.000002, Cohen's d=0.250 - more than double `otf_streak`'s effect size). Correctly
+  read this as a signal to explore variations/proxies of realized_power specifically going
+  forward, rather than treating today's 3 features as a closed, equally-weighted set.
 
 ---
 
-**Good process note:** Adrian explicitly valued repeating the stateful-function pattern
-today ("fajnie też powtórzyć funkcje i tak popracować") - confirms the Thursday-identified
-gap is being addressed productively, not just acknowledged.
+**Real outcome:** `realized_power` is now the clear standout feature for this target -
+meaningfully stronger than anything found in the pullback project or earlier this month on
+this project. Worth building 1-2 related variants before tomorrow's modeling, per Adrian's
+own instinct.
 
-**Research-framing clarified:** OTF (One-Time Framing) is a practitioner/Market-Profile
-concept (Jim Dalton), not an academically-studied signal - there's no peer-reviewed research
-to lean on for whether streak length predicts anything, unlike ADF/Hurst/mean-reversion
-broadly. Adrian wants to "dopakować featury" grounded in research papers where that exists,
-but should expect OTF-style ideas to always be "test it yourself and see," not "find a
-paper" - a distinction worth keeping clear going into this week's feature expansion.
+**Reinforce next:** none new today - the variance-ratio clarification was a one-off
+conceptual distinction (window-comparison vs. aggregation-comparison), resolved cleanly on
+the first correction.
 
-**Reinforce next:** sign-convention consistency when building multi-branch stateful
-functions - double check that each branch's output sign matches the concept's own stated
-definition, not just that the magnitude accumulates correctly.
-
-**Carries forward, Adrian's explicit stated goal:** wants to move from single-feature
-testing toward building more deliberately engineered, research-grounded feature sets and
-eventually "dojebane modele" (more serious/thorough models) - not staying at one-feature-
-at-a-time forever. Tuesday/Wednesday's planned feature-set expansion + RF/XGBoost comparison
-is the next concrete step toward that.
+**Carries forward:** RF vs XGBoost comparison, now on a genuinely richer, partly
+literature-grounded feature set (7-8 features vs. Friday's weak 4) with one standout
+(`realized_power`) worth featuring prominently in the writeup regardless of model choice.

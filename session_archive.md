@@ -4,6 +4,34 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-13 | ML Phase - Week 8 Day 2 | Score: ~95% | Difficulty: 5/10 | ~1h30
+**Covered:** Task 0 - fixed OTF sign convention (now matches stated definition); also
+independently decided inside bars should carry forward the current streak rather than
+reset to 0 - a defensible, explicitly-flagged design call. Task 1 - built 4 mechanical
+features mirroring the pullback project (otf_streak_at_event, atr_trend,
+regime_duration_so_far_mins, day_of_week). Task 2 - Mann-Whitney screen found only
+otf_streak significant (p=0.011, d=0.106, now visible after Task 0's sign fix - the
+unfixed version yesterday looked flat).
+**Valuable mid-session detour:** asked directly whether univariate screen-and-drop is
+actually sound DS practice or risks misleading conclusions. Resolved: real practice, but
+dropping on a flat univariate p-value risks losing interaction effects a model could still
+use - appropriate as a pre-filter at large feature counts, not warranted at this project's
+scale (4-7 features); better used as interpretive context after modeling. Led to a good
+plan change: research-grounded feature building today instead of modeling on a thin set.
+**Task 3 (added mid-session) - best result of the week:** researched and built
+`volatility_ratio`, `realized_power` (sum of absolute short-interval returns), and
+`variance_ratio_10` (Lo-MacKinlay-style trend/reversion test) - one clarifying exchange
+needed to correctly implement variance-ratio (window-size comparison vs.
+aggregation-comparison), corrected cleanly. Result: `realized_power` is the STRONGEST
+feature found all project (p=0.000002, d=0.250 - more than double otf_streak's effect) -
+correctly read as a direction to build more variants/proxies of, not a one-off win.
+**Reinforce next:** none new - today's one conceptual slip was resolved on first
+correction.
+**Carries forward:** RF vs XGBoost tomorrow on a genuinely richer, partly
+literature-grounded feature set (7-8 features), with `realized_power` as the clear
+standout to highlight regardless of model choice.
+
+---
 ## 2026-10-12 | ML Phase - Week 8 Day 1 | Score: ~90% | Difficulty: 5/10 | ~1h10
 **New week plan agreed:** feature-set expansion for the continuation target + RF vs
 XGBoost comparison (Tue-Wed), building toward Adrian's explicit goal of more deliberately
