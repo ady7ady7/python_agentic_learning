@@ -2,68 +2,59 @@
 
 <!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-10-13
-**Session:** ML Phase - Week 8 Day 2 (feature expansion, methodological detour on screening, found a real strongest feature)
-**Score:** ~95% - clean execution throughout, plus a genuinely good methodological question that led to a useful mid-session plan change
-**Difficulty:** 5/10 (Adrian's own rating)
-**Time:** ~1h30 (extended - Task 3 added mid-session)
+**Date:** 2026-10-14
+**Session:** ML Phase - Week 8 Day 3 (7 realized_power-family features, found 4-5 with a real if small effect)
+**Score:** ~90% - all 7 formulas correctly translated to code, one real implementation bug caught and fixed same-session
+**Difficulty:** 6/10 (Adrian's own rating - heaviest math day in the project so far)
+**Time:** ~2h
 
 ---
 
-**What actually happened, task by task:**
-
-- **Task 0 (OTF sign fix):** correctly swapped the branches so OTF-up/down now match the
-  stated definition. Also made an independent, well-reasoned design change: inside bars now
-  carry forward the current streak instead of resetting to 0 - a defensible judgment call
-  (an inside bar isn't really a structural break), explicitly flagged as his own decision
-  rather than slipped in silently.
-
-- **Task 1 (4 new features):** all built correctly (`otf_streak_at_event`, `atr_trend`,
-  `regime_duration_so_far_mins`, `day_of_week`), mirroring the pullback project's approach.
-  Pre-registered predictions before checking (correctly skeptical that day_of_week/hour/
-  regime_duration would matter, based on their track record in the pullback project).
-
-- **Task 2 (verify before modeling) - good screening, with a valuable methodological
-  question raised afterward:** ran Mann-Whitney across all 4 features, found only
-  `otf_streak` significant (p=0.011, Cohen's d=0.106 - small but real, now that the Task 0
-  sign fix was applied - the UNFIXED version from yesterday had looked flat). Deliberately
-  skipped visualization in favor of the numeric screen, reasoning this avoids
-  visual-interpretation bias - a sound call.
-
-- **Mid-session detour (genuinely valuable):** asked directly whether univariate
-  screen-and-drop is actually how data scientists work, or whether it risks misleading
-  conclusions - a sharp, well-placed question. Resolved together: univariate screening is
-  real practice, but dropping a feature on a flat univariate p-value risks losing
-  INTERACTION effects a model could still use (e.g. a feature that only matters combined
-  with another) - appropriate as a large-scale pre-filter with dozens/hundreds of features,
-  but not warranted at this project's current scale (4-7 features), where it's better used
-  as interpretive context after modeling, not a hard filter before it. Led to an explicit,
-  good plan adjustment: do a literature-grounded feature research pass today rather than
-  moving straight to modeling on a thin feature set.
-
-- **Task 3 (research-grounded features) - the day's best result:** researched and
-  implemented three literature-motivated features - `volatility_ratio`, `realized_power`
-  (sum of absolute short-interval returns, an alternative to ATR-style volatility),
-  `variance_ratio_10` (Lo-MacKinlay-style trend/reversion test). One clarifying exchange
-  needed to correctly implement the variance-ratio formula (initially compared variance
-  across two WINDOW SIZES of raw price rather than variance of DIFFERENTLY-AGGREGATED
-  returns - a real conceptual distinction, corrected cleanly and verified independently in
-  one line). Result: `realized_power` emerged as the STRONGEST feature found all week
-  (p=0.000002, Cohen's d=0.250 - more than double `otf_streak`'s effect size). Correctly
-  read this as a signal to explore variations/proxies of realized_power specifically going
-  forward, rather than treating today's 3 features as a closed, equally-weighted set.
+**Context:** Adrian did independent overnight research, bringing back a well-organized
+family of 13 candidate features, all variants/companions of Tuesday's strongest feature
+(`realized_power`). Today built the 7 that work directly from OHLC without long lookback
+windows: Efficiency Ratio, Concentration, signed semivariance asymmetry (SJV), Relative RP,
+Center of Mass, Wick-to-Close ratio, Wick Rejection Asymmetry.
 
 ---
 
-**Real outcome:** `realized_power` is now the clear standout feature for this target -
-meaningfully stronger than anything found in the pullback project or earlier this month on
-this project. Worth building 1-2 related variants before tomorrow's modeling, per Adrian's
-own instinct.
+**What actually happened:**
 
-**Reinforce next:** none new today - the variance-ratio clarification was a one-off
-conceptual distinction (window-comparison vs. aggregation-comparison), resolved cleanly on
-the first correction.
+- **Tasks 1-3 (feature construction):** all 7 formulas correctly implemented, matching the
+  concept explanations given. Correctly flagged upfront that this batch was unusually
+  math-heavy and used LLM assistance for Center of Mass specifically (the hardest, most
+  unfamiliar formula of the seven) - an honest, reasonable call, not a shortcut taken
+  silently.
 
-**Carries forward:** RF vs XGBoost comparison, now on a genuinely richer, partly
-literature-grounded feature set (7-8 features vs. Friday's weak 4) with one standout
-(`realized_power`) worth featuring prominently in the writeup regardless of model choice.
+- **Real bug, caught and fixed same-session:** the first `center_of_mass` implementation
+  rolled over raw `close` prices instead of absolute 1-bar returns - computing a completely
+  different (and conceptually meaningless for this purpose) quantity than intended. Caught
+  through the review process, fixed to `close.pct_change().abs()` as the input series, and
+  re-screened - revised result p=0.018, d=-0.089 (a real but small effect, now actually
+  measuring what the feature was meant to measure).
+
+- **Task 4 (screening):** ran Mann-Whitney + Cohen's d across all 7. Results: `sjv_10`
+  (d=0.160) and `efficiency_ratio_10` (d=0.159) are the strongest of today's batch,
+  `wtc_10` (d=-0.145) and the corrected `center_of_mass` (d=-0.089) show weaker but real
+  effects, `wra_10`/`relative_rp` are borderline (p>0.1), and `concentration_10` looks
+  genuinely dead (p=0.966, d≈-0.015). None individually beats `realized_power`'s own d=0.250,
+  as expected for companion/derived features. Correctly interpreted this as still useful -
+  several independently-reasoned small effects stacking in a nonlinear model (RF/XGBoost)
+  is a real mechanism, not wishful thinking, since they're not random variants but each
+  targeting a genuinely different aspect of the same underlying phenomenon.
+
+---
+
+**Real outcome:** the feature set for tomorrow's modeling now has ~10-11 features (Tuesday's
+batch + today's 7, several with real if modest individual effects) - a substantially richer,
+more theoretically-grounded set than Friday's weak 4-feature baseline.
+
+**Reinforce next:** when implementing a formula from a written spec, double-check which
+exact series feeds into a rolling/apply operation - today's bug (raw price instead of
+absolute returns) passed silently because the code ran without error and produced a
+plausible-looking (if conceptually wrong) number.
+
+**Carries forward:** RF vs XGBoost comparison on the full, enriched feature set - the
+remaining features from Adrian's research list (jump-share/bipower variation, multi-scale
+L1 variance ratio, clustering - needing 20-50+ bar windows; gap-share and volume-based ones
+needing separate judgment calls) stay deferred for later in the week/project.

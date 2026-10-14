@@ -4,6 +4,28 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-14 | ML Phase - Week 8 Day 3 | Score: ~90% | Difficulty: 6/10 | ~2h
+**Context:** Adrian brought a well-organized, 13-feature research list overnight, all
+variants/companions of realized_power. Today built the 7 that work directly from OHLC
+without long lookback windows: Efficiency Ratio, Concentration, signed semivariance
+asymmetry (SJV), Relative RP, Center of Mass, Wick-to-Close ratio, Wick Rejection Asymmetry.
+**Covered:** all 7 formulas correctly implemented; honestly flagged using LLM assistance on
+Center of Mass specifically (hardest, most unfamiliar formula). Real bug caught and fixed
+same-session: first `center_of_mass` implementation rolled over raw `close` instead of
+absolute 1-bar returns - wrong quantity entirely. Fixed and re-screened: p=0.018, d=-0.089.
+**Screening results:** `sjv_10` (d=0.160) and `efficiency_ratio_10` (d=0.159) strongest of
+the batch; `wtc_10` (d=-0.145) and corrected `center_of_mass` (d=-0.089) weaker but real;
+`wra_10`/`relative_rp` borderline; `concentration_10` genuinely dead (p=0.966). None beats
+realized_power's own d=0.250 individually, as expected for derived features - correctly
+read as still useful since several independently-reasoned small effects can stack in a
+nonlinear model.
+**Reinforce next:** double-check which exact series feeds a rolling/apply operation when
+implementing a formula from a spec - today's bug ran silently without error.
+**Carries forward:** RF vs XGBoost on the full ~10-11 feature set. Remaining research-list
+features (bipower variation, multi-scale L1 variance ratio, clustering, gap-share,
+volume-based) stay deferred.
+
+---
 ## 2026-10-13 | ML Phase - Week 8 Day 2 | Score: ~95% | Difficulty: 5/10 | ~1h30
 **Covered:** Task 0 - fixed OTF sign convention (now matches stated definition); also
 independently decided inside bars should carry forward the current streak rather than
