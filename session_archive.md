@@ -4,6 +4,30 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-15 | ML Phase - Week 8 Day 4 | Score: ~90% | Difficulty: 5/10 | ~1h
+**Covered:** full ~18-feature set assembled, RF and XGBoost tuned via `RandomizedSearchCV`
++ `TimeSeriesSplit` with deliberately bounded grids (checklist from Week 5-6 lessons applied
+proactively, not re-derived). Both models showed tiny train/test gaps (RF: 0.560/0.541,
+XGBoost: 0.560/0.550) - textbook healthy generalization, zero overfitting. One interpretive
+slip corrected: read AUC≈0.55 as "55% detection chance" - conflates AUC's ranking-probability
+meaning with a practical hit rate; AUC near 0.5 means near-zero real ranking power regardless
+of framing. Feature importances showed no dominant feature in either model (all 0.02-0.10) -
+correctly read as "no principled trim decision possible," not forced into a narrative.
+**Real outcome - genuine negative result:** a full week of research-grounded feature
+engineering (14 new features, individually screened, several with real univariate effects)
+plus two properly-tuned models landed at essentially the SAME weak result as Friday's thin
+4-feature baseline. Strong evidence the bottleneck is the TARGET (direction/continuation at
+M15 horizon from OHLC features) rather than feature count or tuning quality - Adrian reached
+this independently, citing parallel research pointing the same way.
+**Reinforce next:** AUC's precise meaning (ranking probability between a random pos/neg
+pair) vs. informal "percent chance of catching X" - recurring soft spot, though the instinct
+to flag the surprising result himself was the valuable part.
+**Carries forward, agreed plan:** pivot to a volatility target (does realized volatility
+rise/fall after an extreme event) instead of direction/continuation, on the same feature
+set - grounded in this week's own literature finding that volatility clustering is far
+better-established than direction predictability.
+
+---
 ## 2026-10-14 | ML Phase - Week 8 Day 3 | Score: ~90% | Difficulty: 6/10 | ~2h
 **Context:** Adrian brought a well-organized, 13-feature research list overnight, all
 variants/companions of realized_power. Today built the 7 that work directly from OHLC

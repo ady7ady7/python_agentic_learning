@@ -2,59 +2,57 @@
 
 <!-- Drafted by Claude from Adrian's own comments during the session - correct or add. -->
 
-**Date:** 2026-10-14
-**Session:** ML Phase - Week 8 Day 3 (7 realized_power-family features, found 4-5 with a real if small effect)
-**Score:** ~90% - all 7 formulas correctly translated to code, one real implementation bug caught and fixed same-session
-**Difficulty:** 6/10 (Adrian's own rating - heaviest math day in the project so far)
-**Time:** ~2h
+**Date:** 2026-10-15
+**Session:** ML Phase - Week 8 Day 4 (RF vs XGBoost on the full ~18-feature set, honest weak result)
+**Score:** ~90% - flawless overfitting discipline, one real interpretive slip caught and corrected
+**Difficulty:** 5/10 (Adrian's own rating)
+**Time:** ~60 min (focused)
 
 ---
 
-**Context:** Adrian did independent overnight research, bringing back a well-organized
-family of 13 candidate features, all variants/companions of Tuesday's strongest feature
-(`realized_power`). Today built the 7 that work directly from OHLC without long lookback
-windows: Efficiency Ratio, Concentration, signed semivariance asymmetry (SJV), Relative RP,
-Center of Mass, Wick-to-Close ratio, Wick Rejection Asymmetry.
+**What actually happened, task by task:**
+
+- **Task 1 (feature table + split):** clean, all ~18 features confirmed present with zero
+  NaNs, time-aware split done correctly.
+
+- **Task 2 (RandomForest):** bounded grid, `RandomizedSearchCV` + `TimeSeriesSplit`, correct
+  train vs test AUC comparison. Result: train=0.560, test=0.541 - tiny gap (~0.02), textbook
+  healthy generalization, but test AUC is actually BELOW Friday's weak 4-feature baseline
+  (0.561). Correctly flagged the surprise rather than hiding it.
+
+- **Task 3 (XGBoost):** same discipline, same grid shape validated in Week 6. Result:
+  train=0.560, test=0.550 - again a tiny gap, again roughly at/below the Friday baseline.
+  One interpretive slip here, corrected: read AUC≈0.55 as "55% chance of catching reversals
+  instead of 13%" - this conflates AUC (a ranking metric: given one random continuation and
+  one random reversal, how often the model scores them in the right relative order) with a
+  practical detection rate. AUC near 0.5 means close to NO real ranking power, regardless of
+  which class you frame the question around - corrected in-session.
+
+- **Task 4 (feature importances):** correctly observed no dominant feature in either model
+  (all in the 0.02-0.10 range) and correctly concluded there's no principled cutoff for
+  trimming anything - an honest "difficult to make a decision" rather than forcing a
+  narrative onto noisy importances.
 
 ---
 
-**What actually happened:**
+**Real outcome - a genuine, well-earned negative result:** a full week of research-grounded
+feature engineering (14 new features, each individually screened, several with real if
+modest univariate effects) plus two properly-tuned models produced essentially the SAME
+weak result as Friday's thin 4-feature baseline. This is strong evidence the bottleneck is
+the TARGET (predicting direction/continuation at this M15 horizon from OHLC-derived
+features), not insufficient features or poor tuning - Adrian reached this same conclusion
+independently, citing parallel research he's doing elsewhere pointing the same direction.
 
-- **Tasks 1-3 (feature construction):** all 7 formulas correctly implemented, matching the
-  concept explanations given. Correctly flagged upfront that this batch was unusually
-  math-heavy and used LLM assistance for Center of Mass specifically (the hardest, most
-  unfamiliar formula of the seven) - an honest, reasonable call, not a shortcut taken
-  silently.
+**Reinforce next:** AUC's precise meaning (ranking/ordering probability between a random
+positive and random negative pair) vs. informal "percent chance of catching X" language -
+this is a recurring soft spot worth a clean restatement next time AUC comes up in a new
+context, though the instinct to flag the surprising result himself was the important part
+and that worked well.
 
-- **Real bug, caught and fixed same-session:** the first `center_of_mass` implementation
-  rolled over raw `close` prices instead of absolute 1-bar returns - computing a completely
-  different (and conceptually meaningless for this purpose) quantity than intended. Caught
-  through the review process, fixed to `close.pct_change().abs()` as the input series, and
-  re-screened - revised result p=0.018, d=-0.089 (a real but small effect, now actually
-  measuring what the feature was meant to measure).
-
-- **Task 4 (screening):** ran Mann-Whitney + Cohen's d across all 7. Results: `sjv_10`
-  (d=0.160) and `efficiency_ratio_10` (d=0.159) are the strongest of today's batch,
-  `wtc_10` (d=-0.145) and the corrected `center_of_mass` (d=-0.089) show weaker but real
-  effects, `wra_10`/`relative_rp` are borderline (p>0.1), and `concentration_10` looks
-  genuinely dead (p=0.966, d≈-0.015). None individually beats `realized_power`'s own d=0.250,
-  as expected for companion/derived features. Correctly interpreted this as still useful -
-  several independently-reasoned small effects stacking in a nonlinear model (RF/XGBoost)
-  is a real mechanism, not wishful thinking, since they're not random variants but each
-  targeting a genuinely different aspect of the same underlying phenomenon.
-
----
-
-**Real outcome:** the feature set for tomorrow's modeling now has ~10-11 features (Tuesday's
-batch + today's 7, several with real if modest individual effects) - a substantially richer,
-more theoretically-grounded set than Friday's weak 4-feature baseline.
-
-**Reinforce next:** when implementing a formula from a written spec, double-check which
-exact series feeds into a rolling/apply operation - today's bug (raw price instead of
-absolute returns) passed silently because the code ran without error and produced a
-plausible-looking (if conceptually wrong) number.
-
-**Carries forward:** RF vs XGBoost comparison on the full, enriched feature set - the
-remaining features from Adrian's research list (jump-share/bipower variation, multi-scale
-L1 variance ratio, clustering - needing 20-50+ bar windows; gap-share and volume-based ones
-needing separate judgment calls) stay deferred for later in the week/project.
+**Carries forward, agreed plan:** rather than closing out the continuation-target thread
+entirely, try pivoting to a DIFFERENT target on the same rich feature set - predicting
+volatility (does realized volatility rise or fall after an extreme event) instead of
+direction/continuation. Adrian's own instinct, grounded in literature from this week
+(volatility clustering/persistence is a much stronger, better-established property than
+return/direction predictability) - a reasonable next experiment before concluding the whole
+feature set is unusable.
