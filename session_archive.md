@@ -4,6 +4,67 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## Week 8 summary (2026-10-12 to 2026-10-16)
+| Day | Focus | Score | Difficulty |
+|---|---|---|---|
+| Mon | OTF streak feature, iterative function practice | ~90% | 5/10 |
+| Tue | research-grounded features, realized_power strongest | ~95% | 5/10 |
+| Wed | 7 realized_power-family features | ~90% | 6/10 |
+| Thu | RF vs XGBoost, no overfitting, target itself weak | ~90% | 5/10 |
+| Fri | volatility target pivot, strong-but-leaky result | ~80% | 5-6/10 |
+
+**Arc:** Opened with dedicated practice on stateful iterative functions (a real gap
+self-identified the prior Thursday), applied directly to a new feature (OTF streak, a
+Market Profile/Jim Dalton concept). Found `realized_power` as the project's strongest
+single feature (Tue), then spent two days building and screening a disciplined family of
+13 literature-motivated companion features (Efficiency Ratio, Concentration, SJV, Relative
+RP, Center of Mass, Wick-based features) - several with small-but-real individual effects.
+Thursday's full RF/XGBoost comparison, run with a complete overfitting-prevention checklist
+(bounded grids, TimeSeriesSplit, mandatory train/test gap check), showed ZERO overfitting
+but also essentially no improvement over Friday-the-week-before's thin 4-feature baseline -
+a genuine, well-earned negative result pointing at the TARGET (direction/continuation) as
+the real bottleneck, not feature count or tuning. Friday's pivot to a volatility target
+looked dramatically more promising - until the suspiciously large effect sizes and an
+inverted train/test AUC gap revealed a real leak (the target and three "features" share
+`realized_power` as raw material). Adrian self-flagged the suspicious result himself before
+the cause was identified - correctly, if not yet fully diagnosed.
+**New skill explicitly built on this week, not just flagged:** stateful/iterative function
+writing (OTF, Center of Mass) - practiced directly rather than left as an abstract gap.
+**Adrian's stated goals going into Week 9:** fix the realized_power leak and see if a real
+effect survives; move toward building genuinely deployable/effective models rather than
+open-ended target exploration; flagged (not committed) interest in k-means clustering on
+trend features and breakout-validity metalabeling as possible new directions.
+**Full technical writeup:** `project4_trend_regime/mean_reversion_findings.md` from Week
+6-7 - this week's feature-engineering work is documented in session notes, not yet merged
+into that file; worth updating before the project moves further if useful as a reference.
+
+---
+## 2026-10-16 | ML Phase - Week 8 Day 5 | Score: ~80% | Difficulty: 5-6/10 | ~1h10
+**Covered:** pivoted to a volatility target (`target_vol_rose` - does realized_power rise
+20 bars after an event vs. at the event) - better balanced (44.5/55.5 vs. 83.6/13.4).
+Univariate screen showed dramatically larger Cohen's d values than any direction-target
+screen this project (realized_power d=-0.82, relative_rp d=-0.85, volatility_ratio d=-0.81
+vs. a max of ~0.16 for continuation). RF/XGBoost then showed test AUC (0.80/0.77) far ABOVE
+train AUC (0.56) - an inverted, highly unusual pattern Adrian correctly flagged as
+suspicious ("OR THERE IS A TRAP") without pinning down the mechanism.
+**Root cause (not yet fixed, deferred to next week by Adrian's explicit end-of-week call):**
+`realized_power` is used simultaneously to DEFINE the target and as a FEATURE fed to the
+model; `volatility_ratio`/`relative_rp` are themselves built from `realized_power`, so three
+"features" are mathematically entangled with the target's own construction - explains both
+the inflated Cohen's d values and the inverted train/test AUC. Same leakage family as
+`same_candle_pullback` from the pullback project, different construction pattern (shared
+raw material between target and feature, not a structurally-impossible value).
+**Reinforce next:** any feature sharing raw material with the target's own construction
+(and anything derived from that feature) must be excluded from model inputs. An inverted
+train/test AUC gap (test > train) is itself a red flag worth checking immediately.
+**Carries forward, explicit plan:** Monday - drop realized_power/volatility_ratio/
+relative_rp from the feature list, re-screen and re-fit on the cleaned set to see what
+(if anything) survives as a genuine effect. Adrian also wants to move toward genuinely
+deployable models rather than endless target exploration, and flagged (not yet committed)
+interest in k-means clustering on trend features and breakout-validity metalabeling as
+possible future directions.
+
+---
 ## 2026-10-15 | ML Phase - Week 8 Day 4 | Score: ~90% | Difficulty: 5/10 | ~1h
 **Covered:** full ~18-feature set assembled, RF and XGBoost tuned via `RandomizedSearchCV`
 + `TimeSeriesSplit` with deliberately bounded grids (checklist from Week 5-6 lessons applied
