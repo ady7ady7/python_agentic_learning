@@ -4,6 +4,26 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-18 | ML Phase - Week 8 Weekend Quiz | Score: ~84% | 14 min
+**Format:** transfer-question format, same as recent weeks. 8 questions across research-
+grounded feature engineering, overfitting discipline, the realized_power leak, and
+judgement.
+**Strong:** B1/B2 both precise - correctly distinguished what a small train/test gap does
+(process quality) vs does not (model usefulness) tell you, and correctly flagged an
+inverted gap (test>train) as a leak red flag. C2 correctly named the key mechanism
+difference between this week's leak and same_candle_pullback (structural impossibility vs.
+shared-raw-material entanglement). D1 gave a clear, well-reasoned pushback against "the
+week was wasted."
+**Pattern to watch (not new, two instances this quiz):** C1 and C3 answered "in the spirit"
+of the question without closing on the precise mechanism asked for (C1: didn't articulate
+WHY current-bar X predicts the future-vs-now comparison; C3: didn't name that features
+DERIVED from a leaking feature also need removing). A2 and D2 similarly under-engaged the
+contrastive half of a two-part question (the 150-feature scaling case; the actual
+distinguishing criterion between sound target-pivoting and target-shopping).
+**Carries forward:** Monday - fix the realized_power leak (drop it + its two derived
+features from the model inputs), re-screen and re-fit on the cleaned set.
+
+---
 ## Week 8 summary (2026-10-12 to 2026-10-16)
 | Day | Focus | Score | Difficulty |
 |---|---|---|---|
