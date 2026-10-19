@@ -4,6 +4,38 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-19 | ML Phase - Week 9 Day 1 | Score: ~85% | Difficulty: 4-5/10 | ~1h
+**Covered:** Task 0 - confirmed realized_power/target_volatility_rose correlation (-0.37),
+correctly recognized this as a strong relationship despite initially looking "smaller than
+expected." Task 1 - removed realized_power/volatility_ratio/relative_rp, re-screened - the
+table came back numerically IDENTICAL to Friday's leaked version, a strong signal the
+remaining features carry the same problem independently. Task 2 - re-fit with full
+discipline, train/test gap (0.56 vs 0.77-0.80) persisted unchanged - correctly flagged as
+still wrong rather than accepted.
+**Real diagnostic work (Task 3 + discussion):** correctly and firmly rejected the
+hypothesis that atr14 must be dropped for being "conceptually about volatility" -
+volatility autocorrelation is real and legitimate, banning it would be absurd. This forced
+a sharper diagnosis: verified directly that atr14 and realized_power move together IN THE
+SAME ROW - both measured at the exact same moment as the target's own reference point
+(rp_at_event). The actual mechanism is STRUCTURAL leakage (feature and target's anchor
+share a timestamp) not TEMPORAL leakage (future data) - shift(1) alone would not fix this,
+since no future data is touched, just a shared anchor point. Correctly rejected a proposed
+lag-based fix as insufficient and independently proposed the right general structure: a
+clean observation window -> gap -> prediction window, features from the first, target from
+the third, no overlap by construction.
+**Real outcome:** a deeper, more generally useful lesson than Friday's original leak -
+shared raw material is easy to spot; shared TIMING of an otherwise-unrelated feature and a
+target's reference point is a much easier mistake to make unknowingly.
+**Reinforce next:** temporal leakage (future data, guarded by shift/time-splits) vs.
+structural/reference-point leakage (feature and target anchor at the identical moment,
+independent of future data) - new, more general pattern, will recur whenever a target is
+defined relative to a feature's own value.
+**Carries forward, agreed plan:** rebuild the target with the clean 3-window structure.
+Also move from arbitrary bar-count windows (10/20 bars) toward windows anchored to real
+market structure (session opens, known liquidity periods) for testing volatility
+predictability.
+
+---
 ## 2026-10-18 | ML Phase - Week 8 Weekend Quiz | Score: ~84% | 14 min
 **Format:** transfer-question format, same as recent weeks. 8 questions across research-
 grounded feature engineering, overfitting discipline, the realized_power leak, and
