@@ -2190,39 +2190,39 @@ Goal: one row per brand, showing which tier has the highest average price_pct_of
 '''
 
 
-import pandas as pd
+# import pandas as pd
 
-df = pd.read_csv('project1_phones_sales_analytics/data/price_history_full.csv')
-launch_ref = pd.read_csv('project1_phones_sales_analytics/data/official_launch_prices.csv')
-# small sample: 500 rows per brand
-df = df.groupby('brand').sample(n=500, random_state=42).reset_index(drop=True)
-df = df.merge(launch_ref, on = 'submodel_name')
+# df = pd.read_csv('project1_phones_sales_analytics/data/price_history_full.csv')
+# launch_ref = pd.read_csv('project1_phones_sales_analytics/data/official_launch_prices.csv')
+# # small sample: 500 rows per brand
+# df = df.groupby('brand').sample(n=500, random_state=42).reset_index(drop=True)
+# df = df.merge(launch_ref, on = 'submodel_name')
 
-df['tier'] = df.apply(lambda row: row['submodel_name'].replace(row['generation_name'], '').strip(), axis = 1)
-df['tier'] = df['tier'].replace('', 'Base')
-
-
-df = df[df['new_price'].notna()]
-df['new_price'] = df['new_price'] * 100
-df['price_pct_of_launch'] = round(df['new_price'] / df['official_launch_price'] * 100, 2)
+# df['tier'] = df.apply(lambda row: row['submodel_name'].replace(row['generation_name'], '').strip(), axis = 1)
+# df['tier'] = df['tier'].replace('', 'Base')
 
 
-best_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmax().str[1]
-worst_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmin().str[1]
-print(best_prices_by_tier)
-print(worst_prices_by_tier)
-check_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean()
-print(check_prices_by_tier)
+# df = df[df['new_price'].notna()]
+# df['new_price'] = df['new_price'] * 100
+# df['price_pct_of_launch'] = round(df['new_price'] / df['official_launch_price'] * 100, 2)
+
+
+# best_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmax().str[1]
+# worst_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().groupby('brand').idxmin().str[1]
+# print(best_prices_by_tier)
+# print(worst_prices_by_tier)
+# check_prices_by_tier = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean()
+# print(check_prices_by_tier)
 
 # #W7 D4 - T3
 '''`transform('rank')` ranks individual rows within a group, not per-tier averages. 
 Your output had one rank per row, not one per tier. The correct approach: aggregate first, then rank.
 '''
 
-tier_avg = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().reset_index()
-tier_avg['retention_rank'] = tier_avg.groupby('brand')['price_pct_of_launch'].rank(ascending=False)
+# tier_avg = df.groupby(['brand', 'tier'])['price_pct_of_launch'].mean().reset_index()
+# tier_avg['retention_rank'] = tier_avg.groupby('brand')['price_pct_of_launch'].rank(ascending=False)
 
-df = df.merge(tier_avg, on = ['brand', 'tier'])
+# df = df.merge(tier_avg, on = ['brand', 'tier'])
 
 
 #CD Python - 261
@@ -4838,3 +4838,864 @@ Przypisz nazwę cechy/ kolumny do zmiennej top_feature.
 # shap.plots.bar(shap_values)
 
 # top_feature = 'build_year'
+
+
+
+#CD Python - 325
+
+'''
+Przygotuj zestaw hiperparametrów algorytmu Las Losowy, 
+które zostaną przetestowane podczas procesu hyperparameter tuning.
+
+Zapisz je w zmiennej param_grid w formacie akceptowanym przez funkcję GridSearchCV.
+
+'''
+
+
+
+# import pandas as pd
+# import numpy as np
+# from sklearn.ensemble import RandomForestRegressor
+# from sklearn.model_selection import GridSearchCV
+
+# np.random.seed(42)
+
+# n = 200
+# df = pd.DataFrame({
+#     "age": np.random.randint(18, 55, n),
+#     "days_since_signup": np.random.randint(1, 180, n),
+#     "visited_pricing_page": np.random.choice([0, 1], n, p=[0.45, 0.55]),
+#     "watched_webinar": np.random.choice([0, 1], n, p=[0.65, 0.35]),
+#     "opened_email": np.random.choice([0, 1], n, p=[0.4, 0.6]),
+#     "time_on_page": np.random.normal(6, 2, n).round(2),
+#     "number_of_visits": np.random.poisson(4, n),
+# })
+# score = (0.7 * df["opened_email"] + 0.15 * df["number_of_visits"] + 0.08 * df["time_on_page"] - 0.01 * df["days_since_signup"] + np.random.normal(0, 0.8, n)
+# )
+# df["bought_course"] = (1 / (1 + np.exp(-score)) > 0.65).astype(int)
+
+# X = df.drop(columns="bought_course")
+# y = df["bought_course"]
+
+
+# model = RandomForestRegressor(random_state=42)
+# param_grid = {
+#     'max_depth': [2, 3],
+#     'min_samples_split': [2, 3],
+#     'min_samples_leaf': [1, 2]
+# }
+
+
+# grid_search = GridSearchCV(
+#     estimator=model,
+#     param_grid=param_grid,
+# )
+# grid_search.fit(X, y)
+
+
+
+
+#CD Python - 326
+
+'''
+Po zakończeniu procesu hyperparameter tuning odczytaj informacje o najlepszym modelu.
+
+Przypisz:
+
+najlepszy uzyskany wynik do zmiennej score,
+słownik z hiperparametrami najlepszego modelu do zmiennej hyperparams.
+'''
+
+
+
+# from sklearn.datasets import make_regression
+# from sklearn.ensemble import RandomForestRegressor
+# from sklearn.model_selection import GridSearchCV
+
+# X, y = make_regression(
+#     n_samples=100,
+#     n_features=5,
+#     noise=10,
+#     random_state=42,
+# )
+
+# param_grid = {
+#     "n_estimators": [10, 20, 30],
+#     "max_depth": [3, 5, None],
+# }
+
+# grid_search = GridSearchCV(
+#     RandomForestRegressor(random_state=42),
+#     param_grid=param_grid,
+#     cv=3,
+# )
+# grid_search.fit(X, y)
+
+# grid_search.best_params_
+# print(grid_search.best_score_)
+
+# hyperparams = {
+#     'max_depth': None,
+#     'n_estimators': 30
+# }
+
+# score = 0.7025660328567943
+
+
+#CD Python - 327
+'''
+Stwórz model uczenia maszynowego wykorzystujący algorytm XGBoost, który przewiduje cenę za metr. 
+Zapisz go pod zmienną model. Oblicz RMSE dla zbioru treningowego i testowego, 
+zapisz je pod zmiennymi train_score i test_score.
+'''
+
+# import pandas as pd
+# from xgboost import XGBRegressor
+# from sklearn.metrics import root_mean_squared_error
+# from sklearn.model_selection import train_test_split
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "rooms_no", "build_floor_num", "latitude", "longitude", "floor_no", "build_year", "area", "garage", "balcony", "basement", "air_conditioning", "terrace"]].dropna()
+# df.head()
+
+# X = df.drop(columns = ['price_per_m'])
+# y = df['price_per_m']
+
+# X_train, X_test, y_train, y_test = train_test_split( #w przypadku drzew nie musimy tych danych skalować
+#     X,
+#     y,
+#     random_state = 42,
+#     test_size = 0.2)
+
+# model = XGBRegressor()
+# model.fit(X_train, y_train)
+
+# y_pred_train = model.predict(X_train)
+# y_pred = model.predict(X_test)
+
+# train_score = root_mean_squared_error(y_train, y_pred_train)
+# test_score = root_mean_squared_error(y_test, y_pred)
+
+# print(round(train_score, 2)) #tu jest wręcz 0 XD
+# print(round(test_score, 2)) #3454.75
+
+
+#CD Python - 328
+
+'''
+Modele służące prognozowaniu szeregów czasowych 
+jak ARIMA wymagają zachowania chronologicznej kolejności danych.
+
+Przypisz df z ostatnich 30 dni do zbioru testowego (zmiennej test), 
+a df z wcześniejszych dni do zbioru treningowego (zmienna train).
+
+Oblicz średni błąd bezwzględny i przypisz go do zmiennej mae.
+
+'''
+
+# import pandas as pd
+# import numpy as np
+# from statsmodels.tsa.arima.model import ARIMA
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import mean_absolute_error
+# np.random.seed(42)
+
+# dates = pd.date_range(start="2025-01-01", periods=200, freq="D")
+# sales = (100 + np.arange(200) * 0.3 + 10 * np.sin(np.arange(200) * 2 * np.pi / 7) + np.random.normal(0, 5, 200))
+# df = pd.DataFrame({"date": dates, "sales": sales})
+# df = df.set_index("date")
+
+# train = df.iloc[:-30]
+# test = df.iloc[-30:]
+
+# model = ARIMA(train["sales"], order=(3, 1, 1))
+# fitted_model = model.fit()
+# forecast = fitted_model.forecast(steps=len(test))
+
+# mae = mean_absolute_error(test["sales"], forecast)
+# print(mae)
+
+
+
+
+#CD Python - 329
+
+'''
+Użyj metody redukcji wymiarowości PCA, 
+aby przekształcić df_scaled do nowego DataFrame zawierającego 3 kolumny. 
+
+Zapisz wynik w zmiennej df_pca.
+'''
+
+
+# import pandas as pd
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.decomposition import PCA
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+
+# scaler = StandardScaler()
+# df_scaled = scaler.fit_transform(df)
+
+# pca = PCA(n_components = 3)
+
+# df_pca = pd.DataFrame(pca.fit_transform(df_scaled))
+# df_pca.head()
+
+
+#CD Python - 330
+
+'''
+Przeprowadź klastrowanie za pomocą algorytmu K-Means. 
+
+Stwórz 3 klastry na podstawie df_scaled i przypisz je do kolumny w df o nazwie cluster.
+'''
+
+
+# import pandas as pd
+# from sklearn.preprocessing import RobustScaler
+# from sklearn.decomposition import PCA
+# from sklearn.cluster import KMeans
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+
+# df = pd.read_csv("mini-df.csv")
+# df = df[["price_per_m", "floor_no", "build_year", "area"]].dropna()
+
+# df_scaled = RobustScaler().fit_transform(df)
+
+# pca = PCA(n_components = 3)
+# df_pca = pd.DataFrame(pca.fit_transform(df_scaled)) #to PCA ogólnie nie jest konieczne jbc tutaj w tym zadaniu
+
+# # chart = sns.scatterplot(df_pca)
+# # plt.show()
+
+# model = KMeans(n_clusters = 3)
+# df['cluster'] = model.fit_predict(df_pca)
+# df.head()
+
+
+
+#CD Python - 331
+
+'''
+Zadanie
+Algorytm K-Means na początku losowo wybiera tzw. centroidy, które będą środkiem klastra.
+Następnie każdą obserwację przypisuje do najbliższego centroidu. 
+Gdy wszystkie obserwacje zostaną przypisane, 
+algorytm oblicza nowe położenie środka każdego klastra jako średnią wszystkich punktów, 
+które do niego należą.
+
+Proces przypisywania obserwacji i wyznaczania nowych środków jest powtarzany wielokrotnie,
+aż klastry przestaną się zmieniać lub zmiany będą bardzo małe.
+
+Główne wady algorytmu K-Means:
+
+Musimy z góry określić liczbę klastrów (k), czyli powiedzieć algorytmowi, na ile grup ma podzielić dane.
+Każda obserwacja zostanie przypisana do jednego z klastrów. 
+
+Algorytm nie rozpoznaje punktów odstających (outlierów) jako osobnej kategorii, 
+nawet bardzo nietypowe obserwacje trafią do najbliższego klastra, co może wpływać na położenie centroidów.
+
+Zadanie
+Stwórz wykres punktowy (scatterplot), który przedstawia wartości z kolumn x i y. 
+Pokoloruj punkty zgodnie z przypisanym klastrem. Następnie zmień liczbę klastrów w modelu na 3, 
+a później na 4, i zobacz, jak zmienia się podział danych na wykresie.
+'''
+
+
+# import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+# df = pd.DataFrame({
+#     "x": [1.0, 1.2, 0.8, 1.1, 1.3,
+#           5.0, 5.2, 4.8, 5.1, 4.9,
+#           9.5],
+#     "y": [1.1, 0.9, 1.2, 1.0, 0.8,
+#           5.0, 4.8, 5.1, 5.2, 4.9,
+#           2.0]
+# })
+
+# from sklearn.cluster import KMeans
+# model = KMeans(n_clusters=4, random_state=42)
+# df["cluster"] = model.fit_predict(df)
+
+# scatter = sns.scatterplot(
+#       data = df,
+#       x = 'x',
+#       y = 'y',
+#       hue = 'cluster'
+# )
+# plt.show()
+
+
+
+#CD Python - 332
+
+'''
+
+Algorytm K-Means wymaga określenia liczby klastrów (k) przed rozpoczęciem trenowania modelu. 
+Jednym ze sposobów jej wyboru jest metoda łokcia (ang. elbow method).
+
+Polega ona na wytrenowaniu wielu modeli z różnymi wartościami k
+oraz obliczeniu dla każdego z nich wartości inertia_, 
+czyli sumy kwadratów odległości obserwacji od najbliższego centroidu.
+
+Wraz ze wzrostem liczby klastrów wartość inertia_ maleje,
+jednak po pewnym momencie poprawa staje się niewielka. 
+Miejsce, w którym wykres zaczyna się wyraźnie wypłaszczać (tworząc charakterystyczny "łokieć"),
+uznaje się za dobrą liczbę klastrów.
+
+Zadanie
+Wytrenuj modele K-Means dla liczby klastrów od 1 do 10. 
+Dla każdego modelu zapisz wartość inertia_, a następnie narysuj wykres, na którym:
+
+na osi X znajduje się liczba klastrów,
+na osi Y znajduje się wartość inertia_.
+
+Na podstawie wykresu określ optymalną liczbę klastrów
+("łokieć" - miejsce od którego spadek inercji się wypłaszcza) i zapisz ją do zmiennej optimal_k.
+
+'''
+
+# from sklearn.datasets import make_blobs
+# from sklearn.cluster import KMeans
+# import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+# X, _ = make_blobs(
+#     n_samples=500,
+#     centers=4,
+#     n_features=2,
+#     cluster_std=[0.8, 1.0, 0.9, 1.2],
+#     random_state=42,
+# )
+# df = pd.DataFrame(X, columns=["x", "y"])
+
+# model = KMeans(n_clusters=1, random_state=42)
+# model.fit_predict(df)
+# print(model.inertia_)
+
+# rows = []
+# for i in range(10):
+#     cluster_n = i+1
+#     model = KMeans(n_clusters=cluster_n, random_state=42)
+#     model.fit_predict(df)
+#     inertia = model.inertia_
+
+#     rows.append(
+#         {
+#         'clusters': cluster_n,
+#         'inertia': inertia
+#         }
+#     )
+    
+# clusters_df = pd.DataFrame(rows)
+# clusters_df.head()
+
+# chart = sns.lineplot(
+#     clusters_df,
+#     x = 'clusters',
+#     y = 'inertia'
+# )
+
+# plt.show()
+
+# optimal_k = 4
+
+
+
+#CD Python - 333
+
+'''
+Zadanie
+W przeciwieństwie do uczenia nadzorowanego, 
+w uczeniu nienadzorowanym nie dysponujemy rzeczywistymi etykietami, 
+dlatego nie możemy bezpośrednio ocenić czy model poprawnie przypisał obserwacje do klastrów.
+
+Z tego powodu korzystamy z metod oceniających jakość klasteryzacji,
+takich jak metoda łokcia czy współczynnik sylwetkowy (ang. silhouette score),
+które pomagają oszacować, jak dobrze model podzielił dane na grupy.
+
+Metoda Silhouette Score pomaga ocenić jakość klasteryzacji. Dla każdej obserwacji porównuje ona:
+
+jak blisko znajduje się ona innych obserwacji z tego samego klastra
+jak daleko znajduje się od obserwacji z najbliższego innego klastra
+Wartość współczynnika mieści się w przedziale od -1 do 1:
+
+wartości bliskie 1 oznaczają dobrze rozdzielone klastry,
+wartości około 0 oznaczają, że klastry nakładają się na siebie,
+wartości poniżej 0 sugerują, że część obserwacji mogła zostać przypisana do niewłaściwego klastra.
+Zadanie
+Wytrenuj modele K-Means dla liczby klastrów od 2 do 10. 
+Dla każdego modelu oblicz wartość silhouette_score, a następnie narysuj wykres, na którym:
+
+na osi X znajduje się liczba klastrów
+na osi Y znajduje się wartość silhouette_score.
+Na podstawie wykresu wybierz liczbę klastrów dla której wartość silhouette_score jest największa. 
+
+Zapisz ją do zmiennej optimal_k.
+
+'''
+
+
+# from sklearn.datasets import make_blobs
+# from sklearn.cluster import KMeans
+# from sklearn.metrics import silhouette_score
+# import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+# X, _ = make_blobs(
+#     n_samples=500,
+#     centers=4,
+#     n_features=2,
+#     cluster_std=[0.8, 1.0, 0.9, 1.2],
+#     random_state=42,
+# )
+# df = pd.DataFrame(X, columns=["x", "y"])
+
+# rows = []
+# for i in range(2, 11):
+#     model = KMeans(n_clusters=i, random_state=42)
+#     pred = model.fit_predict(df)
+#     silh_score = silhouette_score(df, pred)
+#     rows.append(
+#         {
+#         'clusters': i,
+#         'silhouette_score': silh_score
+#         }
+#     )
+
+# clusters_df = pd.DataFrame(rows)
+# chart = sns.lineplot(
+#     data = clusters_df,
+#     x = 'clusters',
+#     y = 'silhouette_score'
+# )
+# plt.show()
+
+# optimal_k = 4
+
+
+
+
+#CD Python - 334
+
+'''
+Zadanie
+Kolejnym przykładem algorytmu redukcji wymiarowości jest t-SNE, który służy głównie do wizualizacji, 
+rzutując wiele cech na 2 lub 3 wymiary. t-SNE zachowuje podobieństwo między obserwacjami, 
+dzięki temu podobne obiekty pozostają blisko siebie na wykresie,
+
+Mirosława Mamczura na swoim blogu opisuje różnice między PCA a t-SNE, w tym:
+
+PCA jest techniką matematyczną, a t-SNE jest probabilistyczny,
+t-SNE w przeciwieństwie do PCA zachowuje odległości pomiędzy parami odwzorowując nieliniowość 
+i jest w stanie zinterpretować złożoną zależność wielomianową między cechami,
+t-SNE jest drogi obliczeniowo.
+Algorytm t-SNE posiada parametr perplexity, 
+który wpływa na sposób interpretowania lokalnego sąsiedztwa między obserwacjami. 
+
+Zmiana jego wartości może prowadzić do zupełnie innego rozmieszczenia punktów na wykresie.
+
+Zadanie
+Uruchom algorytm TSNE trzykrotnie, rzutując dane z df do 2 wymiarów i ustawiając kolejno:
+
+perplexity=5
+perplexity=30
+perplexity=100
+Dla każdej wartości narysuj wykres punktowy (scatterplot), w którym:
+
+na osi X znajduje się pierwszy wymiar t-SNE
+na osi Y znajduje się drugi wymiar t-SNE
+'''
+
+
+
+# from sklearn.datasets import make_blobs
+# from sklearn.manifold import TSNE
+# import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
+# X, _ = make_blobs(
+#     n_samples=300,
+#     n_features=8,
+#     centers=4,
+#     random_state=42
+# )
+# df = pd.DataFrame(X, columns=[f"feature_{i}" for i in range(8)])
+# df.head()
+
+
+# for i in [5, 30, 100]:
+#     tsne = TSNE(n_components = 2, perplexity = i, random_state = 42)
+#     df_tsne = pd.DataFrame(tsne.fit_transform(df))
+#     sns.scatterplot(data=df_tsne, x=0, y=1)
+#     plt.title(f"Perplexity: {i}")
+#     plt.show()
+
+
+#CD Python - 335
+'''
+Podczas procesu hyperparameter tuning klasa GridSearchCV sprawdza wszystkie możliwe kombinacje hiperparametrów, 
+które zdefiniujemy. Wadą tego rozwiązania jest to, że liczba kombinacji może bardzo szybko rosnąć, 
+przez co trenowanie modelu zajmuje dużo czasu.
+
+Alternatywą jest RandomizedSearchCV, które zamiast sprawdzać wszystkie kombinacje, 
+losowo wybiera tylko część z nich. Dzięki temu działa znacznie szybciej, 
+szczególnie gdy liczba hiperparametrów jest duża.
+
+Za liczbę losowo sprawdzonych kombinacji odpowiada argument n_iter. 
+Na przykład ustawienie n_iter=20 oznacza, 
+że algorytm przetestuje 20 losowo wybranych kombinacji hiperparametrów spośród wszystkich możliwych.
+
+Zadanie
+
+Podmień w kodzie grid_search na RandomizedSearchCV 
+i ustaw liczbę losowo testowanych kombinacji hiperparametrów na 10.
+
+'''
+
+# from sklearn.datasets import make_regression
+# from sklearn.ensemble import RandomForestRegressor
+# from sklearn.model_selection import GridSearchCV
+# from sklearn.model_selection import RandomizedSearchCV
+
+# X, y = make_regression(
+#     n_samples=100,
+#     n_features=5,
+#     noise=10,
+#     random_state=42,
+# )
+
+# param_grid = {
+#     "n_estimators": [10, 20, 30],
+#     "max_depth": [3, 5, None],
+#     "min_samples_split": [2, 5, 10],
+#     "min_samples_leaf": [1, 2, 4],
+#     "max_features": ["sqrt", None],
+#     "bootstrap": [True, False],
+# }
+
+# grid_search = RandomizedSearchCV(
+#     RandomForestRegressor(random_state=42),
+#     n_iter = 10,
+#     param_distributions = param_grid
+# )
+
+
+#CD Python - 336
+
+'''
+Klasyczna regresja liniowa nie ma wielu hiperparametrów, 
+jej rozszerzeniem jest jednak regresja Lasso, 
+która wykorzystuje regularyzację pomagającą ograniczyć przeuczenie modelu.
+
+Regularyzacja polega na dodaniu kary za zbyt duże wartości współczynników modelu do funkcji kosztu. 
+Dzięki temu model nie dopasowuje się zbyt mocno do danych treningowych, 
+co często poprawia jego zdolność do przewidywania nowych danych. 
+
+W przypadku regresji Lasso część współczynników może zostać zmniejszona nawet do zera, 
+dzięki czemu model automatycznie wybiera najważniejsze cechy.
+
+Siłę regularyzacji kontroluje hiperparametr alpha. 
+Im większa wartość alpha, tym silniejsza regularyzacja i tym większa kara za duże współczynniki.
+
+Ponieważ regresja Lasso jest wrażliwa na skalę cech, przed wytrenowaniem modelu należy je wyskalować.
+
+
+
+Zadanie
+
+Stwórz model regresji Lasso przewidujący cenę mieszkania za metr na podstawie dostępnych danych w df.
+
+Przeprowadź wszystkie etapy uczenia maszynowego w odpowiedniej kolejności, uwzględniając:
+
+przygotowanie danych i zapisanie ich pod zmiennymi X i y
+podział danych na zbiór treningowy i testowy
+wyskalowanie danych
+etap hyperparameter tuning, w którym znajdziesz najlepszą wartość hiperparametru alpha. 
+
+Testowany zakres hiperparametrów przypisz do słownika grid_params
+zapisanie wytrenowanego modelu o najlepszym hiperparametrze alpha pod zmienną best_model
+wybór najlepszej metryki oceniającej model i zapisanie wyniku na zbiorze testowym do test_score
+interpretacja modelu i przypisanie 3 najważniejszych cech i przypisanie do listy top_features
+
+'''
+
+# #okej, to bardzo złożone zadanie, więc po kolei
+# import pandas as pd
+# from sklearn.linear_model import Lasso
+# from sklearn.model_selection import train_test_split, GridSearchCV
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.metrics import root_mean_squared_error
+
+# df = pd.read_csv("mini-df.csv")
+# df.head()
+
+# df = df.select_dtypes(include="number") #najpierw bierzemy tylko kolumny numeryczne
+# df = df.dropna() #wywalamy nulle
+
+# X = df.drop(columns = ['area', 'price', 'price_per_m']) #drop kolumn, które mogłyby powodować wyciek danych
+# y = df['price_per_m']
+
+# X_train, X_test, y_train, y_test = train_test_split( #dzielenie danych na testowe/treningowe zbiory
+#     X,
+#     y,
+#     test_size = 0.3,
+#     random_state = 42
+# )
+
+# #skalowanie danych, używam tu StandardScalera
+# scaler = StandardScaler()
+# X_train_scaled = scaler.fit_transform(X_train) #najpierw trening na zbiorze treningowym i od razu skalowanie
+# X_test_scaled = scaler.transform(X_test) #i skalowanie zbioru testowego już bez treningu (fit)
+
+# #dalej czeka mnie hyperparameter tuning, więc tworzymy obiekt modelu
+# model = Lasso(random_state = 42) 
+
+# #zbiór parametrów, akurat tutaj w zadaniu była tylko alpha, więc wpisuję różne wartości
+# grid_params = {
+#     'alpha': [1.0, 2.0, 3.0, 4.0, 5.0, 10.0]
+# }
+
+# #do hyperparameter tuningu użyję GridSearchCV, testów nie będzie za wiele, mamy tylko alphę
+# grid_search = GridSearchCV(
+#     estimator = model, #używam stworzonego obiektu modelu
+#     param_grid = grid_params #i ssłownika parametrów
+# )
+
+# grid_search.fit(X_train_scaled, y_train) #pora na wytrenowanie modelu i test parametrów
+# print(grid_search.best_estimator_, grid_search.best_params_) #no i mamy informacje
+
+# best_model = grid_search.best_estimator_ #od razu mogę przypisać najlepszy model do tego, choć to nie jest konieczne
+# print(best_model)
+
+# model = Lasso(alpha = 10.0, random_state = 42) #tworzę model ręcznie na podstawie najlepszych parametrów
+# model.fit(X_train_scaled, y_train) #trenujemy go na wyskalowanych danych treningowych
+
+# test_pred = model.predict(X_test_scaled) #i następnie używam na testowych
+# test_score = root_mean_squared_error(test_pred, y_test) #i tutaj pomiar RMSE
+# print(test_score)
+
+# #i na koniec DF, żeby podejrzeć najważniejsze cechy - tutaj już bez SHAPa, tylko tak na szybko
+# print(pd.DataFrame(
+#     {
+#     'column': [column for column in X.columns],
+#     'coef_': [coef for coef in model.coef_]
+#     }
+#     )
+# )
+
+# top_features = ['lift', 'monitoring', 'floor_no']
+
+
+
+
+###25-08 - return from holiday trip - start of a new learning chapter focused on ML (+ all that's related)
+#I've already finished CD Python for DA course, including learning DA + statistics + visualizations + ml - time to practice these concepts and get advanced
+#and comfortable with them with regular practice
+
+#W1 D1 - Placement test
+
+'''
+## Task 1 — Load and inspect (5 min)
+
+Load the CSV - `xauusd_m5_et.csv`. Then answer in code, printing each result:
+
+- 1a. How many rows and columns?
+- 1b. What are the dtypes? Is anything loaded as a type you would not want?
+- 1c. How many unique trading days?
+- 1d. Any nulls?
+
+**Then answer in a comment:** which column has the wrong dtype for time-series work,
+and what would break if you left it that way?
+'''
+
+# import pandas as pd
+
+# df = pd.read_csv('xauusd_m5_et.csv')
+
+# print(df.shape)
+# print(f'rows = {df.shape[0]}, columns = {df.shape[1]}')
+# print(df.dtypes)
+# print(df['trade_date'].nunique())
+# print(df.isnull().sum())
+
+
+'''
+Task 2
+
+
+Build a daily DataFrame with one row per `trade_date`, containing:
+
+- `day_open` — open of the first bar at or after 03:00 ET
+- `day_close` — close of the last bar at or before 16:00 ET
+- `day_high`, `day_low` — extremes across the 03:00–16:00 ET window only
+- `n_bars` — how many bars fell inside that window
+
+**Then answer in a comment:** why filter to 03:00–16:00 instead of using the whole day?
+'''
+
+
+# df['et_time'] = pd.to_datetime(df['et_time'])
+# df['trade_date'] = pd.to_datetime(df['trade_date'])
+
+# df = df[(df['et_time'].dt.hour >= 3) & (df['et_time'].dt.hour <= 15)]
+# daily = df.groupby(df['trade_date']).agg(
+#     daily_open = ('open', 'first'),
+#     daily_close = ('close', 'last'),
+#     daily_high = ('high', 'max'),
+#     daily_low = ('low', 'min'),
+#     n_bars = ('et_time', 'count')
+# ).reset_index()
+
+
+
+# fg = df["price_per_m"].groupby(df["date"]).mean().plot()
+
+'''
+## Task 3 — Features with a rolling window (20 min)
+
+Add to the daily DataFrame:
+
+- 3a. `day_range` = high − low
+- 3b. `day_return_pct` = percentage change from open to close
+- 3c. `atr14` = mean of `day_range` over the previous 14 days
+- 3d. `range_norm` = `day_range` divided by `atr14`
+- 3e. `prev_close` = previous day's `day_close`
+- 3f. `gap` = today's `day_open` − `prev_close`
+
+'''
+
+
+# daily['day_range'] = daily['daily_high'] - daily['daily_low']
+# daily['day_return_pct'] = (daily['daily_close'] - daily['daily_open']) / daily['daily_open'] * 100
+# daily['atr14'] = daily['day_range'].shift(1).rolling(14).mean()
+# daily['range_norm'] = daily['day_range'] / daily['atr14']
+# daily['prev_close'] = daily['daily_close'].shift(1)
+# daily['gap'] = daily['daily_open'] - daily['prev_close']
+
+
+
+'''
+## Task 4 — Grouping and aggregation (15 min)
+
+Using the daily DataFrame:
+
+- 4a. Mean and median `day_range` per weekday, sorted highest to lowest.
+- 4b. The 10 widest-range days, showing date, range, and whether the day closed up or down.
+- 4c. Share of bullish days (close > open) per weekday, as a percentage.
+- 4d. Mean `day_range` per year AND per weekday in one table
+     (rows = year, columns = weekday).
+
+'''
+
+# #4a
+# daily['weekday'] = daily['trade_date'].dt.weekday
+# daily['weekday_name'] = daily['trade_date'].dt.day_name()
+
+# median_weekdays = daily['day_range'].groupby([daily['weekday'], daily['weekday_name']]).median().reset_index().sort_values(by = 'day_range', ascending = False)
+# #print(median_weekdays.tail())
+
+# mean_weekdays = daily['day_range'].groupby([daily['weekday'], daily['weekday_name']]).mean().reset_index().sort_values(by = 'day_range', ascending = False)
+# #print(mean_weekdays.tail())
+
+# #4b
+# top_10_widest = daily[['trade_date', 'day_range', 'day_return_pct']].sort_values(by = 'day_range', ascending = False).head(10)
+# top_10_widest['direction'] = top_10_widest['day_return_pct'].apply(lambda x: 'up' if x >= 0 else 'down')
+# #print(top_10_widest)
+
+# #4c
+# daily['direction'] = daily['day_return_pct'].apply(lambda x: 'bullish' if x >= 0 else 'bearish')
+# bullish_days_share = daily.groupby([daily['weekday'], daily['direction']])['direction'].count()
+# #print(bullish_days_share)
+
+# #4d
+
+# daily['year'] = daily['trade_date'].dt.year
+# daily_ranges_by_year_weekday = daily.groupby([daily['year'], daily['weekday']])['day_range'].mean().reset_index()
+# #print(daily_ranges_by_year_weekday)
+
+
+'''
+## Task 5 — Train/test split and a baseline (20 min)
+
+Target: `bullish` = 1 if `day_close > day_open`, else 0.
+
+- 5a. Build the target column.
+- 5b. Split the data into train and test. Choose the split yourself.
+- 5c. Print the majority-class baseline accuracy on the **test** set.
+- 5d. Pick any 4 features from what you built and print their correlation with the target.
+
+**Then answer in comments:**
+- Why did you split the way you did?
+- What is the baseline number actually telling you, and what would it mean if a
+  trained model scored 3 percentage points below it?
+
+'''
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import accuracy_score
+# from sklearn.linear_model import LogisticRegression
+
+'''Adrian:
+
+The below is SIMPLY A MOCK SPLIT, AS IT DOESN'T MAKE ANY SENSE WITH THE CURRENT APPROACH, IT WOULD BE 100% DATA LEAK,
+ AS WE ALREADY HAVE OHLC prices for the whole day!!!
+ 
+ However I wanted to show my ability to split data - the today's task set doesn't allow me to properly split data avoiding data leakage!
+ To make this usable, I'd have to split day in two separate parts. Even if I take the daily_close, day_return_pct columns away, we don't know the time of O/H/L forming, so it's still data leakage
+
+The current apporach doesn't make much sense from meritoric standpoint
+'''
+
+# daily['direction'] = daily['day_return_pct'].apply(lambda x: 1 if x >= 0 else 0)
+# print(daily.tail())
+# daily = daily.select_dtypes(include = 'number')
+# daily = daily.dropna()
+
+
+# y = daily[['direction']] #target_column
+# X = daily.drop(columns = ['direction', 'day_return_pct'])
+
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X,
+#     y,
+#     test_size = 0.3,
+#     random_state = 42,
+#     shuffle = False #required for time series to avoid data leakage, here it's unavoidable anyway, but it's a good practice imo
+# )
+
+# mock_model = LogisticRegression()
+# mock_model.fit(X_train, y_train)
+
+# y_train_pred = mock_model.predict(X_train)
+# print(y_train_pred)
+# mock_y_pred = mock_model.predict(X_test)
+# print(mock_y_pred)
+# acc_score = accuracy_score(y_test, mock_y_pred)
+# print(acc_score)
+
+
+# X_train, X_test, y_train, y_test = train_test_split( #dzielenie danych na testowe/treningowe zbiory
+#     X,
+#     y,
+#     test_size = 0.3,
+#     random_state = 42
+# )
+
+##########
+
+'''
+AT THIS POINT I'VE DECIDED IT WILL BE MUCH MORE CONVENIENT TO MOVE INTO A JUPYTER NOTEBOOK instead of executing the file every time.
+
+'''
+
+

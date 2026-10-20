@@ -4,6 +4,31 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-20 | ML Phase - Week 9 Day 2 | Score: ~85% | Difficulty: not rated | ~2h
+**Covered:** Pre-task, questioned whether binary 0/1 volatility classification was even
+right - research confirmed regression on log volatility is the actual standard (GARCH/HAR
+benchmarks), landed on log-RATIO (not raw log-level) as target so exp() converts cleanly to
+a plain multiplier, no bias-correction needed. Task 1 - built London Open (3-4 ET) and
+London-NY Overlap (8-11 ET) windows; two small pandas slips corrected inline (.dt.day vs
+.dt.date collision risk, unnecessary/confused .apply(lambda) for hour masks instead of
+plain vectorized comparison). Task 2 - real bug: realized_power_london came back negative
+on some days (impossible for a sum of absolute values), breaking np.log into NaN. Root
+cause: ret_1bar was signed, so summing across a window let positive/negative bars cancel -
+self-diagnosed and fixed with .abs() before the groupby-sum. Task 3 - full discipline
+checklist: baseline MAE 0.478, tuned RandomForestRegressor train MAE 0.268/R² 0.645, test
+MAE 0.364/R² 0.363 - beats baseline by ~0.11 MAE, gap in the expected direction (train >
+test, not inverted).
+**Real outcome:** first clean, leak-free result this cycle - London-open volatility
+genuinely carries some signal for London-NY overlap volatility, closing the loop Friday's
+leak discovery opened.
+**Reinforce next:** when building a "sum of magnitudes" feature (realized power, realized
+vol, any energy-type aggregate), verify the per-bar quantity is non-negative (.abs()) BEFORE
+the groupby-sum, not after.
+**Carries forward:** tomorrow, replicate the same observation->gap->prediction, log-ratio
+regression structure with different window pairs (15min->15min, first hour->rest of
+session), swapping only window boundaries.
+
+---
 ## 2026-10-19 | ML Phase - Week 9 Day 1 | Score: ~85% | Difficulty: 4-5/10 | ~1h
 **Covered:** Task 0 - confirmed realized_power/target_volatility_rose correlation (-0.37),
 correctly recognized this as a strong relationship despite initially looking "smaller than
