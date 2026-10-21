@@ -4,6 +4,35 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-21 | ML Phase - Week 9 Day 3 | Score: ~85% | Difficulty: 4-5/10 | ~1.5h
+**Covered:** Tighter, more realistic window pair (premarket 7-8 ET -> first hour of
+overlap 8-9 ET, gap=0 between two disjoint windows - not a leak, just two different bars)
+plus the full non-leaking Week 8 feature family (~9 features: realized_power, atr14,
+otf_streak, sjv_10, efficiency_ratio_10, wtc_10, center_of_mass, atr_trend,
+regime_duration, day_of_week), all recomputed from the new premarket window via one
+`.agg()` call per window (fluency step up from yesterday's one-groupby-per-feature).
+Target std (0.65) came in ~2.5x tighter than yesterday's (1.61) - initially misread as "no
+difference," corrected: shorter, more similarly-sized windows produce less day-to-day
+drift in the ratio.
+**Task 3 result:** baseline MAE 0.482, tuned RF train MAE 0.330/R² 0.593, test MAE
+0.425/R² 0.183 - beats baseline by ~0.057 MAE, healthy train>test direction. Feature
+importances: realized_power_premarket (65.5%) + atr14 (12.9%) carry ~80% of total
+importance; the other 7 features contribute almost nothing.
+**Real outcome:** second clean, leak-free result, and a direct empirical confirmation that
+Week 8's screening conclusion (realized_power + atr14 as the only real-signal features)
+holds on a completely different target/window structure. Expanding 2 features to ~10 did
+NOT improve the result (smaller margin over baseline than yesterday) - a genuine, useful
+negative finding about the feature family's ceiling, correctly recognized as such rather
+than as a failure.
+**Reinforce next:** when R² drops a lot between setups but MAE barely moves, check whether
+the target's own variance shrank first - R² is relative to that variance, don't read it in
+isolation.
+**Carries forward, Adrian's own idea:** test whether a 1h horizon is "too detached" - try
+tighter/different window pairs (first-5-min -> rest of hour, same-session immediate
+continuation) as a replication of this exact pipeline. Also worth a literature check on
+window/horizon choices actually used in volatility-forecasting research.
+
+---
 ## 2026-10-20 | ML Phase - Week 9 Day 2 | Score: ~85% | Difficulty: not rated | ~2h
 **Covered:** Pre-task, questioned whether binary 0/1 volatility classification was even
 right - research confirmed regression on log volatility is the actual standard (GARCH/HAR
