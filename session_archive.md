@@ -4,6 +4,36 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-22 | ML Phase - Week 9 Day 4 | Score: ~85% | Difficulty: 5-6/10 | ~2h
+**Covered:** Shortest window pair yet - first 15 min of overlap (8:00-8:15 ET) predicting
+the rest of the overlap hour (8:15-9:00 ET), motivated by a morning research check showing
+intraday volatility autocorrelation is high at short lags and decays fast (shorter gap =
+stronger expected signal). Required rebuilding the full feature family from scratch on raw
+M5 data (xauusd_m5_et.csv has no atr14/otf_streak/etc. columns, unlike the M15 file) since
+M15 would have given only 1 bar for a 15-min window - too thin to aggregate. Two real bugs
+caught and fixed during review: an operator-precedence bug in the warm-up
+(`mask1 & mask2 < 15` parses as `(mask1 & mask2) < 15` since `&` binds tighter than `<`,
+silently wrong with no error), and an off-by-one window boundary (`minute > 15` instead of
+`>= 15`, silently dropping the 8:15-8:20 bar from both windows). The boundary fix was
+re-run and the result improved further, confirming it mattered.
+**Final result:** baseline MAE 0.512, tuned RF test MAE 0.351 (margin 0.161), test R² 0.489
+- the BEST of the 3-day window-pair arc on both metrics (Day 2: margin 0.114/R² 0.363; Day
+3: margin 0.057/R² 0.183). `realized_power_observation` alone carries 80% of feature
+importance (up from 65% on Day 3), growing as the gap shrinks.
+**Real outcome:** direct empirical confirmation of the morning's research finding - shorter
+observation-to-prediction gaps carry a stronger volatility signal, the opposite of Adrian's
+initial suspicion going into the day ("may 1h to zbyt odklejona predykcja"). Closes the
+3-day window-pair arc with a clear, literature-consistent conclusion.
+**Reinforce next:** operator precedence with `&`/`|` vs comparison operators (second time
+this project a silent precedence bug has slipped through - always parenthesize each side
+separately); clean up superseded print/comment blocks before pasting notebook work into
+tasks.md, so stale and fresh results don't sit side by side unlabeled (happened today,
+caught via review).
+**Carries forward:** is there a noise floor - does an even shorter/different pair keep
+improving, or has this arc found its ceiling? Worth a decision next session on one more
+replication vs moving on.
+
+---
 ## 2026-10-21 | ML Phase - Week 9 Day 3 | Score: ~85% | Difficulty: 4-5/10 | ~1.5h
 **Covered:** Tighter, more realistic window pair (premarket 7-8 ET -> first hour of
 overlap 8-9 ET, gap=0 between two disjoint windows - not a leak, just two different bars)
