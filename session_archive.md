@@ -4,6 +4,38 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-23 | ML Phase - Week 9 Day 5 | Score: ~80% | Difficulty: 8/10 | session
+**Covered:** First production-grade piece of the project - MLflow experiment tracking
+with a SQLite backend (deliberately chosen over the default flat-file backend to mirror a
+real company setup). Logged Day 2/3/4's results as 3 runs, then trained and logged a real
+model artifact via `mlflow.sklearn.log_model`, hit and resolved an `UntrustedTypesFoundException`
+(skops safety check on `sklearn.tree._tree.Tree`, fixed with `skops_trusted_types=[...]`
+since the file is self-created and trusted), reloaded the model fresh and confirmed
+`loaded_model.predict(...) == model.predict(...)` returns `True` - the core proof a
+tracked model is a reproducible artifact, not just a results record. Wrapped it in
+`predict_volatility(model, observation_features: dict) -> float` in a new `.py` file -
+first real OOP-adjacent territory this project (module-level constants, type hints,
+module-vs-function calling), deliberately shaped `dict in, float out` as the interface a
+future FastAPI endpoint will need.
+**Real friction, both resolved correctly:** initially read the MLflow UI's Traces/
+Evaluation tab (a different module, for LLM-call monitoring) instead of Runs, concluding
+nothing worked when it actually did; called the imported MODULE as if it were the function
+of the same name (modules aren't callable - needed `pvm.predict_volatility(...)` via an
+alias); `.to_dict()` on a multi-row DataFrame without `.iloc[0]` first produces a dict of
+per-column dicts, not one row's features.
+**Real outcome:** first working end-to-end production artifact - trained, tracked,
+reloadable, and wrapped in a clean function boundary. A genuinely new kind of session
+(infrastructure, not modeling) - difficulty 8/10 reflects a new tool + new UI + new
+language concepts arriving together, not weaker work; judged on learning reached by the
+end, not smoothness, per Adrian's explicit framing going in.
+**Reinforce next:** MLflow UI has separate Runs vs Traces/Evaluation tabs - an empty
+Traces tab is expected, not broken; `module.function(...)` never `module(...)`; `.iloc[0]`
+before `.to_dict()` for one row's flat dict.
+**Carries forward, agreed:** next session wraps `predict_volatility()` in a FastAPI
+endpoint (`/predict`, JSON in/out) plus a small Streamlit UI for manual testing - the next
+production-grade layer (serving).
+
+---
 ## 2026-10-22 | ML Phase - Week 9 Day 4 | Score: ~85% | Difficulty: 5-6/10 | ~2h
 **Covered:** Shortest window pair yet - first 15 min of overlap (8:00-8:15 ET) predicting
 the rest of the overlap hour (8:15-9:00 ET), motivated by a morning research check showing

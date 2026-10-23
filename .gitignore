@@ -5,5 +5,8 @@ algo_backtest/data/FDAX_M1_OHLC.csv
 algo_backtest/data/FDAX_trades_raw.csv
 project1_phones_sales_analytics/data/
 venv/
+mlflow.db
+mlruns/
+__pycache__/
 xauusd_m5_et.csv
 project4_trend_regime/
