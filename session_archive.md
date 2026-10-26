@@ -4,6 +4,39 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-26 | ML Phase - Week 10 Day 1 | Score: ~85% (quiz ~75%) | Difficulty: 6-7/10 | session
+**Week 9 weekend quiz (30 min, ~75%):** solid transfer on structural leakage (A1) and
+window-design philosophy (B1/B3), strong MLflow/production reasoning (D1/D2, went and
+watched an external guide after Friday - showed in answer quality). Two real, repeating
+gaps: A2 identified doctor bias but missed Day 1's actual mechanism (same visit, same
+person, same observations - reference-point sharing, independent of bias); C1/C2 misread
+R² and train/test gap direction - C2 called a HEALTHY gap pattern (train better than test
+on both MAE and R²) "contradictory," when it's literally the same non-leak pattern Day
+2/3/4 all showed. This is the second time this month R²-vs-target-variance reasoning
+needed correcting (first was Day 3 itself) - worth a live-result recap next time this
+comes up, not just quiz-context explanation.
+**Main session - FastAPI + Streamlit serving layer:** built the full serving stack on top
+of Friday's `predict_volatility()` - FastAPI `/predict` endpoint with a `lifespan` context
+manager loading the model once at startup (not per-request), a Pydantic `BaseModel` for
+request validation, confirmed via auto-generated `/docs`; called it like a real HTTP
+client via `requests`; built a Streamlit UI on top, two servers running simultaneously,
+producing a correct predicted multiplier end to end. One real misdiagnosis: blamed a 500
+error on dict KEY ORDER, which is never possible (JSON/dict lookups are always by name) -
+likely an actual key-name mismatch triggering a crash inside the function instead of
+Pydantic's normal 422 validation response. Not independently re-verified this session.
+**Real outcome:** first fully working serving stack - trained, tracked, packaged, and now
+reachable over HTTP with a clickable UI. Closes the serving layer of the production-grade
+arc. Good forward-thinking catch: recognized the UI needs raw-data auto-feature-computation
+instead of manually-typed features, and correctly identified that a live, non-delayed OHLC
+data source is the real prerequisite - deferred to tomorrow as its own starting point
+rather than rushing ahead.
+**Reinforce next:** JSON/dict lookups are by key NAME, never position - "wrong order" is
+never a valid bug explanation; R²/train-test-gap direction reading, recurring.
+**Carries forward, Adrian's own plan:** tomorrow starts with sourcing a live, non-delayed
+OHLC data feed (broker/data-provider API - new, non-ML topic) before building the
+automatic feature-computation pipeline.
+
+---
 ## 2026-10-23 | ML Phase - Week 9 Day 5 | Score: ~80% | Difficulty: 8/10 | session
 **Covered:** First production-grade piece of the project - MLflow experiment tracking
 with a SQLite backend (deliberately chosen over the default flat-file backend to mirror a
