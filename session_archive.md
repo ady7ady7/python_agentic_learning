@@ -4,6 +4,33 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-27 | ML Phase - Week 10 Day 2 | Score: ~85% | Difficulty: 5/10 | ~50 min
+**Covered:** Live data sourcing via Twelve Data (REST API, `XAU/USD`, `time_series`
+endpoint) - data-engineering groundwork for tomorrow's feature-computation pipeline, not
+ML/MLOps. `.env`/`python-dotenv` wired up correctly for the API key (never printed, never
+committed). Confirmed, after follow-up, that the feed is genuinely not delayed (checked
+timestamp vs actual current time directly, not just prices looking plausible). Independent,
+sharp catch: index 0 of the returned bars is the CURRENTLY FORMING candle, not a closed
+one - any real pipeline needs to check the candle's minute lands on a clean interval
+boundary before treating it as finished data, a concrete requirement now named for
+tomorrow. Real gap caught and fixed during review: the `try/except Exception` wrapper
+didn't actually implement explicit status-code checking - `requests.get()` never raises on
+a non-200 status by itself, so a real API error would have silently fallen through to a
+confusing `KeyError` instead of a clear message. Fixed with an explicit
+`if status_code != 200: raise` plus a second check for Twelve Data's own
+`{'status': 'error'}` JSON shape (HTTP 200 with an error payload inside - a provider-
+specific quirk worth remembering for future API integrations).
+**Real outcome:** a working, callable, properly error-handled live-data function, with
+feed staleness verified rather than assumed, and the forming-vs-closed-candle issue
+surfaced independently - solid, low-friction groundwork ("trochę zabawy, ale trudu
+niewiele") for tomorrow's feature pipeline.
+**Reinforce next:** `requests.get()` never raises on its own for non-2xx status - always
+check `response.status_code` explicitly; some APIs return HTTP 200 with an error inside
+the JSON body, check the provider's documented error shape too.
+**Carries forward:** tomorrow's feature-computation pipeline must explicitly filter out
+the currently-forming candle before computing any window-based features on live data.
+
+---
 ## 2026-10-26 | ML Phase - Week 10 Day 1 | Score: ~85% (quiz ~75%) | Difficulty: 6-7/10 | session
 **Week 9 weekend quiz (30 min, ~75%):** solid transfer on structural leakage (A1) and
 window-design philosophy (B1/B3), strong MLflow/production reasoning (D1/D2, went and
