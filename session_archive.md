@@ -4,6 +4,24 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-10-28 | ML Phase - Week 10 Day 3 | Score: 85% | Difficulty: 5/10 | ~1h
+**Covered:** Closed the automation loop - built `get_live_observation_features() -> dict`
+in `live_data.py`, porting all 9 Day 4 feature formulas (ret_1bar, atr14, otf_streak,
+atr_trend, efficiency_ratio_10, sjv_10, center_of_mass, wtc_10) to run on live Twelve Data
+M5 bars instead of a historical CSV. Added `/predict/live` to `api.py` - first fully
+hands-off prediction path in the project, zero manual feature entry. Tested end to end
+through `predict_volatility()`, got a real multiplier (4.2x) out.
+**Problems / gaps:** Missed sorting bars by `datetime` before computing shift/rolling
+features - Twelve Data returns newest-to-oldest, so every "previous bar" was actually a
+future bar relative to market time. Silently produced NaNs on rolling(10) features AND
+wrong (not just missing) values on atr14/ret_1bar-derived ones. Second occurrence this
+week of an unstated live-feed ordering assumption breaking time-dependent features (after
+yesterday's forming-candle catch). Two minor datetime/pytz API mistakes early on
+(`.replace(tzinfo=...)` not converting; `.date()` called as a constructor), fixed fast.
+**Reinforce next:** standing habit - sort immediately after any external/live data fetch,
+before computing anything sequential (shift/rolling/diff).
+
+---
 ## 2026-10-27 | ML Phase - Week 10 Day 2 | Score: ~85% | Difficulty: 5/10 | ~50 min
 **Covered:** Live data sourcing via Twelve Data (REST API, `XAU/USD`, `time_series`
 endpoint) - data-engineering groundwork for tomorrow's feature-computation pipeline, not

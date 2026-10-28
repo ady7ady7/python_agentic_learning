@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import predict_volatility_multiplier as pvm
+import live_data
 
 '''
 **Concept - Pydantic models (new today):** FastAPI uses a library called Pydantic to
@@ -39,3 +40,11 @@ class ObservationFeatures(BaseModel):
 def predict(features: ObservationFeatures) -> dict:
     predicted_multiplier = pvm.predict_volatility(model_store['model'], features.model_dump())
     return {'predicted_volatility_multiplier': predicted_multiplier} #dict/json return
+
+
+@app.get('/predict/live')
+def predict_live() -> dict:
+    data = live_data.get_recent_bars(symbol = 'XAU/USD', interval = '5min')
+    observation_data = live_data.get_live_observation_features(data)
+    predicted_multiplier = pvm.predict_volatility(model_store['model'], observation_data)
+    return {'predicted_volatility_multiplier': predicted_multiplier}
