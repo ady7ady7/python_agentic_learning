@@ -6,7 +6,7 @@ import numpy as np
 
 import datetime as dt
 from zoneinfo import ZoneInfo
-from typing import List
+from typing import List, Tuple
 
 def get_recent_bars(symbol: str, interval: str) -> pd.DataFrame:
     load_dotenv()
@@ -53,7 +53,19 @@ def center_of_mass(abs_returns_window):
     radius = (n - 1) / 2
     return (raw_com - center) / radius
 
-def get_live_observation_features(data: pd.DataFrame) -> dict:
+
+
+
+def get_live_observation_features(data: pd.DataFrame) -> Tuple[dict, float]:
+    '''
+    Receives OHLC candle data - here it's fetched from TwelveData API
+    Then it converts data and calculates relevant features.
+    
+    Returns a dict of calculated features ready for predictions
+    + ALSO latest close (as I need it for actual range predictions based on quantiles and range-per-point historical checks)
+    '''
+    
+    
     
     data = data.sort_values('datetime').reset_index(drop=True)
     data['hour'] = pd.to_datetime(data['datetime']).dt.hour
@@ -114,7 +126,7 @@ def get_live_observation_features(data: pd.DataFrame) -> dict:
     ]
 
 
-    prediction_window = prediction_window.groupby('trade_date').agg(
+    prediction_window_agg = prediction_window.groupby('trade_date').agg(
     realized_power_observation = ('abs_ret_1bar', 'sum'),
     atr14_mean_observation = ('atr14', 'mean'),
     otf_streak_observation = ('otf_streak', 'last'),
@@ -126,7 +138,7 @@ def get_live_observation_features(data: pd.DataFrame) -> dict:
     ).reset_index()
 
 
-    prediction_window['day_of_week'] = current_date.weekday()
-    prediction_window = prediction_window.drop(columns = 'trade_date')
-    return prediction_window.iloc[0].to_dict()
+    prediction_window_agg['day_of_week'] = current_date.weekday()
+    prediction_window_agg = prediction_window_agg.drop(columns = 'trade_date')
+    return prediction_window_agg.iloc[0].to_dict(), prediction_window['close'].iloc[-1]
 

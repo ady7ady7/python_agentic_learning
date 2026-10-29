@@ -4,7 +4,22 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
-## 2026-10-28 | ML Phase - Week 10 Day 3 | Score: 85% | Difficulty: 5/10 | ~1h
+## 2026-10-29 | ML Phase - Week 10 Day 4 | Score: 80% | Difficulty: 7/10 | ~1h30
+**Covered:** Built the range-translation layer - converts the model's abstract volatility
+multiplier into an actual price range in points. Computed empirical percentile calibration
+constants (range_to_power_ratio p75/p90) from historical data, since the ratio's
+distribution was too wide/skewed for a single fixed multiplier to be honest. Built
+`calibrate_range_bounds()` returning typical/wide price bands symmetric around last close
+(no direction predicted), wired into `/predict/live`. Tested live: sane bands around real
+gold price (~4000-4100), wide correctly nesting typical.
+**Problems / gaps:** Real bug - passed the raw multiplier into `calibrate_range_bounds`
+instead of `power_obs * multiplier`, producing an order-of-magnitude-wrong range (negative
+price result, caught immediately by instinct). Also a tuple/dict indexing slip in
+`api.py` (`observation_data[0]` on an already-unpacked dict) and a `for`-loop-context slip
+while drafting the calibration function.
+**Reinforce next:** write down each intermediate variable's actual unit/scale in a
+multi-step numeric pipeline before passing it to the next function - both real bugs this
+session came from losing track of "what scale is this value right now."
 **Covered:** Closed the automation loop - built `get_live_observation_features() -> dict`
 in `live_data.py`, porting all 9 Day 4 feature formulas (ret_1bar, atr14, otf_streak,
 atr_trend, efficiency_ratio_10, sjv_10, center_of_mass, wtc_10) to run on live Twelve Data

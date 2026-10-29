@@ -44,7 +44,16 @@ def predict(features: ObservationFeatures) -> dict:
 
 @app.get('/predict/live')
 def predict_live() -> dict:
-    data = live_data.get_recent_bars(symbol = 'XAU/USD', interval = '5min')
-    observation_data = live_data.get_live_observation_features(data)
+    data = live_data.get_recent_bars(symbol='XAU/USD', interval='5min')
+    observation_data, latest_close = live_data.get_live_observation_features(data)
     predicted_multiplier = pvm.predict_volatility(model_store['model'], observation_data)
-    return {'predicted_volatility_multiplier': predicted_multiplier}
+    predicted_power = observation_data['realized_power_observation'] * predicted_multiplier
+    typical_low, typical_high, wide_low, wide_high = pvm.calibrate_range_bounds(predicted_power, latest_close)
+    return {
+        'predicted_volatility_multiplier': predicted_multiplier,
+        'predicted_power': predicted_power,
+        'typical_low': typical_low,
+        'typical_high': typical_high,
+        'wide_low': wide_low,
+        'wide_high': wide_high
+    }
