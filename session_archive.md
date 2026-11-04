@@ -4,6 +4,20 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-04 | ML Phase - Week 11 Day 3 | Score: 80% | Difficulty: 6/10 | ~1h30
+**Covered:** Start of the 3-day model-benchmark arc. Built a shared `evaluate()` harness
+(train/test MAE, R2, skill vs mean baseline) - reproduced production RF (test MAE 0.349).
+Linear regression on log features beats RF: L3 (9 features, logged power/ATR) test MAE
+0.326 vs 0.349, R2 0.577 vs 0.492, train/test MAE gap 0.044 vs 0.109. L1 (log power only)
+gets ~44% of RF's skill. Permutation importance + ablation: power and ATR carry the model,
+center_of_mass a distant third, the other 5 add nothing (removing none of them helps).
+**Problems / gaps:** Read permutation importance as a share - it's an MAE increase
+(shuffling power pushes MAE to ~0.67, worse than baseline). Called MAE differences "pp".
+Claimed "better than HAR" before HAR features exist. Skipped 2c (benchmark table) and 3c
+(top-3 run). Warm-up: dict comprehension built as list of dicts again.
+**Reinforce next:** name a metric's unit before interpreting it; dict comprehension reps.
+
+---
 ## 2026-10-29 | ML Phase - Week 10 Day 4 | Score: 80% | Difficulty: 7/10 | ~1h30
 **Covered:** Built the range-translation layer - converts the model's abstract volatility
 multiplier into an actual price range in points. Computed empirical percentile calibration
