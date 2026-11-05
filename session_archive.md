@@ -4,6 +4,20 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-05 | ML Phase - Week 11 Day 4 | Score: 75% | Difficulty: 6-7/10 | ~1h30
+**Covered:** Literature features vs a fresh TOP3 reference (log power, log ATR, center_of_mass),
+benchmark rows built with `{'config': ..., **evaluate(...)}`. Parkinson (high/low) estimator is
+the day's winner: linear test MAE 0.3230 -> 0.3080, R2 0.587 -> 0.630, corr with power 0.81 -
+complements power, does not replace it. HAR (after fix): har_d small gain (0.3181 -> 0.3132).
+Macro flags (NFP/CPI from BLS dates, `macro_releases.csv`) showed no effect - which exposed
+that `xauusd_m5_et.csv` clock is fixed UTC-6, not ET (release spike at 07:30 winter / 06:30
+summer) -> training windows shifted vs live pipeline.
+**Problems / gaps:** HAR first built from the target ratio, and `log_har_*` still not logged.
+Read TOP3 vs all-9 MAE backwards. `day_of_week == 4` is Friday. Warm-up: list of dicts again,
+stale variable in W2.
+**Reinforce next:** dict comprehension reps; lower MAE = better, compute the diff first.
+
+---
 ## 2026-11-04 | ML Phase - Week 11 Day 3 | Score: 80% | Difficulty: 6/10 | ~1h30
 **Covered:** Start of the 3-day model-benchmark arc. Built a shared `evaluate()` harness
 (train/test MAE, R2, skill vs mean baseline) - reproduced production RF (test MAE 0.349).
