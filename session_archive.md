@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-06 | ML Phase - Week 11 Day 5 | Score: 80% | Difficulty: 5/10 | ~1h30
+**Covered:** Fixed the data clock - `xauusd_m5_et.csv` rewritten from fixed UTC-6 to real
+America/New_York (old file kept as backup); proof: release-day biggest bar now at 08:30.
+Rebuilt the whole pipeline in one cell. On correct data NFP/CPI days ~2x higher ratio,
+Thursday ~1.16x. Best: LinReg TOP3 + Parkinson + log_har_d + NFP/CPI/Thursday flags - test
+MAE 0.302, R2 0.627, skill 0.491 (RF same data 0.343). HAR w/m dilute har_d's small gain.
+LightGBM (default params) overfits: train MAE 0.219 vs test 0.344.
+**Problems / gaps:** Skipped ablation (3b) and final 3x2 table (3c). Skipped np.exp in 2a.
+Compared vs production in "pp" across different datasets (old vs new clock).
+**Reinforce next:** MAE diffs in target units; compare models on the same data only.
+
+---
 ## 2026-11-05 | ML Phase - Week 11 Day 4 | Score: 75% | Difficulty: 6-7/10 | ~1h30
 **Covered:** Literature features vs a fresh TOP3 reference (log power, log ATR, center_of_mass),
 benchmark rows built with `{'config': ..., **evaluate(...)}`. Parkinson (high/low) estimator is
