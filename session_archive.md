@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-09 | ML Phase - Week 12 Day 1 | Score: 75% | Difficulty: 8/10 | ~2h
+**Covered:** Garman-Klass + semivariance (RS-/RS+, 7:15-8:15) tested vs FINAL - add nothing
+(0.3020 vs 0.3031-0.3046). TimeSeriesSplit CV on FINAL: MAE 0.342 +/- 0.023 across 5 periods.
+Ablation: power, Parkinson, NFP, CPI carry it; ATR14 near zero but kept. Final LinReg (8 features)
+logged to MLflow (run d068c9f0...), new range constants k_p75 2138.64 / k_p90 3063.55; one-day
+check 10.1 pts predicted vs 8.0 real. Extended macro_releases.csv to Dec 2027.
+**Problems / gaps:** Session overloaded (2 estimators + CV + MLflow + calibration). Traps: two-hour
+mask with `|`, log(0) = -inf (one all-down day 2025-07-15, fixed with clip), iterating a DataFrame
+gives column names. Warm-up W1/W2: list of single-key dicts again (4th time).
+**Reinforce next:** `{k: v for ...}` vs `[{k: v} for ...]`; `.min() > 0` check before any log.
+
+---
 ## 2026-11-06 | ML Phase - Week 11 Day 5 | Score: 80% | Difficulty: 5/10 | ~1h30
 **Covered:** Fixed the data clock - `xauusd_m5_et.csv` rewritten from fixed UTC-6 to real
 America/New_York (old file kept as backup); proof: release-day biggest bar now at 08:30.
