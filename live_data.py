@@ -15,7 +15,7 @@ def get_recent_bars(symbol: str, interval: str) -> pd.DataFrame:
     response = requests.get('https://api.twelvedata.com/time_series', params = {
         'symbol': symbol,
         'interval': interval,
-        'outputsize': 100,
+        'outputsize': 500,
         'timezone': 'America/New_York',
         'apikey': API_KEY 
     })
@@ -63,6 +63,19 @@ def get_live_observation_features(data: pd.DataFrame) -> Tuple[dict, float]:
     
     Returns a dict of calculated features ready for predictions
     + ALSO latest close (as I need it for actual range predictions based on quantiles and range-per-point historical checks)
+    
+    Current set of features (updated 9.11.2026, as I've tested some more features)
+    [
+        'log_power_obs', 
+        'log_atr14_obs', 
+        'center_of_mass_mean_observation', 
+        'log_parkinson_obs', 
+        'log_har_d', 
+        'is_cpi',
+        'is_nfp',
+        'is_thursday'
+        ]
+    
     '''
     
     
@@ -89,6 +102,10 @@ def get_live_observation_features(data: pd.DataFrame) -> Tuple[dict, float]:
     # realized_power
     data['ret_1bar'] = data['close'].pct_change()
     data['abs_ret_1bar'] = data['ret_1bar'].abs()
+    
+    #parkinson volatility
+    data['parkinson_volatility'] = (np.log(data['high'] / data['low']) ** 2) / (4 * np.log(2))
+    
 
     # atr14 (Wilder ATR, 14-period) - M5 file has no atr14 column, built fresh here
     data['prev_close'] = data['close'].shift(1)
@@ -118,13 +135,15 @@ def get_live_observation_features(data: pd.DataFrame) -> Tuple[dict, float]:
 
     data['wtc_10'] = np.log(data['high'] / data['low']).rolling(10).sum() / data['realized_power_10']
 
+
+
+
     ##########
     prediction_window = data.loc[
     (data['hour'] == current_hour) & 
     (data['trade_date'] == current_date) &
     (data['minute'].between(0, 10))
     ]
-
 
     prediction_window_agg = prediction_window.groupby('trade_date').agg(
     realized_power_observation = ('abs_ret_1bar', 'sum'),
@@ -134,11 +153,50 @@ def get_live_observation_features(data: pd.DataFrame) -> Tuple[dict, float]:
     efficiency_ratio_10_observation = ('efficiency_ratio_10', 'mean'),
     wtc_10_observation = ('wtc_10', 'mean'),
     center_of_mass_mean_observation = ('center_of_mass', 'mean'),
-    atr_trend_observation = ('atr_trend', 'last')
+    atr_trend_observation = ('atr_trend', 'last'),
+    parkinson_obs = ('parkinson_volatility', 'sum')
     ).reset_index()
 
+    #
+    prediction_window_agg['log_parkinson_obs'] = np.log(prediction_window_agg['parkinson_obs'])
+    prediction_window_agg['log_atr14_obs'] = np.log(prediction_window_agg['atr14_mean_observation'])
+    prediction_window_agg['log_power_obs'] = np.log(prediction_window_agg['realized_power_observation'])
 
-    prediction_window_agg['day_of_week'] = current_date.weekday()
+
+    # świece z minut 15-59 bieżącej godziny, ale tylko z dni PRZED dzisiaj
+    prev_window = data.loc[
+        (data['hour'] == current_hour) &
+        (data['minute'] >= 15) &
+        (data['trade_date'] < current_date)
+    ]
+    prev_date = prev_window['trade_date'].max()     # najpóźniejszy z tych dni = poprzedni dzień handlowy
+    har_d_power = prev_window.loc[prev_window['trade_date'] == prev_date, 'abs_ret_1bar'].sum()
+    if har_d_power == 0:
+        raise RuntimeError(f'No previous-day bars for hour {current_hour} - cannot compute log_har_d')
+    prediction_window_agg['log_har_d'] = np.log(har_d_power)
+    
+    
+    ####added the news releases segment
+    
+    ###added the news releases segment, as it clearly shows a signal as well
+    news_releases = pd.read_csv('./macro_releases.csv')
+    news_releases['date'] = pd.to_datetime(news_releases['date'])
+
+    nfp_dates = news_releases.loc[news_releases['event'] == 'NFP', 'date']
+    cpi_dates = news_releases.loc[news_releases['event'] == 'CPI', 'date']
+    fomc_dates = news_releases.loc[news_releases['event'] == 'FOMC', 'date']
+
+    prediction_window_agg['trade_date'] = pd.to_datetime(prediction_window_agg['trade_date'])
+    prediction_window_agg['day_of_week'] = prediction_window_agg['trade_date'].dt.day_of_week
+    # releases (and Thursday jobless claims) are at 8:30 ET - the model learned their effect
+    # only for the 8:15-9:00 window, at other hours the effect is ~1.0x, so flags = 0 there
+    is_8am = int(current_hour == 8)
+    prediction_window_agg['is_nfp'] = prediction_window_agg['trade_date'].isin(nfp_dates).astype(int) * is_8am
+    prediction_window_agg['is_cpi'] = prediction_window_agg['trade_date'].isin(cpi_dates).astype(int) * is_8am
+    # FOMC: no dates in macro_releases.csv yet and not in the model - always 0 for now
+    prediction_window_agg['is_fomc'] = prediction_window_agg['trade_date'].isin(fomc_dates).astype(int)
+    prediction_window_agg['is_thursday'] = (prediction_window_agg['day_of_week'] == 3).astype(int) * is_8am
+
     prediction_window_agg = prediction_window_agg.drop(columns = 'trade_date')
     return prediction_window_agg.iloc[0].to_dict(), prediction_window['close'].iloc[-1]
 
