@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-10 | ML Phase - Week 12 Day 3 (interview prep) | Score: 70% | Difficulty: 6-7/10 | ~1h20
+**Covered:** Screening-call prep, Q1 (Python script pulling data from a REST API). Retry with
+exponential backoff - temporary (429, 5xx, timeouts) vs permanent (400, 401) failures. Wrote
+the STAR answer + 3 follow-ups (API failures, data correctness, scaling). Earlier the same day:
+new LinReg ported to the deploy repo, 429 from Render diagnosed, Worker retry added, backend
+moved to Google Cloud Run.
+**Problems / gaps:** Retry code used `except` with a status-code condition - status codes are
+not exceptions, so every response went to the success branch. `load_dotenv()` after
+`os.getenv`. 1b/1c skipped. Warm-up: one-dict shape right, but no `float()` on API strings.
+**Reinforce next:** `except` = exceptions only, status codes = `if`; check types of JSON values.
+
+---
 ## 2026-11-09 | ML Phase - Week 12 Day 1 | Score: 75% | Difficulty: 8/10 | ~2h
 **Covered:** Garman-Klass + semivariance (RS-/RS+, 7:15-8:15) tested vs FINAL - add nothing
 (0.3020 vs 0.3031-0.3046). TimeSeriesSplit CV on FINAL: MAE 0.342 +/- 0.023 across 5 periods.
