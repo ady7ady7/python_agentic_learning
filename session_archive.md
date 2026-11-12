@@ -4,6 +4,17 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-12 | ML Phase - Week 12 Day 4 (short) | Score: 80% | Difficulty: 3/10 | ~30 min
+**Covered:** Warm-up dict comprehensions on API-style string prices (float conversion, bar
+range, filtered dict). Gold's intraday volatility profile: M5 resampled to 1h OHLC (named agg),
+dropna, mean hourly range by hour - top 3 are 9 ET (13.91), 10 ET (13.81), 8 ET (12.75), i.e.
+US data releases + stock market open, which confirms the clock fix. Retry task left for later -
+already in place in the deploy project.
+**Problems / gaps:** W1 missing `float()` - dict holds strings '4081.20' (same gap as Day 3).
+W3 computes the range twice. No interpretation comment for Task 2.
+**Reinforce next:** convert API strings at the point of reading; retry in live_data.py (1a-1c).
+
+---
 ## 2026-11-10 | ML Phase - Week 12 Day 3 (interview prep) | Score: 70% | Difficulty: 6-7/10 | ~1h20
 **Covered:** Screening-call prep, Q1 (Python script pulling data from a REST API). Retry with
 exponential backoff - temporary (429, 5xx, timeouts) vs permanent (400, 401) failures. Wrote
