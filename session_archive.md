@@ -4,6 +4,20 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-13 | ML Phase - Week 12 Day 5 | Score: 72% | Difficulty: 5-6/10 | ~1h30
+**Covered:** Retry with backoff wired into live_data.get_recent_bars (get_with_retry, permanent
+errors returned at once, 429/5xx retried 2/4/8 s); wrong-key test returned HTTP 401 instantly.
+Week 11 + Week 12 quizzes (88/130 = 68%): retry classification 10/10, shift(1) leakage fix,
+feature_names_in_ ordering, hour-gated macro flags.
+**Problems / gaps:** Warm-up: W1 loop instead of comprehension + max() on strings; W3
+groupby-sum on string sizes concatenated ('251' instead of 8) and went unnoticed - string types
+from APIs, 3rd session in a row. Quiz: A3 picked the overfit model (test MAE decides), B2 missed
+same-rows comparison after dropna, Q4 missed column selection as the main BigQuery cost cut,
+Q6 named one clock-bug effect instead of two.
+**Reinforce next:** check dtypes before aggregating; ship by test/CV error; compare models only
+on identical rows; BigQuery cost = columns read.
+
+---
 ## 2026-11-12 | ML Phase - Week 12 Day 4 (short) | Score: 80% | Difficulty: 3/10 | ~30 min
 **Covered:** Warm-up dict comprehensions on API-style string prices (float conversion, bar
 range, filtered dict). Gold's intraday volatility profile: M5 resampled to 1h OHLC (named agg),

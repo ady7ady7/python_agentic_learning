@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import requests
+import time
 import pandas as pd
 import numpy as np
 
@@ -8,18 +9,25 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 from typing import List, Tuple
 
+
+
+RETRYABLE = {429, 500, 502, 503, 504}
+
 def get_recent_bars(symbol: str, interval: str) -> pd.DataFrame:
     load_dotenv()
     API_KEY = os.getenv('TWELVEDATA_API_KEY')
 
-    response = requests.get('https://api.twelvedata.com/time_series', params = {
-        'symbol': symbol,
-        'interval': interval,
-        'outputsize': 500,
-        'timezone': 'America/New_York',
-        'apikey': API_KEY 
-    })
-    
+    response = get_with_retry(url = 'https://api.twelvedata.com/time_series',
+                              params = 
+                              {
+                                    'symbol': symbol,
+                                    'interval': interval,
+                                    'outputsize': 500,
+                                    'timezone': 'America/New_York',
+                                    'apikey': API_KEY
+                               },
+                              max_attempts = 4 
+                              )
     if response.status_code != 200:
         raise RuntimeError(f'API Error: {response.status_code}: {response.text}')
 
@@ -30,6 +38,23 @@ def get_recent_bars(symbol: str, interval: str) -> pd.DataFrame:
     
     data = pd.DataFrame(data['values'])
     return data
+
+
+def get_with_retry(url, params, max_attempts=4):
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = requests.get(url, params=params, timeout=10)
+        except (requests.ConnectionError, requests.Timeout) as e:   # no response at all
+            if attempt == max_attempts:
+                raise RuntimeError(f'Network error after {max_attempts} attempts: {e}')
+        else:                                                        # we got a response
+            if response.status_code not in RETRYABLE:
+                return response          # 200, or a permanent error like 401 - caller decides
+            if attempt == max_attempts:
+                return response          # still 429/5xx after all attempts
+        time.sleep(2 ** attempt)         # 2, 4, 8 s
+
+
 
 def otf_streak(highs: List, lows: List) -> List:
     otf_streaks = [0] * len(highs)
