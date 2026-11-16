@@ -2,11 +2,13 @@ import mlflow
 import numpy as np
 import pandas as pd
 
-RUN_ID = 'd068c9f054b04563b8c0e8765ffef091'
+# RUN_ID = 'd068c9f054b04563b8c0e8765ffef091' #// runs:/{RUN_ID}/model
+CURRENT_MODEL = 'models:/xauusd_range_multiplier@champion'
 
 def load_model():
     mlflow.set_tracking_uri('sqlite:///mlflow.db')
-    return mlflow.sklearn.load_model(f'runs:/{RUN_ID}/model')
+    return mlflow.sklearn.load_model(CURRENT_MODEL)
+    # return mlflow.sklearn.load_model('runs:/{RUN_ID}/model')
 
 def predict_volatility(model, observation_features: dict) -> float:
     '''

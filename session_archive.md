@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-16 | ML Phase - Week 13 Day 1 | Score: 75% | Difficulty: 6/10 | ~1h
+**Covered:** MLflow Model Registry - run d068c9f0 registered as version 1 of
+`xauusd_range_multiplier`, alias `champion`, description + test_mae tag. Production loader now
+uses `models:/xauusd_range_multiplier@champion` instead of a hardcoded run ID; old and alias
+loads give an identical prediction (36.8507).
+**Problems / gaps:** Task 3a - thought swapping models means changing the alias in code; the
+point is the code never changes, you move the label (rollback = move it back). test_mae tag
+typed by hand as 0.32 (real 0.302) - exactly why it should be read from the run. Warm-up W3
+computed max-min price instead of size * price; no expected-type comments; W1 loop again.
+**Reinforce next:** alias = movable pointer, code stays fixed; read metrics programmatically.
+
+---
 ## 2026-11-13 | ML Phase - Week 12 Day 5 | Score: 72% | Difficulty: 5-6/10 | ~1h30
 **Covered:** Retry with backoff wired into live_data.get_recent_bars (get_with_retry, permanent
 errors returned at once, 429/5xx retried 2/4/8 s); wrong-key test returned HTTP 401 instantly.
