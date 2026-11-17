@@ -4,6 +4,19 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-17 | ML Phase - Week 13 Day 2 (short) | Score: 60% | Difficulty: 7/10 | ~45 min
+**Covered:** Alias mechanics on a toy registered model - promote (move `champion` to a newer
+version) and rollback (move it back), production function unchanged while its output changed
+(19.91 -> 32.89 -> 19.91 -> 149.91). Fixed the test_mae tag and description on
+`xauusd_range_multiplier` v1 (0.3019).
+**Problems / gaps:** Felt overloaded - second day of new MLflow API in a row; Task 2 reused
+the worked example instead of the 2b-2d twist, 2e answers missing. Tag value still typed by hand
+after reading it. Warm-up: W1 comprehension right (no loop), W2 filter reversed (> instead of <),
+no expected-type comments.
+**Reinforce next:** consolidate - no new MLflow calls tomorrow beyond log/register; alias = label
+on one version, code always loads @champion.
+
+---
 ## 2026-11-16 | ML Phase - Week 13 Day 1 | Score: 75% | Difficulty: 6/10 | ~1h
 **Covered:** MLflow Model Registry - run d068c9f0 registered as version 1 of
 `xauusd_range_multiplier`, alias `champion`, description + test_mae tag. Production loader now
