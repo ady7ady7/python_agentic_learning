@@ -4,6 +4,20 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-18 | ML Phase - Week 13 Day 3 | Score: 65% | Difficulty: 5/10 | ~1h30
+**Covered:** retrain.py - notebook feature pipeline moved into `build_training_table()` and
+`train_and_evaluate()` (chronological 80/20, baseline MAE, test period dates), runnable from the
+terminal. Full copy reproduced production exactly (1404 rows, MAE 0.30196); after cutting unused
+features the table keeps 22 more days (har_w/har_m NaNs no longer drop rows) -> test from
+2025-06-11, MAE 0.30033, R2 0.630. Final cleanup (unused columns, macro_path, vectorized
+is_thursday, dropna on FEATURES + TARGET only) done by me on request.
+**Problems / gaps:** First pass copied the whole notebook cell, no dependency trace; second pass
+not run before "should be ok" (KeyError). `macro_path` param ignored, is_thursday still apply.
+Warm-up: loop + min/max on strings again (4th session).
+**Reinforce next:** run the script before calling it done; same test rows for champion vs
+challenger.
+
+---
 ## 2026-11-17 | ML Phase - Week 13 Day 2 (short) | Score: 60% | Difficulty: 7/10 | ~45 min
 **Covered:** Alias mechanics on a toy registered model - promote (move `champion` to a newer
 version) and rollback (move it back), production function unchanged while its output changed
