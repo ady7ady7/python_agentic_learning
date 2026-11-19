@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 from typing import List
+import mlflow
 
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_absolute_error
@@ -102,27 +103,20 @@ def build_training_table(m5_path: str, macro_path: str) -> pd.DataFrame:
     return merged_df[['trade_date'] + FEATURES + [TARGET]].reset_index(drop = True)
 
 
-def train_and_evaluate(table: pd.DataFrame) -> tuple:
-    
+def split_table(table: pd.DataFrame) -> tuple:
     '''
-    This function obtains the DF, splits the data into train/test data (80/20, no shuffling, manual split here),
-    it trains LinearRegression(standard params) and then calculates model's performance
-    
-    It returns a tuple:
-    - model
-    - dict with n_rows(test data), first_date (test data), last_date, baseline_mae, test_mae, test_r2
-    
-    
+    Function used to split the table with features calculated into 
+    train/test dfs (80/20 split in a manual way, no time shuffle)
     '''
-    
     train = table[:int(0.8*(len(table)))]
     test = table[int(0.8*(len(table))):]
-    model = LinearRegression()
-    model.fit(train[FEATURES], train[TARGET])
-    
-    baseline_mae = np.full(len(test), train[TARGET].mean())
-    baseline_mae = mean_absolute_error(baseline_mae, test[TARGET])
-    
+    return train, test
+
+def score(model, test) -> dict:
+    '''
+    Function created to test any model on any test rows
+    Returns a dict with n_rows, first/last_date (from the test DF), test_mae and test_r2
+    '''
     n_rows = len(test)
     first_date = min(pd.to_datetime(test['trade_date']))
     last_date = max(pd.to_datetime(test['trade_date']))
@@ -137,10 +131,36 @@ def train_and_evaluate(table: pd.DataFrame) -> tuple:
         'n_rows': n_rows,
         'first_date': first_date,
         'last_date': last_date,
-        'baseline_mae': baseline_mae,
         'test_mae': test_mae,
         'test_r2': test_r2
     }
+    
+    return metrics
+
+
+
+def train_and_evaluate(table: pd.DataFrame) -> tuple:
+    
+    '''
+    This function obtains the DF, splits the data into train/test data (80/20, no shuffling, manual split here),
+    it trains LinearRegression(standard params) and then calculates model's performance
+    
+    It returns a tuple:
+    - model
+    - dict with n_rows(test data), first_date (test data), last_date, baseline_mae, test_mae, test_r2
+    
+    
+    '''
+    
+    train, test = split_table(table)
+    model = LinearRegression()
+    model.fit(train[FEATURES], train[TARGET])
+    
+    baseline_mae = np.full(len(test), train[TARGET].mean())
+    baseline_mae = mean_absolute_error(baseline_mae, test[TARGET])
+    
+    metrics = score(model, test)
+    metrics['baseline_mae'] = baseline_mae
     
     return model, metrics
 
@@ -148,6 +168,12 @@ def train_and_evaluate(table: pd.DataFrame) -> tuple:
 
 if __name__ == '__main__':
     df = build_training_table(m5_path = './xauusd_m5_et.csv', macro_path = './macro_releases.csv')
-    model, metrics = train_and_evaluate(df)
-    print(f'Model: {model}')
-    print(f'Metrics: {metrics}')
+    train, test = split_table(df)
+    mlflow.set_tracking_uri('sqlite:///mlflow.db')
+    model1 = mlflow.sklearn.load_model('models:/xauusd_range_multiplier@champion')
+    metrics1 = score(model1, test)
+    
+    
+    model2, metrics2 = train_and_evaluate(df)
+    print(f'Model1: {model1}, Model2: {model2}')
+    print(f'Metrics1: {metrics1}, Model2: {metrics2}')

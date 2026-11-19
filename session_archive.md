@@ -4,6 +4,17 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-19 | ML Phase - Week 13 Day 4 | Score: 70% | Difficulty: 8/10 (MLflow part) | ~1h15
+**Covered:** retrain.py refactored into `split_table`, `score` (any fitted model, any rows) and
+`train_and_evaluate` built from them; challenger numbers unchanged (MAE 0.30033). Champion loaded
+by alias and scored on the same 285 test rows: champion 0.30069 vs challenger 0.30033. Warm-up:
+two dicts with the same keys combined into a third (comprehension, no loops) - worked.
+**Problems / gaps:** MLflow logging + registering + alias in one task was overwhelming - run vs
+experiment vs registered model not clear yet. 2c/2d (rows the champion trained on), Task 3 and
+Task 4 not done. Warm-up rounding/sign details.
+**Reinforce next:** MLflow from zero in small slices with the UI; 2c/2d fair-rows filter.
+
+---
 ## 2026-11-18 | ML Phase - Week 13 Day 3 | Score: 65% | Difficulty: 5/10 | ~1h30
 **Covered:** retrain.py - notebook feature pipeline moved into `build_training_table()` and
 `train_and_evaluate()` (chronological 80/20, baseline MAE, test period dates), runnable from the
