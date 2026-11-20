@@ -169,11 +169,16 @@ def train_and_evaluate(table: pd.DataFrame) -> tuple:
 if __name__ == '__main__':
     df = build_training_table(m5_path = './xauusd_m5_et.csv', macro_path = './macro_releases.csv')
     train, test = split_table(df)
+    fair_test = test.loc[test['trade_date'] >= pd.to_datetime('2025-06-17')]
+    print(fair_test)
+
     mlflow.set_tracking_uri('sqlite:///mlflow.db')
     model1 = mlflow.sklearn.load_model('models:/xauusd_range_multiplier@champion')
     metrics1 = score(model1, test)
+    fair_metrics = score(model1, fair_test)
     
     
     model2, metrics2 = train_and_evaluate(df)
     print(f'Model1: {model1}, Model2: {model2}')
+    print(f'Model1 fair test: {fair_metrics}')
     print(f'Metrics1: {metrics1}, Model2: {metrics2}')

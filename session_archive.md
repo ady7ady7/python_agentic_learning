@@ -4,6 +4,20 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-20 | ML Phase - Week 13 Day 5 | Score: 72% | Difficulty: 3-4/10 | ~45 min
+**Covered:** MLflow step 1 by clicking in the UI only - experiments, the production run, the
+registered model `xauusd_range_multiplier` v1 with `champion`, linked back to its source run
+(same test_mae 0.30196). Saw that deleting a registered model leaves its runs in place. `fair_test`
+(test rows from 2025-06-17) built in retrain.py, champion scored on it: 0.30196 on 281 rows.
+Warm-up: dicts from two lists, close-open, up days only - correct values.
+**Problems / gaps:** challenger not scored on `fair_test`, so no side-by-side comparison; 1a count
+was 5 instead of 4 (`<=` vs `<`) and not done in code. Promotion rule written
+without an explicit margin vs the 0.023 noise (he had it in mind). Warm-up without
+type comments; W3 recomputed W2 instead of filtering it, and overwrote `days_ranges`.
+**Reinforce next:** promotion rule = beat the champion by more than the noise; keep exploring MLflow
+in the UI after each new step (he likes it); next slice - log the challenger as a run.
+
+---
 ## 2026-11-19 | ML Phase - Week 13 Day 4 | Score: 70% | Difficulty: 8/10 (MLflow part) | ~1h15
 **Covered:** retrain.py refactored into `split_table`, `score` (any fitted model, any rows) and
 `train_and_evaluate` built from them; challenger numbers unchanged (MAE 0.30033). Champion loaded
