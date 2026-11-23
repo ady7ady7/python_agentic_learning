@@ -4,6 +4,20 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-23 | ML Phase - Week 14 Day 1 | Score: 65% | Difficulty: 8/10 | ~1h
+**Covered:** `fair_rows(test, cutoff)` + `CHAMPION_TRAIN_END` in retrain.py; both models on the same
+281 fair rows: champion 0.30196 vs challenger 0.30163. First run logged from code
+(`start_run` + `log_params` / `log_metrics` / `log_model`) into xauusd_volatility_windows, found
+and compared with the production run in the UI. Warm-up: groupby Series + `.items()`, named agg.
+**Problems / gaps:** expected `log_model(name='xauusd_range_multiplier')` to create version 2 -
+`name` is only the artifact folder inside the run; registering is a separate call. Metrics
+hardcoded (0.3016) instead of taken from the fair `score()` dict; dates logged from the 285-row
+test, not the fair rows; features as a list, not a string; `set_experiment` before
+`set_tracking_uri`. Script run 3 times = 3 runs. Iterating a DataFrame gives column names.
+**Reinforce next:** run vs logged model vs registered model - which call writes where; repeat the
+logging from scratch, then `register_model` as the only new step.
+
+---
 ## 2026-11-20 | ML Phase - Week 13 Day 5 | Score: 72% | Difficulty: 3-4/10 | ~45 min
 **Covered:** MLflow step 1 by clicking in the UI only - experiments, the production run, the
 registered model `xauusd_range_multiplier` v1 with `champion`, linked back to its source run
@@ -16,6 +30,10 @@ without an explicit margin vs the 0.023 noise (he had it in mind). Warm-up witho
 type comments; W3 recomputed W2 instead of filtering it, and overwrote `days_ranges`.
 **Reinforce next:** promotion rule = beat the champion by more than the noise; keep exploring MLflow
 in the UI after each new step (he likes it); next slice - log the challenger as a run.
+**Weekend quiz W13:** 57/70 (~81%, ~20 min). Strong: rollback by alias, run vs version, split/score
+reuse, string sum. Gaps: Q1 missing log -> register -> alias steps (and editing the predict file is
+the thing aliases avoid); Q5 called it leakage - the real problem is different rows = different
+difficulty, not comparable.
 
 ---
 ## 2026-11-19 | ML Phase - Week 13 Day 4 | Score: 70% | Difficulty: 8/10 (MLflow part) | ~1h15
