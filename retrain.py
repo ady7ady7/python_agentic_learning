@@ -177,22 +177,47 @@ if __name__ == '__main__':
     fair_test = fair_rows(test, cutoff = CHAMPION_TRAIN_END)
     print(fair_test)
 
-    mlflow.set_experiment('xauusd_volatility_windows')
-    mlflow.set_tracking_uri('sqlite:///mlflow.db')
-    model1 = mlflow.sklearn.load_model('models:/xauusd_range_multiplier@champion')
-    metrics1 = score(model1, fair_test)
-    fair_metrics = score(model1, fair_test)
+
+
+    
+    
+    # model1 = mlflow.sklearn.load_model('models:/xauusd_range_multiplier@champion')
+    # metrics1 = score(model1, fair_test)
+    # fair_metrics = score(model1, fair_test)
     model2, metrics2 = train_and_evaluate(df)
     model2_fair_metrics = score(model2, fair_test)
     
-    print(f'Model1: {model1}, Model2: {model2}')
-    print(f'Model1 fair test: {fair_metrics}')
+    mlflow.set_tracking_uri('sqlite:///mlflow.db') #najpierw tracking bazy - tu lokalny sqlite
+    mlflow.set_experiment('xauusd_volatility_windows') #potem dopiero uruchamiamy dany eksperyment
+    with mlflow.start_run(run_name = 'w14d2run') as run: #uruchamiamy run z nazwą i jest to obiekt też
+        mlflow.log_params({'features': ','.join(FEATURES),
+                            'first_date': model2_fair_metrics['first_date'],
+                            'last_date': model2_fair_metrics['last_date']
+                            }) #do runa przypisujemy featuresy nasze
+        mlflow.log_metrics({
+                            'baseline_mae': metrics2['baseline_mae'],
+                            'test_mae': model2_fair_metrics['test_mae'], #i metryki po kolei
+                            'test_r2': model2_fair_metrics['test_r2'],
+                            'n_rows': model2_fair_metrics['n_rows']
+                            })
+        mlflow.sklearn.log_model(model2, name = 'model') #loguje teraz ten model użyty w runie
+        run_id = run.info.run_id #biore id runu
+
+        
+    mv = mlflow.register_model(f'runs:/{run_id}/model', 'xauusd_range_multiplier')
+    print(mv.version)
+    client = mlflow.MlflowClient()
+    client.set_registered_model_alias('xauusd_range_multiplier', 'challenger', mv.version) 
+    
+    models = client.search_registered_models()
+
+    for model in models:
+        print(f"Nazwa: {model.name}, Opis: {model.description}")
+        
+    
+    # print(f'Model1: {model1}, Model2: {model2}')
+    print(f'Model2: {model2}')
+
+    # print(f'Model1 fair test: {fair_metrics}')
     print(f'Model2 fair test: {model2_fair_metrics}')
 
-
-    with mlflow.start_run(run_name = 'w14d1_retrain_challenger') as run:
-        mlflow.log_params({'model': 'LinearRegression', 'features': FEATURES, 'first_date': metrics2['first_date'], 'last_date': metrics2['last_date']})
-        mlflow.log_metrics({'test_mae': 0.3016, 'test_r2': 0.627, 'baseline_mae': 0.5901080463353998})
-        mlflow.sklearn.log_model(model2, name = 'xauusd_range_multiplier')
-        print(run.info.run_id)  #6f868284be8a44b2bd8f9cfc01db0dbd
-        

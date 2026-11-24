@@ -4,6 +4,19 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-24 | ML Phase - Week 14 Day 2 | Score: 70% | Difficulty: 7/10 | ~1h
+**Covered:** challenger logged again from scratch in retrain.py: tracking URI before experiment,
+features as one string, fair dates as params, metrics taken from the score dicts (nothing typed by
+hand), `log_model(name='model')`. First `register_model` + `challenger` alias from the script.
+Old w14d1 runs deleted in the UI. Warm-up: groupby sum, dict comprehension over `.items()`, named agg.
+**Problems / gaps:** `runs/` without the colon registered 4 versions pointing at nothing; alias call
+got the ModelVersion object instead of the name; dates first put into metrics. While cleaning the
+UI the whole registered model was deleted, champion included - `@champion` no longer exists, the
+local predict script cannot load. Warm-up W3: count of wins, not the share (`mean`). 3c/3d unanswered.
+**Reinforce next:** restore the champion from run d068c9f0 (register + alias = repetition); clean up
+leftover w14d2 / failed runs; still needs the map open - more repetition before the promotion rule.
+
+---
 ## 2026-11-23 | ML Phase - Week 14 Day 1 | Score: 65% | Difficulty: 8/10 | ~1h
 **Covered:** `fair_rows(test, cutoff)` + `CHAMPION_TRAIN_END` in retrain.py; both models on the same
 281 fair rows: champion 0.30196 vs challenger 0.30163. First run logged from code
