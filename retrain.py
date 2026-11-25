@@ -171,53 +171,91 @@ def fair_rows(test, cutoff) -> pd.DataFrame:
     fair_rows = test.loc[test['trade_date'] >= pd.to_datetime(cutoff)]
     return fair_rows
 
+def should_promote(champion_metrics: dict, challenger_metrics: dict, margin: float = 0.02) -> bool:
+    '''Func used to check whether the current challenger model should be promoted to champion
+    
+    There is a margin set at 0.02 to avoid promoting the challenger if the improvements
+    are too marginal :)).
+    '''
+    if (champion_metrics['n_rows'] != challenger_metrics['n_rows']) | (champion_metrics['first_date'] != challenger_metrics['first_date']):
+        raise ValueError('The n_rows or first_date rows differ between champion/challenger. Make sure to use fair rows!')
+    else:
+        if (
+            champion_metrics['test_mae'] - challenger_metrics['test_mae'] > margin #mae at least lower by margin
+            ) & (
+            champion_metrics['test_r2'] - challenger_metrics['test_r2'] <= 0 #r2 not worse
+            ) :
+            return True
+        else:
+            return False
+
+
 if __name__ == '__main__':
     df = build_training_table(m5_path = './xauusd_m5_et.csv', macro_path = './macro_releases.csv')
     train, test = split_table(df)
     fair_test = fair_rows(test, cutoff = CHAMPION_TRAIN_END)
     print(fair_test)
 
-
-
     
+    model1 = mlflow.sklearn.load_model('models:/xauusd_range_multiplier@champion')
+    metrics1 = score(model1, fair_test)
     
-    # model1 = mlflow.sklearn.load_model('models:/xauusd_range_multiplier@champion')
-    # metrics1 = score(model1, fair_test)
-    # fair_metrics = score(model1, fair_test)
     model2, metrics2 = train_and_evaluate(df)
     model2_fair_metrics = score(model2, fair_test)
     
-    mlflow.set_tracking_uri('sqlite:///mlflow.db') #najpierw tracking bazy - tu lokalny sqlite
-    mlflow.set_experiment('xauusd_volatility_windows') #potem dopiero uruchamiamy dany eksperyment
-    with mlflow.start_run(run_name = 'w14d2run') as run: #uruchamiamy run z nazwą i jest to obiekt też
-        mlflow.log_params({'features': ','.join(FEATURES),
-                            'first_date': model2_fair_metrics['first_date'],
-                            'last_date': model2_fair_metrics['last_date']
-                            }) #do runa przypisujemy featuresy nasze
-        mlflow.log_metrics({
-                            'baseline_mae': metrics2['baseline_mae'],
-                            'test_mae': model2_fair_metrics['test_mae'], #i metryki po kolei
-                            'test_r2': model2_fair_metrics['test_r2'],
-                            'n_rows': model2_fair_metrics['n_rows']
-                            })
-        mlflow.sklearn.log_model(model2, name = 'model') #loguje teraz ten model użyty w runie
-        run_id = run.info.run_id #biore id runu
+    promotion_check = should_promote(metrics1, model2_fair_metrics)
+    
+    import datetime, time
+    dict_check1 = {'n_rows': 281, 
+                   'first_date': pd.to_datetime('2025-06-17 00:00:00'), 
+                   'last_date': pd.to_datetime('2026-07-17 00:00:00'), 
+                   'test_mae': 0.2619599803828053, 
+                   'test_r2': 0.6268796434121995}
+    
+    dict_check2 = {'n_rows': 275, 
+                'first_date': pd.to_datetime('2025-06-17 00:00:00'), 
+                'last_date': pd.to_datetime('2026-07-17 00:00:00'), 
+                'test_mae': 0.3019599803828053, 
+                'test_r2': 0.6268796434121995}
+    
+    print(should_promote(metrics1, dict_check1)) #test with better mae above margin
+    print(should_promote(metrics1, dict_check2)) #test with lower n_rows
+    
+# - 4c. Test with two made-up dicts where it should return `True`, and one with different
+#   `n_rows` that should raise.
+    
+    # mlflow.set_tracking_uri('sqlite:///mlflow.db') #najpierw tracking bazy - tu lokalny sqlite
+    # mlflow.set_experiment('xauusd_volatility_windows') #potem dopiero uruchamiamy dany eksperyment
+    # with mlflow.start_run(run_name = 'w14d2run') as run: #uruchamiamy run z nazwą i jest to obiekt też
+    #     mlflow.log_params({'features': ','.join(FEATURES),
+    #                         'first_date': model2_fair_metrics['first_date'],
+    #                         'last_date': model2_fair_metrics['last_date']
+    #                         }) #do runa przypisujemy featuresy nasze
+    #     mlflow.log_metrics({
+    #                         'baseline_mae': metrics2['baseline_mae'],
+    #                         'test_mae': model2_fair_metrics['test_mae'], #i metryki po kolei
+    #                         'test_r2': model2_fair_metrics['test_r2'],
+    #                         'n_rows': model2_fair_metrics['n_rows']
+    #                         })
+    #     mlflow.sklearn.log_model(model2, name = 'model') #loguje teraz ten model użyty w runie
+    #     run_id = run.info.run_id #biore id runu
 
         
-    mv = mlflow.register_model(f'runs:/{run_id}/model', 'xauusd_range_multiplier')
-    print(mv.version)
-    client = mlflow.MlflowClient()
-    client.set_registered_model_alias('xauusd_range_multiplier', 'challenger', mv.version) 
+    # mv = mlflow.register_model(f'runs:/{run_id}/model', 'xauusd_range_multiplier')
+    # print(mv.version)
+    # client = mlflow.MlflowClient()
+    # client.set_registered_model_alias('xauusd_range_multiplier', 'challenger', mv.version) 
     
-    models = client.search_registered_models()
+    # models = client.search_registered_models()
 
-    for model in models:
-        print(f"Nazwa: {model.name}, Opis: {model.description}")
+    # for model in models:
+    #     print(f"Nazwa: {model.name}, Opis: {model.description}")
         
     
-    # print(f'Model1: {model1}, Model2: {model2}')
+    print(f'Model1: {model1}, Model2: {model2}')
     print(f'Model2: {model2}')
 
-    # print(f'Model1 fair test: {fair_metrics}')
+    print(f'Model1 fair test: {metrics1}')
     print(f'Model2 fair test: {model2_fair_metrics}')
+    print(f'The current challenger should be promoted: {promotion_check}')
 

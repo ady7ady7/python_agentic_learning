@@ -4,6 +4,18 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-25 | ML Phase - Week 14 Day 3 | Score: 85% | Difficulty: 5/10 | ~1h
+**Covered:** champion restored from production run d068c9f0 in a notebook cell: `register_model`
+-> v2, `champion` alias on it, `load_model()` works again. Registry now: v1 challenger, v2 champion.
+Leftover w14d2 / failed runs deleted in the UI. `should_promote()` in retrain.py: raises ValueError
+when the rows differ, promotes only if MAE better by more than margin (0.02) and R2 not worse -
+False on the real numbers, True / raise on made-up dicts. Warm-up: named agg + share via mean.
+**Problems / gaps:** warm-up W3 iterated the DataFrame again (column names) - needed the hint;
+`|` / `&` on plain bools instead of `or` / `and`; no `set_tracking_uri` before load in `__main__`.
+**Reinforce next:** Friday - wire `should_promote` to register/alias in retrain.py; DataFrame
+iteration trap one more time in the warm-up.
+
+---
 ## 2026-11-24 | ML Phase - Week 14 Day 2 | Score: 70% | Difficulty: 7/10 | ~1h
 **Covered:** challenger logged again from scratch in retrain.py: tracking URI before experiment,
 features as one string, fair dates as params, metrics taken from the score dicts (nothing typed by
