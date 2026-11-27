@@ -1,1 +1,1 @@
-Note: Week 14 Day 4 complete. Task 3 (make Twelve Data bars match the CSV, extended file) moves to Day 5.
+Note: Week 14 Day 5 complete. Next session tasks will be written here.

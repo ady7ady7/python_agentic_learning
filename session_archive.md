@@ -4,6 +4,21 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-27 | ML Phase - Week 14 Day 5 | Score: 75% | Difficulty: 5/10 | ~1h
+**Covered:** decision: training data stays on the Dukascopy CSV, live runs on Twelve Data - treated
+as an out-of-sample experiment, noted in a docstring in retrain.py. `__main__` wired end to end:
+champion by alias + challenger, both on fair rows -> `should_promote` -> run logged -> registered
+(v3) + `challenger` alias -> `champion` moves only on True. Real run: False, champion stayed on v2.
+True branch tested with margin=-1 (v4 got both aliases), then rolled back: champion -> v2,
+checked in the UI. Warm-up: string 'True'/'False' compared as strings, groupby mean.
+**Problems / gaps:** `log_model` folder name didn't match `runs:/.../model` (fixed after the error);
+no `MARGIN` constant, decision not logged in params, no single summary print; `set_tracking_uri`
+still after `load_model`; 1a/1b and 2b (coef check) skipped; docstring placed after the imports -
+not a module docstring; warm-up W1 kept the mae as strings.
+**Reinforce next:** weekend quiz W14; next week - clean up retrain.py `__main__` into a function,
+decision into the run, then the next track (export champion to the deploy repo / live error check).
+
+---
 ## 2026-11-26 | ML Phase - Week 14 Day 4 | Score: 70% | Difficulty: 6/10 | ~1h30
 **Covered:** `get_history(symbol, start, end)` in live_data.py - 14-day chunks with
 `pd.date_range` + `union([end])`, loop over pairs with `zip(dates[:-1], dates[1:])`, error checks,
