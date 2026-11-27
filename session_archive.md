@@ -4,6 +4,22 @@
 <!-- Format: date | score | difficulty | 5–10 lines max per entry -->
 
 ---
+## 2026-11-26 | ML Phase - Week 14 Day 4 | Score: 70% | Difficulty: 6/10 | ~1h30
+**Covered:** `get_history(symbol, start, end)` in live_data.py - 14-day chunks with
+`pd.date_range` + `union([end])`, loop over pairs with `zip(dates[:-1], dates[1:])`, error checks,
+sleep for the rate limit, concat, dedupe, sort, floats. Overlap check Twelve Data vs CSV on
+07-15..07-17: merged on time, OHLC differences described, power in 8:15-9:00 per day compared.
+Warm-up: DataFrame iteration trap predicted correctly, `set_index` + filter + `.items()` / `.to_dict()`.
+**Problems / gaps:** `.dt.date` (object) compared with Timestamp - fixed with `.dt.normalize()`.
+2c only half done: power per bar as (close-open)/open instead of `close.pct_change()` (the model's
+definition), and only the 8:15-9:00 window - not the target ratio. "Differences not big" without a
+yardstick: 0.0082 vs 0.0103 is ~0.2 in log terms vs model MAE 0.30. Abs diff hides the TD bias.
+`end=dt.date.today()` as default is evaluated once at import. concat inside the loop instead of a list.
+Full fetch (1d) and Task 3 not done - moved to tomorrow, done methodically with guiding questions.
+**Reinforce next:** compare a difference against a yardstick (model error); data merge checklist
+(coverage, hours, duplicates, schema, overlap) before concat.
+
+---
 ## 2026-11-25 | ML Phase - Week 14 Day 3 | Score: 85% | Difficulty: 5/10 | ~1h
 **Covered:** champion restored from production run d068c9f0 in a notebook cell: `register_model`
 -> v2, `champion` alias on it, `load_model()` works again. Registry now: v1 challenger, v2 champion.

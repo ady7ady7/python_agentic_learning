@@ -12,10 +12,11 @@ from typing import List, Tuple
 
 
 RETRYABLE = {429, 500, 502, 503, 504}
+load_dotenv()
+API_KEY = os.getenv('TWELVEDATA_API_KEY')
+
 
 def get_recent_bars(symbol: str, interval: str) -> pd.DataFrame:
-    load_dotenv()
-    API_KEY = os.getenv('TWELVEDATA_API_KEY')
 
     response = get_with_retry(url = 'https://api.twelvedata.com/time_series',
                               params = 
@@ -38,6 +39,59 @@ def get_recent_bars(symbol: str, interval: str) -> pd.DataFrame:
     
     data = pd.DataFrame(data['values'])
     return data
+
+
+def get_history(symbol, start, end = dt.date.today()) -> pd.DataFrame:
+    '''Func used to grab history from free TwelveData API
+    
+    It's designed to fetch a few months of data with 5m candles,
+    so it needed some changes with data chunking + waiting to handle it on free tier API
+    '''
+
+    date_chunks = pd.date_range(start, end, freq = '14D')
+    date_chunks = date_chunks.union([pd.Timestamp(end)])
+    
+    df1 = pd.DataFrame()
+    df2 = pd.DataFrame()
+    
+    for chunk_start, chunk_end in zip(date_chunks[:-1], date_chunks[1:]):
+        response = get_with_retry(url = 'https://api.twelvedata.com/time_series',
+                             params = {
+                                    'symbol': symbol,
+                                    'interval': '5min',
+                                    'start_date': chunk_start,
+                                    'end_date': chunk_end,
+                                    'outputsize': 5000,
+                                    'timezone': 'America/New_York',
+                                    'apikey': API_KEY
+                               }
+                             )
+        
+        if response.status_code != 200:
+            raise RuntimeError(f'API Error: {response.status_code}: {response.text}')
+
+        data = response.json()
+
+        if data.get('status') == 'error':
+            raise RuntimeError(f'Twelve Data API error: {data.get('message')}')
+    
+        df1 = pd.DataFrame(data['values'])
+        df2 = pd.concat([df1, df2])
+        time.sleep(8)
+        
+    
+    
+    df2 = df2.drop_duplicates()
+    df2['datetime'] = pd.to_datetime(df2['datetime'])
+    df2 = df2.sort_values(by = 'datetime')
+    df2['open'] = df2['open'].astype(float)
+    df2['high'] = df2['high'].astype(float)
+    df2['low'] = df2['low'].astype(float)
+    df2['close'] = df2['close'].astype(float)
+    return df2
+        
+        
+
 
 
 def get_with_retry(url, params, max_attempts=4):
